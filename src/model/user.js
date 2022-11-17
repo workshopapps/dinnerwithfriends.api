@@ -4,18 +4,18 @@ const mongoose = require("mongoose");
 
 const UserSchema = new mongoose.Schema(
     {
-        username: {
+        goggleId: {
             type: String,
             trim: true,
-            required: [true, "Username is required"],
+            required: false,
         },
-        // signup_type : {
-        //     type :  String,
-        //     trim : true,
-        //     enum : ["email", "third-party"],
-        //     default : "email",
-        //     required : true
-        // },
+        signup_type : {
+            type :  String,
+            trim : true,
+            enum : ["email", "third-party"],
+            default : "email",
+            required : true
+        },
         email: {
             type: String,
             trim: true,
