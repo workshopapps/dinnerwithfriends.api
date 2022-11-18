@@ -36,32 +36,15 @@ const signup = asyncHandler(async (req, res, next) => {
     return services.createSendToken({}, 'error', message, res);
   }
 
-  const newUser = User({
+  const userData = {
     name,
     email,
     password,
-  });
-  console.log(newUser);
-  // res.send('hello')
-  //Hash Passoword
-  bcrypt.genSalt(10, (err, salt) =>
-    bcrypt.hash(newUser.password, salt, (err, hash) => {
-      if (err) throw err;
-      newUser.password = hash;
-      console.log(hash);
-      newUser
-        .save()
-        .then((user) => {
-          res.json({ status: 'success', data: newUser });
-        })
+  };
 
-        .catch((err) => {
-          console.log(err);
-          throw new AppError(err);
-        });
-    })
-  );
-  // return services.createSendToken(user, 'success', message, res);
+  const user = await new User(userData).save();
+  const message = 'Account created successfully';
+  return services.createSendToken(user, 'success', message, res);
 });
 
 const signin = asyncHandler(async (req, res, next) => {
@@ -81,63 +64,84 @@ const signin = asyncHandler(async (req, res, next) => {
         'Password has to start with a letter, can contain numbers, must be at least 8 characters, and no more than 30 characters. No spaces and special characters allowed';
   }
 
-  try {
-    const user = await User.findOne({ email: email });
+  const user = await User.findOne({ email: email });
 
-    if (!user) {
-      throw new AppError('This email is not registered', 422);
-    }
-
-    const match = await bcrypt.compare(password, user.password);
-
-
-    if (match === false) {
-      throw new AppError('Incorrect password', 422);
-    }
-
-    const payload = {
-      id: user.id,
-      email: user.email,
-    };
-    console.log('hello');
-
-    const token = await generateJWTToken(payload, process.env.JWT_SECRET, '1d');
-    console.log('hello');
-    const refreshToken = await generateJWTToken(
-      payload,
-      process.env.REFRESH_TOKEN_SECRET,
-      '2d'
-    );
-
-    console.log(token, refreshToken);
-    user.refreshToken = refreshToken;
-    const result = await user.save();
-
-    // // Creates Secure Cookie with refresh token
-    res.cookie('jwt', refreshToken, {
-      httpOnly: true,
-      // secure: true,
-      // sameSite: "None",
-      maxAge: 24 * 60 * 60 * 1000,
-    });
-
-    return res.status(200).send({
-      success: true,
-      message: 'Logged in successfully',
-      user: {
-        name: user.name,
-        id: user._id,
-        email: user.email,
-      },
-      accessToken: token,
-    });
-
-  } catch (error) {
-    throw error;
+  if (!user) {
+    throw next(new AppError('This email is not registered', 422));
   }
+
+  const isPasswordCorrect = await user.comparePassword;
+  if (!isPasswordCorrect) {
+    throw next(new AppError('Incorrect password', 422));
+  }
+
+  const payload = {
+    id: user.id,
+    email: user.email,
+  };
+
+  const token = await generateJWTToken(payload, process.env.JWT_SECRET, '1d');
+
+  const refreshToken = await generateJWTToken(
+    payload,
+    process.env.REFRESH_TOKEN_SECRET,
+    '2d'
+  );
+
+  console.log(token, refreshToken);
+  user.refreshToken = refreshToken;
+  const result = await user.save();
+
+  // // Creates Secure Cookie with refresh token
+  res.cookie('jwt', refreshToken, {
+    httpOnly: true,
+
+    maxAge: 24 * 60 * 60 * 1000,
+  });
+
+  return res.status(200).send({
+    success: true,
+    message: 'Logged in successfully',
+    user: {
+      name: user.name,
+      id: user._id,
+      email: user.email,
+    },
+    accessToken: token,
+  });
+});
+
+const handleRefreshToken = asyncHandler(async (req, res, next) => {
+  const cookies = req.cookies;
+  console.log('hello');
+  console.log(cookies);
+  if (!cookies?.jwt) throw new next(AppError('No refresh token found', 401));
+
+  const refreshToken = cookies.jwt;
+
+  const foundUser = await User.findOne({ refreshToken }).exec();
+  // console.log(foundUser);
+  if (!foundUser) return res.sendStatus(403); //Forbidden
+  // evaluate jwt
+  //    console.log(process.env.REFRESH_TOKEN_SECRET);
+  jwt.verify(refreshToken, process.env.REFRESH_TOKEN_SECRET, (err, decoded) => {
+    console.log(decoded);
+    console.log(foundUser);
+    if (err || foundUser.email !== decoded.email)
+      throw next(new AppError('user does not match', 403));
+    const payload = {
+      id: foundUser._id,
+      email: foundUser.email,
+    };
+    const accessToken = jwt.sign({ ...payload }, process.env.JWT_SECRET, {
+      expiresIn: '20s',
+    });
+    res.json({ accessToken });
+  });
 });
 
 module.exports = {
   signup,
   signin,
+  handleRefreshToken,
 };

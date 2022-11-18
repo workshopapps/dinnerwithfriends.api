@@ -6,8 +6,9 @@ const router = express.Router();
 
 router.post('/signup', authControllers.signup);
 router.post('/signin', authControllers.signin);
-router.get('/protected', ensureAuthenticated, (req, res, next) => {
-  res.send('hello');
-});
+router.get('/refresh', authControllers.handleRefreshToken);
+// router.get('/protected', ensureAuthenticated, (req, res, next) => {
+//   res.send('hello');
+// });
 
 module.exports = router;
