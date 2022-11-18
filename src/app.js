@@ -4,6 +4,7 @@ const helmet = require('helmet');
 const morgan = require('morgan');
 const xss = require('xss-clean');
 //const {v1} = require('./routes/index');
+const v1 = require('./routes');
 const { baseRouter } = require('./routes/v1/index');
 const { globalErrorHandler } = require('./controllers');
 
