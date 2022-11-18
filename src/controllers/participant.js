@@ -15,9 +15,9 @@ const addParticipant = asyncHandler(async (req, res, next) => {
             prefered_date_time
         }
 
-        const event = await new Event(participantData).save();
+        const participant = await new Participant(participantData).save();
         const message = 'Participant added successfully';
-        return services.newParticipantToken(event, 'success', message, res);
+        return services.newParticipantToken(participant, 'success', message, res);
   });
 
   module.exports = {
