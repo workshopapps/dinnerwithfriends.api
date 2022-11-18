@@ -1,7 +1,9 @@
 const baseRouter = require('./base');
-const authRouter = require("./auth")
+const authRouter = require("./auth");
+const eventRouter = require("./event");
 
 module.exports = {
   baseRouter,
-  authRouter
+  authRouter,
+  eventRouter
 };
