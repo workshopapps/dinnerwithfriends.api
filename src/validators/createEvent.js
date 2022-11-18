@@ -1,30 +1,37 @@
 const Joi = require('joi');
 
 const createEventSchema = Joi.object({
-    title: Joi.string()
+    event_title: Joi.string()
         .pattern(/^[A-Za-z][A-Za-z ]{2,30}$/)
+        .trim()
         .min(3)
         .max(150)
         .required(),
 
-    description: Joi.string()
+    event_description: Joi.string()
         .pattern(/^[A-Za-z][A-Za-z ]{2,30}$/)
+        .trim()
         .min(3)
         .required(),
 
     location: Joi.string()
         .pattern(/^[A-Za-z][A-Za-z ]{2,30}$/)
+        .trim()
+        .required()
         .min(3),
 
     user_id: Joi.required(),
 
-    participant_id: Joi.object(),
+    start_date: Joi.string().trim().required(),
 
-    time_slots: Joi.object(),
+    end_date: Joi.string().trim().required(),
 
-    start_time: Joi.date().required(),
+    host_prefered_time: Joi.string().required().trim(),
 
-    end_time: Joi.date().required(),
+    participant_number: Joi.number().required(),
+
+    event_type: Joi.string().trim().required(),
+
 });
 
 module.exports = createEventSchema;

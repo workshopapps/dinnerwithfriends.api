@@ -3,11 +3,19 @@ const { eventControllers } = require('../../controllers');
 
 const router = express.Router();
 
-router.get('/', eventControllers.getAllEvents);
-router.post('/add', eventControllers.addEvent);
-router.get('/single/:event_id', eventControllers.getSingleEvent);
-router.delete('/delete/:event_id', eventControllers.deleteEvent);
-router.patch('/update/:event_id', eventControllers.updateEvent);
+router
+  .route('/')
+  .get(eventControllers.getAllEvents)
+  .post(eventControllers.addEvent);
+
+router
+  .route('/:id')
+  .get(eventControllers.getSingleEvent)
+  .delete(eventControllers.deleteEvent)
+  .patch(eventControllers.updateEvent);
+
+router
+  .route('/token/:id')
+  .get(eventControllers.getSingleEventByToken)
 
 module.exports = router;
- 

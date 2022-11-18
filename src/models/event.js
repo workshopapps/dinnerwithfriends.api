@@ -1,45 +1,65 @@
 const mongoose = require('mongoose');
 const bcrypt = require('bcrypt');
 
-const eventSchema = new mongoose.Schema(
-  {
-    user_id: {
-        type: Number,
-        ref: 'Event'
-    },
-    start_time: {
-        type: Date,
-        required: true
-    },
-    end_time: {
-        type: Date,
-        required: true
-    }, 
-    title: {
+const eventSchema = new mongoose.Schema({
+    event_title: {
         type: String,
-        required: true
+        required: true,
+        trim: true,
+        minlength: [3, `fullname can't be less than 3 characters`]
     },
-    description: {
-        type: String
+
+    event_description: {
+        type: String,
+        trim: true,
+        minlength: [3, `fullname can't be less than 3 characters`]
     },
     location: {
-        type: String
+        type: String,
+        required: true,
+        trim: true,
+        minlength: [3, `fullname can't be less than 3 characters`]
     },
-    time_slots: {
-        type: Object
+
+    event_type: {
+        type: String,
+        required: true,
+        trim: true,
+        minlength: [3, `fullname can't be less than 3 characters`]
     },
-    participant_id: {
-        type: mongoose.Types.ObjectId,
-        ref: 'Participants'
+
+    participant_number: {
+        type: Number,
+        required: true,
+        trim: true
+    },
+
+    start_date: {
+        type: String,
+        required: true,
+        trim: true
+    },
+
+    end_date: {
+        type: String,
+        required: true,
+        trim: true
+    },
+
+    host_prefered_time: {
+        type: String,
+        required: true,
+        trim: true
+    },
+
+    user_id: {
+        type: Number,
+        required: true
     }
-  },
-  {
-    timestamps: true,
-    toJSON: { virtuals: true },
-    toObject: { virtuals: true }
-  },
+
+}, 
+{timestamps: true}
 );
 
 const Event = mongoose.model("Event", eventSchema);
-
 module.exports = Event;
