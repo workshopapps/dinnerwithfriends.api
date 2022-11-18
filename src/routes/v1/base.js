@@ -1,7 +1,5 @@
 const express = require('express');
 const asyncHandler = require('express-async-handler');
-const { createEvent, updateEvent } = require('../../controllers');
-const { protect } = require('../../services/auth');
 
 const router = express.Router();
 
@@ -15,3 +13,4 @@ router.use(
   }),
 );
 
+module.exports = router;
