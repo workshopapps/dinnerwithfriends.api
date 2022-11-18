@@ -44,20 +44,21 @@ async function generateJWTToken(payload, secret, expireDuration) {
 
 
 
-
 const protect = asyncHandler(async (req, res, next) => {
   // get token and check if it is there
   let token;
 
   if (
-    req.headers.authorization
-    && req.headers.authorization.startsWith('Bearer')
+    req.headers.authorization &&
+    req.headers.authorization.startsWith('Bearer')
   ) {
     token = req.headers.authorization.split(' ')[1];
   }
 
   if (!token) {
-    return res.json({ message: 'You are not logged in! Please login to get access' });
+    return res.json({
+      message: 'You are not logged in! Please login to get access',
+    });
   }
 
   // validate signToken or verify token
@@ -66,7 +67,9 @@ const protect = asyncHandler(async (req, res, next) => {
   /* check if user still exist (important! especially if the user has been deleted after jwt has been issued) */
   const currentUser = await User.findById(decoded.id);
   if (!currentUser) {
-    return res.json({ message: 'The user that this token belongs to no longer exists' });
+    return res.json({
+      message: 'The user that this token belongs to no longer exists',
+    });
   }
 
   // Grant access to protected route
@@ -75,7 +78,7 @@ const protect = asyncHandler(async (req, res, next) => {
 });
 
 module.exports = {
-    createSendToken,
-    protect,
-    generateJWTToken,
-}
+  createSendToken,
+  protect,
+  generateJWTToken,
+};

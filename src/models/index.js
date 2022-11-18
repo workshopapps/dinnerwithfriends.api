@@ -1,6 +1,7 @@
-const User = require("./user")
+const User = require('./user');
+const AccountRecovery = require('./account-recovery');
 
-
-module.exports ={
-    User
-}
+module.exports = {
+  User,
+  AccountRecovery,
+};

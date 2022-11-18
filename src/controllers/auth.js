@@ -1,12 +1,13 @@
-const { User } = require('./../models');
+const { User, AccountRecovery } = require('./../models');
 const { createUserSchema, loginUserSchema } = require('../validators');
 const asyncHandler = require('express-async-handler');
 const services = require('../services');
 const { AppError } = require('../utilities');
 const bcrypt = require('bcryptjs');
 const { generateJWTToken } = require('../services/auth');
-const jwt = require("jsonwebtoken");
-
+const jwt = require('jsonwebtoken');
+const random = require('lodash/random');
+const moment = require('moment');
 
 // Signup Controller
 const signup = asyncHandler(async (req, res, next) => {
@@ -141,8 +142,91 @@ const handleRefreshToken = asyncHandler(async (req, res, next) => {
   });
 });
 
+const generateRecoverAccountToken = asyncHandler(async (req, res, next) => {
+  const { email } = req.body;
+
+  const user = await User.findOne({
+    email: email,
+  });
+  if (!user) {
+    throw next(new AppError('account not found', 403));
+  }
+
+  const code = random(10000, 99999);
+  const accountRecoveryTokenData = {
+    userId: user._id,
+    email: user.email,
+    token: code.toString(),
+    expiresAt: moment().add(30, 'minutes'),
+  };
+
+  const accountRecoveryToken = await new AccountRecovery(
+    accountRecoveryTokenData
+  ).save();
+
+  // await MailService.sendAccountRecoveryToken({
+  //   token: accountRecoveryToken.token,
+  //   email,
+  // });
+
+  return res.send({
+    status: 'success',
+    message: 'account recovery token has been sent to your email',
+    data: {
+      account_recovery_token: accountRecoveryToken.token,
+    },
+  });
+});
+
+const recoverAccount = asyncHandler(async (req, res, next) => {
+  try {
+    let { token, password, email } = req.body;
+
+
+    const recoveryToken = await models["account_recovery_token"].findOne({
+      where: {
+        email: params.email,
+        token: params.token
+      }
+    });
+    if (!recoveryToken) {
+      throw new ServiceError("token is invalid");
+    }
+    if (moment().isAfter(recoveryToken.expires_at)) {
+      throw new ServiceError("token has expired");
+    }
+    const account = await models["account"].findByPk(recoveryToken.account_id);
+    account.password = await utils.bcryptHash(params.password);
+    await account.save();
+
+    // remove recovery token
+    await recoveryToken.destroy();
+
+    // clear sessions
+    await models["account_session"].destroy({
+      where: {
+        account_id: account.id
+      }
+    });
+
+    return true;
+
+    
+    await AccountService.recoverAccount({ token, password, email });
+
+    return res.send({
+      status: 'success',
+      message: 'account recovered',
+    });
+  } catch (error) {
+    next(error);
+  }
+});
+
 module.exports = {
   signup,
   signin,
   handleRefreshToken,
+  generateRecoverAccountToken,
+  recoverAccount,
 };
