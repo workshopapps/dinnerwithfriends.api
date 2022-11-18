@@ -4,7 +4,7 @@ const {createUserSchema, userSchema} = require("../validators");
 const asyncHandler = require("express-async-handler");
 const services = require("../services");
 const queryString = require('node:querystring');
-const axios = require('axios');
+const axios = require('axios')
 
 // Signup Controller
 const signup = asyncHandler(async (req, res, next) => {
