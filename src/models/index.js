@@ -1,6 +1,10 @@
-const User = require("./user")
+
+const Participant = require("./participant");
+const User = require("./user");
 
 
 module.exports ={
-    User
+    User,
+    Participant
+    
 }
