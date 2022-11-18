@@ -6,6 +6,7 @@ const xss = require('xss-clean');
 const v1 = require('./routes');
 const { baseRouter } = require('./routes/v1/index');
 const { globalErrorHandler } = require('./controllers');
+const passport = require('passport');
 
 // create an express app
 const app = express();
@@ -18,6 +19,9 @@ app.use(helmet());
 app.use(xss());
 app.use(morgan('dev'));
 
+
+// app.use(passport.initialize());
+// require('./middlewares/passport');
 // routes
 app.use('/api/v1', v1);
 app.use('/', baseRouter);

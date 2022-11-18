@@ -19,7 +19,7 @@ const userSchema = new mongoose.Schema(
         type: String,
         required: [true, 'Enter a user password'],
         minLength: 8,
-        select: false,
+        select: true,
     },
     refreshToken:{
         type:String,
@@ -38,11 +38,11 @@ const userSchema = new mongoose.Schema(
   },
 );
 
-userSchema.pre('save', async function (next) {
-  if (!this.password) next();
-  this.password = await bcrypt.hash(this.password, 12);
-  next();
-});
+// userSchema.pre('save', async function (next) {
+//   if (!this.password) next();
+//   this.password = await bcrypt.hash(this.password, 12);
+//   next();
+// });
 
 const User = mongoose.model("User", userSchema);
 
