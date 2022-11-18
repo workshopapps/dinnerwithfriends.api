@@ -1,6 +1,7 @@
-const {createSendToken} = require("./auth")
+const {createSendToken, protect} = require("./auth")
 
 
 module.exports = {
-    createSendToken
+    createSendToken,
+    protect
 }
