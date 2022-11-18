@@ -19,3 +19,7 @@ const addParticipant = asyncHandler(async (req, res, next) => {
         const message = 'Participant added successfully';
         return services.newParticipantToken(event, 'success', message, res);
   });
+
+  module.exports = {
+    addParticipant
+  }
