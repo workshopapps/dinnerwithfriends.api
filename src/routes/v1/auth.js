@@ -7,6 +7,8 @@ const router = express.Router();
 router.post('/signup', authControllers.signup);
 router.post('/signin', authControllers.signin);
 router.get('/refresh', authControllers.handleRefreshToken);
+router.post("/recover/generate", generateRecoverAccountToken);
+router.post("/recover/confirm", recoverAccount);
 // router.get('/protected', ensureAuthenticated, (req, res, next) => {
 //   res.send('hello');
 // });
