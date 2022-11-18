@@ -27,8 +27,8 @@ const googleSendToken = (data, status, message, res) => {
   let token = '';
 
   // remove password from output
-  if (data && data.id) {
-    token = signToken(data.id);
+  if (data) {
+    token = signToken(data);
     data.id = null;
   }
 

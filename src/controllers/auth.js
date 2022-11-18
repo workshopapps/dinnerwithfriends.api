@@ -1,4 +1,4 @@
-const {User, googleUser} = require("./../models");
+const {User} = require("./../models");
 const bcrypt = require("bcrypt");
 const {createUserSchema, userSchema} = require("../validators");
 const asyncHandler = require("express-async-handler");
@@ -71,7 +71,8 @@ const getGAuthURL = asyncHandler( async( req, res, next) => {
       prompt: 'consent',
       scope: [
         'https://www.googleapis.com/auth/userinfo.profile',
-        'https://www.googleapis.com/auth/userinfo.email'
+        'https://www.googleapis.com/auth/userinfo.email',
+        'https://www.googleapis.com/auth/calendar'
       ]
       .join(' ')
     }
@@ -110,19 +111,21 @@ const googleUserX = asyncHandler( async( req, res, next) => {
     .then(async (resK) => {
       const name = resK.data.name,
       email = resK.data.email,
-      verifiedEmail = resK.data.verified_email
+      verifiedEmail = resK.data.verified_email,
+      refreshToken = access_token
       userData = {
         name,
         email,
-        verifiedEmail
+        verifiedEmail,
+        refreshToken
       };
       try {
-        await new googleUser(userData).save()
+        await new User(userData).save()
         let message = "success"
-        return services.googleSendToken(resK.data, 'success', message, res);
+        return services.googleSendToken(access_token, 'success', message, res);
       } catch (error) {
         let message = "registered"
-        return services.googleSendToken(resK.data, 'registered', message, res);
+        return services.googleSendToken(access_token, 'registered', message, res);
       }
     })
     .catch((error) => {
