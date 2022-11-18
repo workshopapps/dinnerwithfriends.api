@@ -56,4 +56,4 @@ const updateEvent = async (req, res) => {
 module.exports = {
     createEvent,
     updateEvent
-};
+}
