@@ -5,6 +5,8 @@ const services = require('../services');
 const { AppError } = require('../utilities');
 const bcrypt = require('bcryptjs');
 const { generateJWTToken } = require('../services/auth');
+const jwt = require("jsonwebtoken");
+
 
 // Signup Controller
 const signup = asyncHandler(async (req, res, next) => {
@@ -88,10 +90,9 @@ const signin = asyncHandler(async (req, res, next) => {
     '2d'
   );
 
-  console.log(token, refreshToken);
+  console.log(refreshToken);
   user.refreshToken = refreshToken;
   const result = await user.save();
-
   // // Creates Secure Cookie with refresh token
   res.cookie('jwt', refreshToken, {
     httpOnly: true,
@@ -113,20 +114,20 @@ const signin = asyncHandler(async (req, res, next) => {
 
 const handleRefreshToken = asyncHandler(async (req, res, next) => {
   const cookies = req.cookies;
-  console.log('hello');
+  // console.log('hello');
   console.log(cookies);
-  if (!cookies?.jwt) throw new next(AppError('No refresh token found', 401));
+  if (!cookies?.jwt) throw next(new AppError('No refresh token found', 401));
 
   const refreshToken = cookies.jwt;
 
   const foundUser = await User.findOne({ refreshToken }).exec();
   // console.log(foundUser);
-  if (!foundUser) return res.sendStatus(403); //Forbidden
+  if (!foundUser) throw next(new AppError('No user found', 403));
   // evaluate jwt
   //    console.log(process.env.REFRESH_TOKEN_SECRET);
   jwt.verify(refreshToken, process.env.REFRESH_TOKEN_SECRET, (err, decoded) => {
-    console.log(decoded);
-    console.log(foundUser);
+    // console.log(decoded);
+    // console.log(foundUser);
     if (err || foundUser.email !== decoded.email)
       throw next(new AppError('user does not match', 403));
     const payload = {
@@ -134,7 +135,7 @@ const handleRefreshToken = asyncHandler(async (req, res, next) => {
       email: foundUser.email,
     };
     const accessToken = jwt.sign({ ...payload }, process.env.JWT_SECRET, {
-      expiresIn: '20s',
+      expiresIn: '5h',
     });
     res.json({ accessToken });
   });

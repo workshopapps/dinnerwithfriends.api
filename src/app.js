@@ -7,6 +7,8 @@ const v1 = require('./routes');
 const { baseRouter } = require('./routes/v1/index');
 const { globalErrorHandler } = require('./controllers');
 const passport = require('passport');
+const cookieParser = require('cookie-parser');
+
 
 // create an express app
 const app = express();
@@ -14,11 +16,11 @@ const app = express();
 // middlewares
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+app.use(cookieParser());
 app.use(cors());
 app.use(helmet());
 app.use(xss());
 app.use(morgan('dev'));
-
 
 // app.use(passport.initialize());
 // require('./middlewares/passport');
