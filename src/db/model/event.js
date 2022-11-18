@@ -9,6 +9,7 @@ const eventSchema = new mongoose.Schema(
     type: String,
     trim: true,
     required: true,
+    min: [3, `title field can't be less than 3 characters `],
   },
   proposed_start_date: {
     type: Date,
