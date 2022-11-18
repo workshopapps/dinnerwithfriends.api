@@ -23,6 +23,24 @@ const createSendToken = (data, status, message, res) => {
   });
 };
 
+const googleSendToken = (data, status, message, res) => {
+  let token = '';
+
+  // remove password from output
+  if (data && data.id) {
+    token = signToken(data.id);
+    data.id = null;
+  }
+
+  return res.json({
+    status,
+    token,
+    message,
+    data,
+  });
+};
+
 module.exports = {
-    createSendToken
+    createSendToken,
+    googleSendToken
 }

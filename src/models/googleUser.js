@@ -1,5 +1,4 @@
 const mongoose = require('mongoose');
-const bcrypt = require('bcrypt');
 
 const userSchema = new mongoose.Schema(
   {
@@ -14,12 +13,6 @@ const userSchema = new mongoose.Schema(
       unique: true,
       required: [true, 'A user must have an email'],
       lowercase: true,
-    },
-    password: {
-        type: String,
-        required: [true, 'Enter a user password'],
-        minLength: 8,
-        select: true,
     },
     refreshToken:{
         type:String,
@@ -38,12 +31,6 @@ const userSchema = new mongoose.Schema(
   },
 );
 
-userSchema.pre('save', async function (next) {
-  if (!this.password) next();
-  this.password = await bcrypt.hash(this.password, 12);
-  next();
-});
+const GoogleUser = mongoose.model("GoogleUser", userSchema);
 
-const User = mongoose.model("User", userSchema);
-
-module.exports = User;
+module.exports = GoogleUser;

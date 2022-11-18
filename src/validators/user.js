@@ -1,11 +1,6 @@
 const Joi = require('joi');
 
-const createUserSchema = Joi.object({
-  name: Joi.string()
-    .pattern(/^[A-Za-z][A-Za-z ]{2,30}$/)
-    .min(3)
-    .max(30)
-    .required(),
+const userSchema = Joi.object({
 
   email: Joi.string()
     .email({ tlds: { allow: false } })
@@ -20,4 +15,4 @@ const createUserSchema = Joi.object({
 
 
 
-module.exports = createUserSchema;
+module.exports = userSchema;
