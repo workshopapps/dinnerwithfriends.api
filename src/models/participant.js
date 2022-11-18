@@ -1,13 +1,13 @@
 const mongoose = require('mongoose');
 
 const participantSchema = new mongoose.Schema({
+
     fullname: {
         type: String,
         required: true,
         trim: true,
         minlength: [3, `fullname can't be less than 3 characters`]
     },
-
     email: {
         type: String,
         trim: true,
@@ -22,7 +22,7 @@ const participantSchema = new mongoose.Schema({
         trim: true
       }
 
-})
+});
 
 const Participant = mongoose.model("Participant", participantSchema);
 module.exports = Participant;
