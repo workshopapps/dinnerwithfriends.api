@@ -44,6 +44,15 @@ const userSchema = new mongoose.Schema(
 //   next();
 // });
 
+// Instance method. method available in the whole model
+userSchema.methods.comparePassword = async function (
+  candidatePassword,
+  userPassword,
+) {
+  const passwordStatus = await bcrypt.compare(candidatePassword, userPassword);
+  return passwordStatus;
+};
+
 const User = mongoose.model("User", userSchema);
 
 module.exports = User;
