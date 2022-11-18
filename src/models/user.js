@@ -6,7 +6,7 @@ const userSchema = new mongoose.Schema(
     name: {
       type: String,
       trim: true,
-      required:[true,"A user must have a name"]
+      required: [true, 'A user must have a name'],
     },
     email: {
       type: String,
@@ -16,15 +16,15 @@ const userSchema = new mongoose.Schema(
       lowercase: true,
     },
     password: {
-        type: String,
-        required: [true, 'Enter a user password'],
-        minLength: 8,
-        select: false,
+      type: String,
+      required: [true, 'Enter a user password'],
+      minLength: 8,
+      select: true,
     },
-    refreshToken:{
-        type:String,
-        trim:true,
-        default:null
+    refreshToken: {
+      type: String,
+      trim: true,
+      default: null,
     },
     verifiedEmail: {
       type: Boolean,
@@ -34,8 +34,8 @@ const userSchema = new mongoose.Schema(
   {
     timestamps: true,
     toJSON: { virtuals: true },
-    toObject: { virtuals: true }
-  },
+    toObject: { virtuals: true },
+  }
 );
 
 userSchema.pre('save', async function (next) {
@@ -47,12 +47,12 @@ userSchema.pre('save', async function (next) {
 // Instance method. method available in the whole model
 userSchema.methods.comparePassword = async function (
   candidatePassword,
-  userPassword,
+  userPassword
 ) {
   const passwordStatus = await bcrypt.compare(candidatePassword, userPassword);
   return passwordStatus;
 };
 
-const User = mongoose.model("User", userSchema);
+const User = mongoose.model('User', userSchema);
 
 module.exports = User;

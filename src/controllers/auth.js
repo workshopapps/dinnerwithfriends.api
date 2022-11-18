@@ -3,7 +3,7 @@ const { createUserSchema, loginUserSchema } = require('../validators');
 const asyncHandler = require('express-async-handler');
 const services = require('../services');
 const { AppError } = require('../utilities');
-const bcrypt = require('bcryptjs');
+const bcrypt = require('bcrypt');
 const { generateJWTToken } = require('../services/auth');
 const jwt = require('jsonwebtoken');
 const random = require('lodash/random');
@@ -73,7 +73,7 @@ const signin = asyncHandler(async (req, res, next) => {
     throw next(new AppError('This email is not registered', 422));
   }
 
-  const isPasswordCorrect = await user.comparePassword;
+  const isPasswordCorrect = await user.comparePassword(password, user.password);
   if (!isPasswordCorrect) {
     throw next(new AppError('Incorrect password', 422));
   }
@@ -179,48 +179,29 @@ const generateRecoverAccountToken = asyncHandler(async (req, res, next) => {
 });
 
 const recoverAccount = asyncHandler(async (req, res, next) => {
-  try {
-    let { token, password, email } = req.body;
+  let { token, password, email } = req.body;
 
-
-    const recoveryToken = await models["account_recovery_token"].findOne({
-      where: {
-        email: params.email,
-        token: params.token
-      }
-    });
-    if (!recoveryToken) {
-      throw new ServiceError("token is invalid");
-    }
-    if (moment().isAfter(recoveryToken.expires_at)) {
-      throw new ServiceError("token has expired");
-    }
-    const account = await models["account"].findByPk(recoveryToken.account_id);
-    account.password = await utils.bcryptHash(params.password);
-    await account.save();
-
-    // remove recovery token
-    await recoveryToken.destroy();
-
-    // clear sessions
-    await models["account_session"].destroy({
-      where: {
-        account_id: account.id
-      }
-    });
-
-    return true;
-
-    
-    await AccountService.recoverAccount({ token, password, email });
-
-    return res.send({
-      status: 'success',
-      message: 'account recovered',
-    });
-  } catch (error) {
-    next(error);
+  const recoveryToken = await AccountRecovery.findOne({
+    email: email,
+    token: token,
+  });
+  if (!recoveryToken) {
+    throw next(new AppError('token is invalid', 400));
   }
+  if (moment().isAfter(recoveryToken.expires_at)) {
+    throw next(new AppError('token has expired', 400));
+  }
+  const user = await User.findById(recoveryToken.userId);
+  user.password = password;
+  await user.save();
+
+  // remove recovery token
+  await AccountRecovery.findByIdAndDelete(recoveryToken._id);
+
+  return res.send({
+    status: 'success',
+    message: 'account recovered',
+  });
 });
 
 module.exports = {
