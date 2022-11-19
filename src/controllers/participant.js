@@ -15,7 +15,7 @@ const addParticipant = (req, res, next) => {
   Participant.find({ email: req.body.email })
     .then((part) => {
       if (part.length >= 1) {
-        return res.status(409).json({ message: 'Account with this email already registered' });
+        return res.status(409).json({ message: 'Participant with this email already added' });
       }
       const npart = new Participant({
         _id: new mongoose.Types.ObjectId(),
