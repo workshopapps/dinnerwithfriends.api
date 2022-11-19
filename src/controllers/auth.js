@@ -46,9 +46,9 @@ const signup = asyncHandler(async (req, res, next) => {
     password,
   };
 
-  const user = await new User(userData).save();
+  await new User(userData).save();
   const message = 'Account created successfully';
-  return res.json(message);
+  return services.createSendToken({}, 'success', message, res);
 });
 
 const signin = asyncHandler(async (req, res, next) => {
