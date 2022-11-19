@@ -29,9 +29,9 @@ const signup = asyncHandler(async (req, res, next) => {
       password,
     };
   
-    const user = await new User(userData).save();
+    await new User(userData).save();
     const message = 'Account created successfully';
-    return services.createSendToken(user, 'success', message, res);
+    return services.createSendToken({}, 'success', message, res);
   });
 
   
