@@ -1,6 +1,4 @@
 
-
-
 # Catch-Up (Backend Repo).
 
 #### A web application that _reserves an event based on your friends and family consensus._
@@ -41,27 +39,35 @@ This endpoint is responsible for generating the newly generated JWT needed to ac
 
 This endpoint is responsible for generating JWT for an account after password recovery
 
-6. ### ADD EVENT:
+6. ### GOOGLE AUTH URL:
+
+This endpoint is responsible for login in to Google to interface with Google API for sign-up/Sign-in up with Google
+
+7. ### GOOGLE AUTH X:
+
+This link is responsible for getting user from Google
+
+8. ### ADD EVENT:
 
 This endpoint is responsible for creating an event by an event
 
-7 ### GET ALL EVENT:
+9. ### GET ALL EVENT:
 
 This endpoint is responsible for querying the event database and getting list of all events
 
-8. ### GET AN EVENT:
+10. ### GET AN EVENT:
 
 This endpoint is responsible for retrieving information for a particular event
 
-9 ### DELETE EVENT:
+11. ### DELETE EVENT:
 
 This endpoint is responsible for removing an event from the database by the host
 
-10. ### UPDATE EVENT:
+12. ### UPDATE EVENT:
 
 This endpoint is responsible for keeping record of an event in the event database up-to-date
 
-11 ### GET SINGLE EVENT BY TOKEN:
+13. ### GET SINGLE EVENT BY TOKEN:
 
 This endpoint is responsible for getting an event by using the token
 
