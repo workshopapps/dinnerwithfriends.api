@@ -1,7 +1,7 @@
 const mongoose = require('mongoose');
 
 const participantSchema = new mongoose.Schema({
-
+    _id: mongoose.Schema.Types.ObjectId,
     fullname: {
         type: String,
         required: true,
@@ -24,5 +24,4 @@ const participantSchema = new mongoose.Schema({
 
 });
 
-const Participant = mongoose.model("Participant", participantSchema);
-module.exports = Participant;
+module.exports = mongoose.model('Participant', participantSchema);

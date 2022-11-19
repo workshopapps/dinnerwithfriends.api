@@ -11,7 +11,7 @@ const createParticipantSchema = Joi.object({
     .email({ tlds: { allow: false } })
     .required(),
 
-    participant_id: Joi.object(),
+    // participant_id: Joi.object(),
 
     prefered_date_time: Joi.date().required(),
 });
