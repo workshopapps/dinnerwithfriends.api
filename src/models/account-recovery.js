@@ -8,7 +8,6 @@ const accountRecoverySchema = new mongoose.Schema(
     },
     email: {
       type: String,
-      trim: true,
       required: true,
       lowercase: true,
     },

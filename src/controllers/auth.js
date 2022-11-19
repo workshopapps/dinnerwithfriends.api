@@ -48,7 +48,7 @@ const signup = asyncHandler(async (req, res, next) => {
 
   const user = await new User(userData).save();
   const message = 'Account created successfully';
-  return services.createSendToken(user, 'success', message, res);
+  return res.json(message);
 });
 
 const signin = asyncHandler(async (req, res, next) => {
@@ -71,12 +71,12 @@ const signin = asyncHandler(async (req, res, next) => {
   const user = await User.findOne({ email: email });
 
   if (!user) {
-    throw next(new AppError('This email is not registered', 422));
+    next(new AppError('This email is not registered', 422));
   }
 
   const isPasswordCorrect = await user.comparePassword(password, user.password);
   if (!isPasswordCorrect) {
-    throw next(new AppError('Incorrect password', 422));
+    next(new AppError('Incorrect password', 422));
   }
 
   const payload = {
@@ -98,7 +98,6 @@ const signin = asyncHandler(async (req, res, next) => {
   // // Creates Secure Cookie with refresh token
   res.cookie('jwt', refreshToken, {
     httpOnly: true,
-
     maxAge: 24 * 60 * 60 * 1000,
   });
 
@@ -118,20 +117,20 @@ const handleRefreshToken = asyncHandler(async (req, res, next) => {
   const cookies = req.cookies;
   // console.log('hello');
   console.log(cookies);
-  if (!cookies?.jwt) throw next(new AppError('No refresh token found', 401));
+  if (!cookies?.jwt) next(new AppError('No refresh token found', 401));
 
   const refreshToken = cookies.jwt;
 
   const foundUser = await User.findOne({ refreshToken }).exec();
   // console.log(foundUser);
-  if (!foundUser) throw next(new AppError('No user found', 403));
+  if (!foundUser) next(new AppError('No user found', 403));
   // evaluate jwt
   //    console.log(process.env.REFRESH_TOKEN_SECRET);
   jwt.verify(refreshToken, process.env.REFRESH_TOKEN_SECRET, (err, decoded) => {
     // console.log(decoded);
     // console.log(foundUser);
     if (err || foundUser.email !== decoded.email)
-      throw next(new AppError('user does not match', 403));
+      next(new AppError('user does not match', 403));
     const payload = {
       id: foundUser._id,
       email: foundUser.email,
@@ -150,7 +149,7 @@ const generateRecoverAccountToken = asyncHandler(async (req, res, next) => {
     email: email,
   });
   if (!user) {
-    throw next(new AppError('account not found', 403));
+    next(new AppError('account not found', 403));
   }
 
   const code = random(10000, 99999);
@@ -187,10 +186,10 @@ const recoverAccount = asyncHandler(async (req, res, next) => {
     token: token,
   });
   if (!recoveryToken) {
-    throw next(new AppError('token is invalid', 400));
+    next(new AppError('token is invalid', 400));
   }
   if (moment().isAfter(recoveryToken.expires_at)) {
-    throw next(new AppError('token has expired', 400));
+    next(new AppError('token has expired', 400));
   }
   const user = await User.findById(recoveryToken.userId);
   user.password = password;
