@@ -47,12 +47,24 @@ const deleteParticipant = (req, res, next) => {
 
 // Updating a Participant
 const updateParticipant = (req, res, next) => {
-  Participant.updateOne({ fullname: req.body.fullname, email: req.body.email, prefered_date_time: req.body.prefered_date_time }).exec().then((result) => {
-    res.status(200).json({ message: 'Partcipant updated' });
-  }).catch((err) => {
-    console.log(err);
-    res.status(500).json({ error: err });
-  });
+  Participant.findByIdAndUpdate(
+    req.params.id,
+    {
+      $set: {
+        fullname: req.body.fullname,
+        email: req.body.email,
+        prefered_date_time: req.body.prefered_date_time,
+      },
+    },
+    (err) => {
+      if (err) {
+        console.log(err);
+        res.status(500).json({ error: err });
+      } else {
+        res.status(200).json({ message: 'Participant updated' });
+      }
+    },
+  );
 };
 
 module.exports = {

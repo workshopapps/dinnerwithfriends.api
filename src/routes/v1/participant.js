@@ -7,9 +7,9 @@ const router = express.Router();
 router.post('/addpart', participantControllers.addParticipant);
 
 // delete user
-router.delete('/removepart', participantControllers.deleteParticipant);
+router.delete('/delete/:id', participantControllers.deleteParticipant);
 
 // update participant
-router.put('/updatepart', participantControllers.updateParticipant);
+router.post('/update/:id', participantControllers.updateParticipant);
 
 module.exports = router;
