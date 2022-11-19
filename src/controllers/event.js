@@ -5,7 +5,7 @@ const services = require("../services")
 
 // Get All Events Controller
 const getAllEvents = asyncHandler(async (req, res, next) => {
-    Event.find(function(err, data) {
+    Event.find({user_id: req.user._id}, function(err, data) {
         if(err){
             return services.createSendToken({}, 'error', err, res);
         }
@@ -65,13 +65,13 @@ const deleteEvent = asyncHandler(async (req, res, next) => {
 // Update Event Controller
 const updateEvent = asyncHandler(async (req, res, next) => {
     const event_id = req.params.id
-    Event.findByIdAndUpdate(event_id, 
-        new_data, function(err, data) {
+    Event.find({event_id, user_id: req.user._id}, 
+        req.body, function(err, data) {
             if(err){
                 return services.createSendToken({}, 'error', err, res);
             }
             else{
-                const message = 'Successfully Deleted event';
+                const message = 'Successfully Updated event';
                 return services.newEventToken(data, 'success', message, res);
             }
         });  
@@ -79,15 +79,15 @@ const updateEvent = asyncHandler(async (req, res, next) => {
 
 // Create One Controller
 const addEvent = asyncHandler(async (req, res, next) => {
-    const {end_date, start_date, event_title, event_description, location, event_type, participant_number, host_prefered_time, user_id} = req.body;
+    const {end_date, start_date, event_title, event_description, location, event_type, participant_number, host_prefered_time} = req.body;
 
-    const validateUserInput = createEventSchema.validate({ end_date, start_date, title });
+    const validateUserInput = createEventSchema.validate({ end_date, start_date, event_title, event_description, location, event_type, participant_number, host_prefered_time, user_id: req.user._id });
   
     if (validateUserInput.error) {
       let message = '';
       if (validateUserInput.error.details[0].path[0] === 'end_date' || validateUserInput.error.details[0].path[0] === 'start_date') message = 'A date field is required';
       if (validateUserInput.error.details[0].path[0] === 'event_title') message = 'Title has to start with a letter, can contain numbers and underscores, must be at least 3 characters.';
-      return services.createSendToken({}, 'error', message, res);
+      return services.createSendToken({}, 'error', validateUserInput.error.details[0], res);
     }
 
     var eventData = {
@@ -99,7 +99,7 @@ const addEvent = asyncHandler(async (req, res, next) => {
         event_type, 
         participant_number, 
         host_prefered_time,
-        user_id
+        user_id: req.user._id
     }
 
         const event = await new Event(eventData).save();

@@ -9,7 +9,6 @@ const createEventSchema = Joi.object({
         .required(),
 
     event_description: Joi.string()
-        .pattern(/^[A-Za-z][A-Za-z ]{2,30}$/)
         .trim()
         .min(3)
         .required(),
