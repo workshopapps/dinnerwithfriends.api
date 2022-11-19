@@ -1,4 +1,4 @@
-const { userRouteDoc } = require('../routes/v1/index');
+const { signupRouteDoc, loginRouteDoc } = require('../routes/v1/index');
 
 const swaggerDocumentation  = {
     openapi: "3.0.0",
@@ -13,15 +13,24 @@ const swaggerDocumentation  = {
             url: "http://localhost:8800",
             description: 'local server'
         },
+        {
+            url: "https://production",
+            description: "Production Server"
+        }
     ],
     tags: [
         {
             name: "User",
             description: "User routes",
-        }
+        },
+        {
+            name: "Events",
+            description: "Endpoints to carry out event related functions"
+        },
     ],
     paths: {
-        ...userRouteDoc,
+        ...signupRouteDoc,
+        ...loginRouteDoc,
     }
 };
 

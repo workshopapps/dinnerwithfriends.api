@@ -1,9 +1,10 @@
 const baseRouter = require('./base');
 const authRouter = require("./auth");
-const userRouteDoc = require("./user.doc");
+const { signupRouteDoc, loginRouteDoc } = require("./user.doc");
 
 module.exports = {
   baseRouter,
   authRouter,
-  userRouteDoc,
+  loginRouteDoc,
+  signupRouteDoc,
 };
