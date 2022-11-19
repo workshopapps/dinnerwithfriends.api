@@ -4,7 +4,7 @@
   "main": "index.js",
   "scripts": {
     "lint:fix": "eslint --fix .",
-    "test": "jest --watchAll --detectOpenHandles --runInBand",
+    "test": "jest --watchAll --detectOpenHandles --runInBand" ,
     "start": "node src/index.js",
     "dev": "nodemon src/index.js",
     "populate": "node src/utilities/populateDB.js",

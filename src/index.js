@@ -2,6 +2,9 @@ const dotenv = require('dotenv');
 const asyncHandler = require('express-async-handler');
 const app = require('./app');
 const connect = require('./db');
+const createServer = require('./tests/testServer')
+
+
 
 // configure dotenv and port
 dotenv.config();
@@ -11,6 +14,7 @@ const DB = process.env.MONGODB_URI;
 const start = asyncHandler(async (_port, _url, _app) => {
   try {
     await connect(_url);
+    const _app = createServer()
     _app.listen(_port, () => console.log(`Server is running on port: ${_port}`));
   } catch (error) {
     console.log(error);
