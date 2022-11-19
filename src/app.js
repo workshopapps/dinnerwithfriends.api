@@ -3,7 +3,7 @@ const cors = require('cors');
 const helmet = require('helmet');
 const morgan = require('morgan');
 const xss = require('xss-clean');
-const v1 = require('./routes');
+const v1 = require('./routes/v1');
 const { baseRouter } = require('./routes/v1/index');
 const { globalErrorHandler } = require('./controllers');
 
