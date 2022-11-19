@@ -1,6 +1,5 @@
 const {User} = require("./../models");
-const bcrypt = require("bcrypt");
-const {createUserSchema, userSchema} = require("../validators");
+const {createUserSchema} = require("../validators");
 const asyncHandler = require("express-async-handler");
 const services = require("../services");
 const queryString = require('node:querystring');
@@ -34,30 +33,6 @@ const signup = asyncHandler(async (req, res, next) => {
     const message = 'Account created successfully';
     return services.createSendToken(user, 'success', message, res);
   });
-
-//  Signin Controller 
-const signin = asyncHandler( async( req, res, next) => {
-  const {email, password} = req.body
-  const validateUserInput = userSchema.validate({ email, password });
-  if (validateUserInput.error) {
-    let message = '';
-    if (validateUserInput.error.details[0].path[0] === 'email') message = 'Email has to start with a letter, can contain numbers and underscores, must be at least 3 characters, must have @com or @net. No spaces and no other special characters allowed';
-    if (validateUserInput.error.details[0].path[0] === 'password') message = 'Password has to start with a letter, can contain numbers, must be at least 8 characters, and no more than 30 characters. No spaces and special characters allowed';
-    return services.createSendToken({}, 'error', message, res);
-  }
-  const userExists = await User.findOne({ email });
-  if (!userExists) {
-    const message = 'Email or password incorrect';
-    return services.createSendToken({}, 'error', message, res);
-  }
-  const result = await bcrypt.compare( password, userExists.password);
-  if(!result){
-    const message = 'Email or password incorrect';
-    return services.createSendToken({}, 'error', message, res);
-  }
-  const message = 'Signed in successfully';
-  return services.createSendToken(userExists, 'success', message, res);
-});
 
 //  Get Google login URL
 const getGAuthURL = asyncHandler( async( req, res, next) => {
@@ -97,7 +72,7 @@ const googleUserX = asyncHandler( async( req, res, next) => {
     }
   })
   .then( async(resD) => {
-    const { id_token, access_token } = resD.data
+    const { id_token, access_token, refresh_token} = resD.data
     // Fetch the user's profile with the access token and bearer
     await axios
     .get(
@@ -112,7 +87,7 @@ const googleUserX = asyncHandler( async( req, res, next) => {
       const name = resK.data.name,
       email = resK.data.email,
       verifiedEmail = resK.data.verified_email,
-      refreshToken = access_token
+      refreshToken = refresh_token,
       userData = {
         name,
         email,
@@ -120,12 +95,21 @@ const googleUserX = asyncHandler( async( req, res, next) => {
         refreshToken
       };
       try {
-        await new User(userData).save()
+        let rt = await new User(userData).save()
         let message = "success"
-        return services.googleSendToken(access_token, 'success', message, res);
+        res.cookie('jwt', refreshToken, {
+          httpOnly: true,
+          maxAge: 24 * 60 * 60 * 1000,
+        });
+        return services.googleSendToken(rt._id, 'success', message, res);
       } catch (error) {
+        const userExists = await User.findOne({ email })
         let message = "registered"
-        return services.googleSendToken(access_token, 'registered', message, res);
+        res.cookie('jwt', refreshToken, {
+          httpOnly: true,
+          maxAge: 24 * 60 * 60 * 1000,
+        });
+        return services.googleSendToken(userExists._id, 'registered', message, res);
       }
     })
     .catch((error) => {
@@ -144,7 +128,6 @@ const googleUserX = asyncHandler( async( req, res, next) => {
 
 module.exports = {
   signup,
-  signin,
   getGAuthURL,
   googleUserX
 }
