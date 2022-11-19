@@ -3,6 +3,6 @@ const { participantControllers } = require('../../controllers');
 
 const router = express.Router();
 
-router.post('/create', participantControllers.addParticipant);
+router.post('/addpart', participantControllers.addParticipant);
 
 module.exports = router;
