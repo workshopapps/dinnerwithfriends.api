@@ -3,7 +3,6 @@ const { createUserSchema, loginUserSchema } = require('../validators');
 const asyncHandler = require('express-async-handler');
 const services = require('../services');
 const { AppError } = require('../utilities');
-const bcrypt = require('bcrypt');
 const { generateJWTToken } = require('../services/auth');
 const jwt = require('jsonwebtoken');
 const random = require('lodash/random');
@@ -285,13 +284,11 @@ const googleUserX = asyncHandler( async( req, res, next) => {
       }
     })
     .catch((error) => {
-      console.error(`Failed to fetch user`);
-      throw new Error(error.message);
+      next(error.message);
     });
   })
   .catch((error) => {
-    console.error(`Failed to fetch auth tokens`);
-    throw new Error(error.message);
+    next(error.message);
   });
   
 })
