@@ -4,7 +4,7 @@ module.exports = `
     <thead>
     <tr>
         <td style="padding-bottom: 56px;">
-            <img src="{{ platform.logo }}" alt="[LOGO]" style="height: 40px"/>
+
         </td>
     </tr>
     <tr>

@@ -1,39 +1,21 @@
-const sendgrid = require("@sendgrid/mail");
-const config = require("../../config");
+const sendgrid = require('@sendgrid/mail');
+const templates = require('./templates');
 
-const wrapServiceAction = require("../_core/wrapServiceAction");
+const sendAccountRecoveryToken = async (token, email) => {
+  sendgrid.setApiKey(process.env.SENDGRID_API_KEY);
+  console.log(process.env.SENDGRID_API_KEY);
 
-const templates = require("./templates");
+  const options = {
+    from: {
+      email: `lordorionrules@gmail.com`,
+      name: 'Catch Up',
+    },
+    to: email,
+    subject: 'Recover Your Account',
+    html: templates.accountRecoveryToken.body.replace('{{ code }}', token),
+  };
 
-const { email, any } = require("../../validation");
+  return await sendgrid.send(options);
+};
 
-const PlatformConfigService = require("../PlatformConfig");
-const { ConfigKeys } = require("../PlatformConfig/types");
-
-module.exports = wrapServiceAction({
-  params: {
-    $$strict: "remove",
-    token: { ...any },
-    email: { ...email }
-  },
-  async handler(params) {
-    const settings = await PlatformConfigService.getConfig();
-    const platformKey = settings[ConfigKeys.SENDGRID_API_KEY];
-
-    sendgrid.setApiKey(platformKey || config.sendgrid.apiKey);
-
-    const options = {
-      from: {
-        email: `developer@${config.app.domain}`,
-        name: config.app.name
-      },
-      to: params.email,
-      subject: "Recover Your Account",
-      html: templates.accountRecoveryToken.body
-        .replace("{{ platform.logo }}", config.app.logo)
-        .replace("{{ code }}", params.token)
-    };
-
-    return await sendgrid.send(options);
-  }
-});
+module.exports = sendAccountRecoveryToken;

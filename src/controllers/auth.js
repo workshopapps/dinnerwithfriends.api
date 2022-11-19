@@ -8,6 +8,7 @@ const { generateJWTToken } = require('../services/auth');
 const jwt = require('jsonwebtoken');
 const random = require('lodash/random');
 const moment = require('moment');
+const sendAccountRecoveryToken = require('../services/Mail/sendAccountRecoveryToken');
 
 // Signup Controller
 const signup = asyncHandler(async (req, res, next) => {
@@ -163,7 +164,7 @@ const generateRecoverAccountToken = asyncHandler(async (req, res, next) => {
   const accountRecoveryToken = await new AccountRecovery(
     accountRecoveryTokenData
   ).save();
-
+  await sendAccountRecoveryToken(accountRecoveryToken.token, email);
   // await MailService.sendAccountRecoveryToken({
   //   token: accountRecoveryToken.token,
   //   email,
