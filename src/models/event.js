@@ -1,7 +1,11 @@
 const mongoose = require('mongoose');
-const bcrypt = require('bcrypt');
 
 const eventSchema = new mongoose.Schema({
+    user_id: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "User",
+        required: true
+    },
     event_title: {
         type: String,
         required: true,
@@ -50,12 +54,6 @@ const eventSchema = new mongoose.Schema({
         type: String,
         required: true,
         trim: true
-    },
-
-    user_id: {
-        type: mongoose.Types.ObjectId,
-        ref: 'User',
-        required: true
     }
 
 }, 
