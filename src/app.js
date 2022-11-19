@@ -6,6 +6,7 @@ const xss = require('xss-clean');
 const v1 = require('./routes');
 const { baseRouter } = require('./routes/v1/index');
 const { globalErrorHandler } = require('./controllers');
+const cookies = require('cookie-parser');
 const passport = require('passport');
 const cookieParser = require('cookie-parser');
 
@@ -18,6 +19,7 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
 app.use(cors());
+app.use(cookies);
 app.use(helmet());
 app.use(xss());
 app.use(morgan('dev'));
