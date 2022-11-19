@@ -9,11 +9,12 @@ const swaggerDocumentation = {
     },
     "servers": [
       {
-        "url": "http://example.com",
+        "url": "http://example.com/api/v1",
+        "description": "production server",
         "variables": {}
       },
       {
-        "url": "http://localhost;8800/api/v1",
+        "url": "http://localhost:8800/api/v1",
         "description": "",
         "variables": {}
       }
@@ -321,7 +322,7 @@ const swaggerDocumentation = {
           "deprecated": false
         }
       },
-      "/": {
+      "/participant/addpart": {
         "post": {
           "tags": [
             "Participant"
@@ -365,29 +366,53 @@ const swaggerDocumentation = {
           },
           "deprecated": false
         },
-        "get": {
-          "tags": [
-            "Participant"
-          ],
-          "summary": "Get All Participants",
-          "description": "This returns all participants of a particular event",
-          "operationId": "GetAllParticipants",
-          "parameters": [],
-          "responses": {
-            "200": {
-              "description": "",
-              "headers": {}
-            }
-          },
-          "deprecated": false,
-          "security": [
-            {
-              "bearer": []
-            }
-          ]
-        }
-      }
     },
+        "/participant/delete/{id}": {
+            "delete": {
+                "tags": [
+                  "Participant"
+                ],
+                "summary": "Delete One Participant",
+                "description": "This deletes a single participant",
+                "operationId": "DeleteParticipant",
+                "parameters": [],
+                "responses": {
+                  "200": {
+                    "description": "",
+                    "headers": {}
+                  }
+                },
+                "deprecated": false,
+                "security": [
+                  {
+                    "bearer": []
+                  }
+                ]
+            }
+        },
+        "/participant/update/{id}": {
+            "patch": {
+                "tags": [
+                  "Participant"
+                ],
+                "summary": "Updates One Participant",
+                "description": "This updates a single participant",
+                "operationId": "UpdateParticipant",
+                "parameters": [],
+                "responses": {
+                  "200": {
+                    "description": "",
+                    "headers": {}
+                  }
+                },
+                "deprecated": false,
+                "security": [
+                  {
+                    "bearer": []
+                  }
+                ]
+            }
+        },    
     "components": {
       "schemas": {
         "signuprequest": {
@@ -534,4 +559,5 @@ const swaggerDocumentation = {
       }
     ]
   }
+};
 module.exports = swaggerDocumentation;
