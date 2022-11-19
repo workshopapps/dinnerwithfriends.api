@@ -12,7 +12,7 @@ To install this application, the following steps are to be followed;
 3. Run `npm install yarn` -y to install yarn on your local machine
 4. Run `yarn install` to install all packages and dependencies the app will run on
 5. Create a `.env` file on the root folder and save the database connection string to variable MONGO_URI
-6. Run `npm run dev to run the application
+6. Run `npm run dev` to run the application
 
 
 
