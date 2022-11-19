@@ -42,7 +42,22 @@ async function generateJWTToken(payload, secret, expireDuration) {
   });
 }
 
+const googleSendToken = (data, status, message, res) => {
+  let token = '';
 
+  // remove password from output
+  if (data) {
+    token = signToken(data);
+    data.id = null;
+  }
+
+  return res.json({
+    status,
+    token,
+    message,
+    data,
+  });
+};
 
 const protect = asyncHandler(async (req, res, next) => {
   // get token and check if it is there
@@ -81,4 +96,5 @@ module.exports = {
   createSendToken,
   protect,
   generateJWTToken,
+  googleSendToken
 };
