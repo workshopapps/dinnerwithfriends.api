@@ -1,25 +1,9 @@
 const jwt = require('jsonwebtoken');
 const mongoose = require('mongoose');
-// const {createParticipantSchema} = require("../validators");
 const {Participant} = require("../models");
 const { validationResult } = require('express-validator');
 
-// const addParticipant = asyncHandler(async (req, res, next) => {
-//     const {fullname, email, participant_id, prefered_date_time} = req.body;
-
-//     const validateUserInput = createParticipantSchema.validate({ fullname, email, prefered_date_time });
-
-//     const participantData = {
-//             fullname,
-//             email,
-//             participant_id,
-//             prefered_date_time
-//         }
-
-//         const participant = await new Participant(participantData).save();
-//         const message = 'Participant added successfully';
-//         return services.newParticipantToken(participant, 'success', message, res);
-//   });
+//adding a participant
 const addParticipant = (req, res, next) => {
 
   const errors = validationResult(req);
@@ -53,6 +37,28 @@ const addParticipant = (req, res, next) => {
       }
     };
 
+    //deleting a participant
+    const deleteParticipant = (req, res, next) => {
+      Participant.findByIdAndDelete({_id: req.params.id}).exec().then(result => {
+        res.status(200).json({message: 'Participant deleted'});
+      }).catch(err => {
+        console.log(err);
+        res.status(500).json({error: err});
+      });
+    };
+    
+    //Updating a Participant
+    const updateParticipant = (req, res, next) => {
+      Participant.updateOne({fullname: req.body.fullname, email: req.body.email, prefered_date_time: req.body.prefered_date_time}).exec().then(result => {
+        res.status(200).json({message: 'Partcipant updated'});
+      }).catch(err => {
+        console.log(err);
+        res.status(500).json({error: err});
+      });
+    };
+
   module.exports = {
-    addParticipant
+    addParticipant,
+    deleteParticipant,
+    updateParticipant
   }
