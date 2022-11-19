@@ -1,7 +1,10 @@
 /* eslint-disable linebreak-style */
+/* eslint-disable camelcase */
 const jwt = require('jsonwebtoken');
 const mongoose = require('mongoose');
 const { validationResult } = require('express-validator');
+const asyncHandler = require('express-async-handler');
+const services = require('../services');
 const { Participant } = require('../models');
 
 // adding a participant
@@ -18,7 +21,6 @@ const addParticipant = (req, res, next) => {
         return res.status(409).json({ message: 'Participant with this email already added' });
       }
       const npart = new Participant({
-        _id: new mongoose.Types.ObjectId(),
         fullname: req.body.fullname,
         email: req.body.email,
         prefered_date_time: req.body.preferred_date_time,
@@ -36,14 +38,19 @@ const addParticipant = (req, res, next) => {
 };
 
 // deleting a participant
-const deleteParticipant = (req, res, next) => {
-  Participant.findByIdAndDelete({ _id: req.params.id }).exec().then((result) => {
-    res.status(200).json({ message: 'Participant deleted' });
-  }).catch((err) => {
-    console.log(err);
-    res.status(500).json({ error: err });
-  });
-};
+const deleteParticipant = asyncHandler(async (req, res, next) => {
+  const participant_id = req.params.id;
+  Participant.findByIdAndDelete(
+    (participant_id),
+    (err, data) => {
+      if (err) {
+        return services.createSendToken({}, 'error', err, res);
+      }
+      const message = 'Successfully Deleted Participant';
+      return services.newParticipantToken(data, 'success', message, res);
+    },
+  );
+});
 
 // Updating a Participant
 const updateParticipant = (req, res, next) => {
