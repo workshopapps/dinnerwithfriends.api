@@ -10,6 +10,7 @@ const swaggerDocumentation = {
     "servers": [
       {
         "url": "https://prybar.onrender.com/api/v1",
+        "description": "production",
         "variables": {}
       },
       {
