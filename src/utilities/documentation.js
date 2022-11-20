@@ -1,774 +1,1642 @@
 const { signupRouteDoc, loginRouteDoc } = require('../routes/v1/index');
 
 const swaggerDocumentation = {
-  openapi: '3.0.0',
-  info: {
-    title: 'Catch-up API',
-    contact: {},
-    version: '1.0',
-  },
-  servers: [
-    {
-      url: 'http://example.com/api/v1',
-      description: 'production server',
-      variables: {},
+    "openapi": "3.0.0",
+    "info": {
+      "title": "Catchup",
+      "contact": {},
+      "version": "1.0"
     },
-    {
-      url: 'http://localhost:8800/api/v1',
-      description: '',
-      variables: {},
-    },
-  ],
-  paths: {
-    '/auth/signup': {
-      post: {
-        tags: ['Auth'],
-        summary: 'signup',
-        description: 'This endpoint registers a new user.',
-        operationId: 'signup',
-        parameters: [],
-        requestBody: {
-          description: '',
-          content: {
-            'application/json': {
-              schema: {
-                allOf: [
-                  {
-                    $ref: '#/components/schemas/signuprequest',
-                  },
-                  {
-                    example: {
-                      name: 'James Ocee',
-                      email: 'ocjay24@gmail.com',
-                      password: 'catchup123',
-                    },
-                  },
-                ],
-              },
-              example: {
-                name: 'James Ocee',
-                email: 'ocjay24@gmail.com',
-                password: 'catchup123',
-              },
-            },
-          },
-          required: true,
-        },
-        responses: {
-          200: {
-            description: '',
-            headers: {},
-            content: {
-                'application/json': {
-                  schema: {
-                    type: 'object',
-                    example: {
-                      status: 'status of the operation',                      
-                      message: 'error or success message',
-                      data: '{}',
-                    },
-                  },
-                },
-              },
-          },
-        },
-        deprecated: false,
-        security: [],
-      },
-    },
-    '/auth/signin': {
-      post: {
-        tags: ['Auth'],
-        summary: 'login',
-        description: 'This signs an existing user in.',
-        operationId: 'login',
-        parameters: [],
-        requestBody: {
-          description: '',
-          content: {
-            'application/json': {
-              schema: {
-                allOf: [
-                  {
-                    $ref: '#/components/schemas/loginrequest',
-                  },
-                  {
-                    example: {
-                      email: 'ocjay24@gmail.com',
-                      password: 'catchup123',
-                    },
-                  },
-                ],
-              },
-              example: {
-                email: 'ocjay24@gmail.com',
-                password: 'catchup123',
-              },
-            },
-          },
-          required: true,
-        },
-        responses: {
-          200: {
-            description: 'OK',
-            headers: {},
-            content: {
-              'application/json': {
-                schema: {
-                  type: 'object',
-                  example: {
-                    success: true,
-                    message: 'Logged in successfully',
-                    user: {
-                    name: 'user\'s name',
-                    id: 'user_id',
-                    email: 'user email',
-                    },
-                    accessToken: 'token',
-                  },
-                },
-              },
-            },
-          },
-        },
-        deprecated: false,
-        security: [],
-      },
-    },
-    '/auth/refresh': {
-        get: {
-          tags: ['Auth'],
-          summary: 'refresh',
-          description: 'This handles refresh token.',
-          operationId: 'refresh',
-          parameters: [],
-          responses: {
-            200: {
-              description: 'OK',
-              content: {
-                'application/json': {
-                  schema: {
-                    type: 'object',
-                    example: {                      
-                      accessToken: 'token',
-                    },
-                  },
-                },
-              },
-            },
-          },
-          deprecated: false,
-          security: [],
-        },
-    },
-    '/auth/recover/generate': {
-        post: {
-          tags: ['Auth'],
-          summary: 'Recover account token',
-          description: 'This generates a recover account token.',
-          operationId: 'Recover account',
-          parameters: [],
-          requestBody: {
-            description: '',
-            content: {
-              'application/json': {
-                schema: {
-                  allOf: [
-                    {
-                      $ref: '#/components/schemas/loginrequest',
-                    },
-                    {
-                      example: {
-                        email: 'ocjay24@gmail.com',
-                      },
-                    },
-                  ],
-                },
-                example: {
-                  email: 'ocjay24@gmail.com',
-                },
-              },
-            },
-            required: true,
-          },
-          responses: {
-            200: {
-              description: 'OK',
-              headers: {},
-              content: {
-                'application/json': {
-                  schema: {
-                    type: 'object',
-                    example: {
-                        status: 'success',
-                        message: 'account recovery token has been sent to your email',
-                        data: {
-                          account_recovery_token: 'account Recovery Token token',
-                        },
-                    },
-                  },
-                },
-              },
-            },
-          },
-          deprecated: false,
-          security: [],
-        },
-    },
-    '/auth/recover/confirm': {
-        post: {
-          tags: ['Auth'],
-          summary: 'Recover account',
-          description: 'This recovers a user\'s account.',
-          operationId: 'Recover account',
-          parameters: [],
-          requestBody: {
-            description: '',
-            content: {
-              'application/json': {
-                schema: {
-                  allOf: [
-                    {
-                      $ref: '#/components/schemas/loginrequest',
-                    },
-                    {
-                      example: {
-                        token: 'access token',
-                        email: 'ocjay24@gmail.com',
-                        password: 'user password'
-                      },
-                    },
-                  ],
-                },
-                example: {
-                  email: 'ocjay24@gmail.com',
-                  email: 'ocjay24@gmail.com',
-                  password: 'user password'
-                },
-              },
-            },
-            required: true,
-          },
-          responses: {
-            200: {
-              description: 'OK',
-              headers: {},
-              content: {
-                'application/json': {
-                  schema: {
-                    type: 'object',
-                    example: {
-                        status: 'success',
-                        message: 'account recovered',
-                    },
-                  },
-                },
-              },
-            },
-          },
-          deprecated: false,
-          security: [],
-        },
-    },
-    '/event': {
-      post: {
-        tags: ['Events'],
-        summary: 'Create event',
-        description: 'This enables a signed in user to create an event.',
-        operationId: 'Createevent',
-        parameters: [],
-        requestBody: {
-          description: '',
-          content: {
-            'application/json': {
-              schema: {
-                allOf: [
-                  {
-                    $ref: '#/components/schemas/CreateeventRequest',
-                  },
-                  {
-                    example: {
-                      event_title: 'Time out with friends',
-                      event_description:
-                        'A date to have dinner with family and friends',
-                      location: 'Sheraton Hotels',
-                      event_type: 'Dinner',
-                      participant_number: '5',
-                      start_date: '25/12/22',
-                      end_date: '25/12/22',
-                      host_prefered_time: '7pm',
-                    },
-                  },
-                ],
-              },
-              example: {
-                event_title: 'Time out with friends',
-                event_description:
-                  'A date to have dinner with family and friends',
-                location: 'Sheraton Hotels',
-                event_type: 'Dinner',
-                participant_number: '5',
-                start_date: '25/12/22',
-                end_date: '25/12/22',
-                host_prefered_time: '7pm',
-              },
-            },
-          },
-          required: true,
-        },
-        responses: {
-          200: {
-            description: '',
-            headers: {},
-            content: {
-              'application/json': {
-                schema: {
-                  type: 'object',
-                  example: {
-                    status: 'status of the operation',
-                    token: 'data_id token',
-                    message: 'error or success message',
-                    data: 'event object',
-                  },
-                },
-              },
-            },
-          },
-        },
-        deprecated: false,
-        security: [
-          {
-            bearer: [],
-          },
-        ],
-      },
-      get: {
-        tags: ['Events'],
-        summary: 'Get all events',
-        description: 'This end point returns a collection of a users events.',
-        operationId: 'Getallevents',
-        parameters: [],
-        responses: {
-          200: {
-            description: '',
-            headers: {},
-            content: {
-                'application/json': {
-                  schema: {
-                    type: 'object',
-                    example: {
-                      status: 'status of the operation',
-                      token: 'data_id token',
-                      message: 'error or success message',
-                      data: 'events object',
-                    },
-                  },
-                },
-              },
-          },
-        },
-        deprecated: false,
-        security: [
-          {
-            bearer: [],
-          },
-        ],
-      },
-    },
-    '/event/{id}': {
-      get: {
-        tags: ['Events'],
-        summary: 'Get One Event',
-        description: 'This endpoint returns a single event.',
-        operationId: 'GetOneEvent',
-        parameters: [
-          {
-            name: 'id',
-            in: 'path',
-            description: 'Single event id',
-            required: true,
-            style: 'simple',
-            schema: {
-              type: 'string',
-              example: 'null',
-            },
-          },
-        ],
-        responses: {
-          200: {
-            description: '',
-            headers: {},
-            content: {
-                'application/json': {
-                  schema: {
-                    type: 'object',
-                    example: {
-                      status: 'status of the operation',
-                      token: 'data_id token',
-                      message: 'error or success message',
-                      data: 'single event ',
-                    },
-                  },
-                },
-              },
-          },
-        },
-        deprecated: false,
-        security: [
-          {
-            bearer: [],
-          },
-        ],
-      },
-      delete: {
-        tags: ['Events'],
-        summary: 'Delete Event',
-        description: 'This deletes a single event by id',
-        operationId: 'DeleteEvent',
-        parameters: [
-          {
-            name: 'id',
-            in: 'path',
-            description: 'Single event id',
-            required: true,
-            style: 'simple',
-            schema: {
-              type: 'string',
-              example: 'null',
-            },
-          },
-        ],
-        responses: {
-          200: {
-            description: '',
-            headers: {},
-            content: {
-                'application/json': {
-                  schema: {
-                    type: 'object',
-                    example: {
-                      status: 'status of the operation',
-                      token: 'data_id token',
-                      message: 'error or success message',
-                      data: 'deleted event',
-                    },
-                  },
-                },
-              },
-          },
-        },
-        deprecated: false,
-        security: [
-          {
-            bearer: [],
-          },
-        ],
-      },
-      patch: {
-        tags: ['Events'],
-        summary: 'Update Event',
-        description: 'This endpoint updates an existing event.',
-        operationId: 'UpdateEvent',
-        parameters: [
-          {
-            name: 'id',
-            in: 'path',
-            description: 'Single event id',
-            required: true,
-            style: 'simple',
-            schema: {
-              type: 'string',
-              example: 'null',
-            },
-          },
-        ],
-        responses: {
-          200: {
-            description: '',
-            headers: {},
-            content: {
-                'application/json': {
-                  schema: {
-                    type: 'object',
-                    example: {
-                      status: 'status of the operation',
-                      token: 'data_id token',
-                      message: 'success message',
-                      data: 'updated event object',
-                    },
-                  },
-                },
-              },
-          },
-        },
-        deprecated: false,
-        security: [
-          {
-            bearer: [],
-          },
-        ],
-      },
-    },
-    '/event/token/{id}': {
-      get: {
-        tags: ['Events'],
-        summary: 'Get single Event by Token',
-        description: 'This gets a single event by token id',
-        operationId: 'GetsingleEventbyToken',
-        parameters: [
-          {
-            name: 'id',
-            in: 'path',
-            description: 'Event token id',
-            required: true,
-            style: 'simple',
-            schema: {
-              type: 'string',
-              example: 'null',
-            },
-          },
-        ],
-        responses: {
-          200: {
-            description: '',
-            headers: {},
-            content: {
-                'application/json': {
-                  schema: {
-                    type: 'object',
-                    example: {
-                      status: 'status of the operation',
-                      token: 'data_id token',
-                      message: 'success message',
-                      data: 'single event object',
-                    },
-                  },
-                },
-              },
-          },
-        },
-        deprecated: false,
-      },
-    },
-    '/participant/addpart': {
-      post: {
-        tags: ['Participant'],
-        summary: 'Create Participant',
-        description: 'To create a participant, access this endpoint.',
-        operationId: 'CreateParticipant',
-        parameters: [],
-        requestBody: {
-          description: '',
-          content: {
-            'application/json': {
-              schema: {
-                allOf: [
-                  {
-                    $ref: '#/components/schemas/CreateParticipantRequest',
-                  },
-                  {
-                    example: {
-                      fullname: 'James Ochapa',
-                      email: 'ocee@catchup.com',
-                      prefered_date_time: '25/12/2022 4:00',
-                    },
-                  },
-                ],
-              },
-              example: {
-                fullname: 'James Ochapa',
-                email: 'ocee@catchup.com',
-                prefered_date_time: '25/12/2022 4:00',
-              },
-            },
-          },
-          required: true,
-        },
-        responses: {
-          200: {
-            description: '',
-            headers: {},
-          },
-        },
-        deprecated: false,
-      },
-    },
-    '/participant/delete/{id}': {
-      delete: {
-        tags: ['Participant'],
-        summary: 'Delete One Participant',
-        description: 'This deletes a single participant',
-        operationId: 'DeleteParticipant',
-        parameters: [],
-        responses: {
-          200: {
-            description: '',
-            headers: {},
-          },
-        },
-        deprecated: false,
-        security: [
-          {
-            bearer: [],
-          },
-        ],
-      },
-    },
-    '/participant/update/{id}': {
-      patch: {
-        tags: ['Participant'],
-        summary: 'Updates One Participant',
-        description: 'This updates a single participant',
-        operationId: 'UpdateParticipant',
-        parameters: [],
-        responses: {
-          200: {
-            description: '',
-            headers: {},
-          },
-        },
-        deprecated: false,
-        security: [
-          {
-            bearer: [],
-          },
-        ],
-      },
-    },
-    components: {
-      schemas: {
-        signuprequest: {
-          title: 'signuprequest',
-          required: ['name', 'email', 'password'],
-          type: 'object',
-          properties: {
-            name: {
-              type: 'string',
-            },
-            email: {
-              type: 'string',
-            },
-            password: {
-              type: 'string',
-            },
-          },
-          example: {
-            name: 'James Ocee',
-            email: 'ocjay24@gmail.com',
-            password: 'catchup123',
-          },
-        },
-        loginrequest: {
-          title: 'loginrequest',
-          required: ['email', 'password'],
-          type: 'object',
-          properties: {
-            email: {
-              type: 'string',
-            },
-            password: {
-              type: 'string',
-            },
-          },
-          example: {
-            email: 'ocjay24@gmail.com',
-            password: 'catchup123',
-          },
-        },
-        CreateeventRequest: {
-          title: 'CreateeventRequest',
-          required: [
-            'event_title',
-            'event_description',
-            'location',
-            'event_type',
-            'participant_number',
-            'start_date',
-            'end_date',
-            'host_prefered_time',
-          ],
-          type: 'object',
-          properties: {
-            event_title: {
-              type: 'string',
-            },
-            event_description: {
-              type: 'string',
-            },
-            location: {
-              type: 'string',
-            },
-            event_type: {
-              type: 'string',
-            },
-            participant_number: {
-              type: 'string',
-            },
-            start_date: {
-              type: 'string',
-            },
-            end_date: {
-              type: 'string',
-            },
-            host_prefered_time: {
-              type: 'string',
-            },
-          },
-          example: {
-            event_title: 'Time out with friends',
-            event_description: 'A date to have dinner with family and friends',
-            location: 'Sheraton Hotels',
-            event_type: 'Dinner',
-            participant_number: '5',
-            start_date: '25/12/22',
-            end_date: '25/12/22',
-            host_prefered_time: '7pm',
-          },
-        },
-        CreateParticipantRequest: {
-          title: 'CreateParticipantRequest',
-          required: ['fullname', 'email', 'prefered_date_time'],
-          type: 'object',
-          properties: {
-            fullname: {
-              type: 'string',
-            },
-            email: {
-              type: 'string',
-            },
-            prefered_date_time: {
-              type: 'string',
-            },
-          },
-          example: {
-            fullname: 'James Ochapa',
-            email: 'ocee@catchup.com',
-            prefered_date_time: '25/12/2022 4:00',
-          },
-        },
-      },
-      securitySchemes: {
-        bearer: {
-          type: 'http',
-          scheme: 'bearer',
-        },
-      },
-    },
-    security: [],
-    tags: [
+    "servers": [
       {
-        name: 'Auth',
-        description: '',
+        "url": "https://prybar.onrender.com/api/v1",
+        "variables": {}
       },
       {
-        name: 'Events',
-        description: '',
-      },
-      {
-        name: 'Participant',
-        description: '',
-      },
+        "url": "http://localhost:8800/api/v1",
+        "description": "",
+        "variables": {}
+      }
     ],
-  },
-};
+    "paths": {
+      "/auth/signup": {
+        "post": {
+          "tags": [
+            "auth"
+          ],
+          "summary": "signup",
+          "description": "Registers a new user",
+          "operationId": "signup",
+          "parameters": [],
+          "requestBody": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/signuprequest"
+                    },
+                    {
+                      "example": {
+                        "name": "James Ocee",
+                        "email": "ocjay24@gmail.com",
+                        "password": "catchup123"
+                      }
+                    }
+                  ]
+                },
+                "example": {
+                  "name": "James Ocee",
+                  "email": "ocjay24@gmail.com",
+                  "password": "catchup123"
+                }
+              }
+            },
+            "required": true
+          },
+          "responses": {
+            "200": {
+              "description": "OK",
+              "headers": {
+                "Access-Control-Allow-Origin": {
+                  "content": {
+                    "text/plain": {
+                      "schema": {
+                        "type": "string"
+                      },
+                      "example": "*"
+                    }
+                  }
+                },
+                "Content-Security-Policy": {
+                  "content": {
+                    "text/plain": {
+                      "schema": {
+                        "type": "string"
+                      },
+                      "example": "default-src 'self';base-uri 'self';block-all-mixed-content;font-src 'self' https: data:;form-action 'self';frame-ancestors 'self';img-src 'self' data:;object-src 'none';script-src 'self';script-src-attr 'none';style-src 'self' https: 'unsafe-inline';upgrade-insecure-requests"
+                    }
+                  }
+                },
+                "Cross-Origin-Embedder-Policy": {
+                  "content": {
+                    "text/plain": {
+                      "schema": {
+                        "type": "string"
+                      },
+                      "example": "require-corp"
+                    }
+                  }
+                },
+                "Cross-Origin-Opener-Policy": {
+                  "content": {
+                    "text/plain": {
+                      "schema": {
+                        "type": "string"
+                      },
+                      "example": "same-origin"
+                    }
+                  }
+                },
+                "Cross-Origin-Resource-Policy": {
+                  "content": {
+                    "text/plain": {
+                      "schema": {
+                        "type": "string"
+                      },
+                      "example": "same-origin"
+                    }
+                  }
+                },
+                "X-DNS-Prefetch-Control": {
+                  "content": {
+                    "text/plain": {
+                      "schema": {
+                        "type": "string"
+                      },
+                      "example": "off"
+                    }
+                  }
+                },
+                "Expect-CT": {
+                  "content": {
+                    "text/plain": {
+                      "schema": {
+                        "type": "string"
+                      },
+                      "example": "max-age=0"
+                    }
+                  }
+                },
+                "X-Frame-Options": {
+                  "content": {
+                    "text/plain": {
+                      "schema": {
+                        "type": "string"
+                      },
+                      "example": "SAMEORIGIN"
+                    }
+                  }
+                },
+                "Strict-Transport-Security": {
+                  "content": {
+                    "text/plain": {
+                      "schema": {
+                        "type": "string"
+                      },
+                      "example": "max-age=15552000; includeSubDomains"
+                    }
+                  }
+                },
+                "X-Download-Options": {
+                  "content": {
+                    "text/plain": {
+                      "schema": {
+                        "type": "string"
+                      },
+                      "example": "noopen"
+                    }
+                  }
+                },
+                "X-Content-Type-Options": {
+                  "content": {
+                    "text/plain": {
+                      "schema": {
+                        "type": "string"
+                      },
+                      "example": "nosniff"
+                    }
+                  }
+                },
+                "Origin-Agent-Cluster": {
+                  "content": {
+                    "text/plain": {
+                      "schema": {
+                        "type": "string"
+                      },
+                      "example": "?1"
+                    }
+                  }
+                },
+                "X-Permitted-Cross-Domain-Policies": {
+                  "content": {
+                    "text/plain": {
+                      "schema": {
+                        "type": "string"
+                      },
+                      "example": "none"
+                    }
+                  }
+                },
+                "Referrer-Policy": {
+                  "content": {
+                    "text/plain": {
+                      "schema": {
+                        "type": "string"
+                      },
+                      "example": "no-referrer"
+                    }
+                  }
+                },
+                "X-XSS-Protection": {
+                  "content": {
+                    "text/plain": {
+                      "schema": {
+                        "type": "string"
+                      },
+                      "example": "0"
+                    }
+                  }
+                },
+                "X-Powered-By": {
+                  "content": {
+                    "text/plain": {
+                      "schema": {
+                        "type": "string"
+                      },
+                      "example": "Express"
+                    }
+                  }
+                },
+                "Content-Length": {
+                  "content": {
+                    "text/plain": {
+                      "schema": {
+                        "type": "string"
+                      },
+                      "example": "82"
+                    }
+                  }
+                },
+                "ETag": {
+                  "content": {
+                    "text/plain": {
+                      "schema": {
+                        "type": "string"
+                      },
+                      "example": "W/\"52-+hh2O2j0j5m0Fyx/K+T6LyG5CEU\""
+                    }
+                  }
+                },
+                "Date": {
+                  "content": {
+                    "text/plain": {
+                      "schema": {
+                        "type": "string"
+                      },
+                      "example": "Sat, 19 Nov 2022 15:35:25 GMT"
+                    }
+                  }
+                },
+                "Connection": {
+                  "content": {
+                    "text/plain": {
+                      "schema": {
+                        "type": "string"
+                      },
+                      "example": "keep-alive"
+                    }
+                  }
+                },
+                "Keep-Alive": {
+                  "content": {
+                    "text/plain": {
+                      "schema": {
+                        "type": "string"
+                      },
+                      "example": "timeout=5"
+                    }
+                  }
+                }
+              },
+              "content": {
+                "application/json; charset=utf-8": {
+                  "schema": {
+                    "allOf": [
+                      {
+                        "$ref": "#/components/schemas/example"
+                      },
+                      {
+                        "example": {
+                          "status": "success",
+                          "token": "",
+                          "message": "Account created successfully",
+                          "data": {}
+                        }
+                      }
+                    ]
+                  },
+                  "example": {
+                    "status": "success",
+                    "token": "",
+                    "message": "Account created successfully",
+                    "data": {}
+                  }
+                }
+              }
+            }
+          },
+          "deprecated": false,
+          "security": []
+        }
+      },
+      "/auth/signin": {
+        "post": {
+          "tags": [
+            "auth"
+          ],
+          "summary": "signin",
+          "description": "Signs in a user",
+          "operationId": "signin",
+          "parameters": [],
+          "requestBody": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/signinrequest"
+                    },
+                    {
+                      "example": {
+                        "email": "ocjay24@gmail.com",
+                        "password": "catchup123"
+                      }
+                    }
+                  ]
+                },
+                "example": {
+                  "email": "ocjay24@gmail.com",
+                  "password": "catchup123"
+                }
+              }
+            },
+            "required": true
+          },
+          "responses": {
+            "200": {
+              "description": "OK",
+              "headers": {},
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "allOf": [
+                      {
+                        "$ref": "#/components/schemas/signin"
+                      },
+                      {
+                        "example": {
+                          "success": true,
+                          "message": "succcess message",
+                          "user": {
+                            "name": "user name",
+                            "id": "user_id",
+                            "email": "user email"
+                          },
+                          "accessToken": "token"
+                        }
+                      }
+                    ]
+                  },
+                  "example": {
+                    "success": true,
+                    "message": "Logged in successfully",
+                    "user": {
+                      "name": "user name",
+                      "id": "user_id",
+                      "email": "user email"
+                    },
+                    "accessToken": "token"
+                  }
+                }
+              }
+            }
+          },
+          "deprecated": false,
+          "security": []
+        }
+      },
+      "/auth/recover/generate": {
+        "post": {
+          "tags": [
+            "auth"
+          ],
+          "summary": "generate recover token",
+          "description": "generates a recover token",
+          "operationId": "generaterecovertoken",
+          "parameters": [],
+          "requestBody": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/generaterecovertokenrequest"
+                    },
+                    {
+                      "example": {
+                        "email": "ocjay@gmail.com"
+                      }
+                    }
+                  ]
+                },
+                "example": {
+                  "email": "ocjay@gmail.com"
+                }
+              }
+            },
+            "required": true
+          },
+          "responses": {
+            "200": {
+              "description": "OK",
+              "headers": {},
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "allOf": [
+                      {
+                        "$ref": "#/components/schemas/generaterecovertoken"
+                      },
+                      {
+                        "example": {
+                          "status": "success",
+                          "message": "account recovery token has been sent to your email",
+                          "data": {
+                            "account_recovery_token": "account Recovery Token token"
+                          }
+                        }
+                      }
+                    ]
+                  },
+                  "example": {
+                    "status": "success",
+                    "message": "account recovery token has been sent to your email",
+                    "data": {
+                      "account_recovery_token": "account Recovery Token token"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "deprecated": false,
+          "security": []
+        }
+      },
+      "/auth/recover/confirm": {
+        "post": {
+          "tags": [
+            "auth"
+          ],
+          "summary": "recover account",
+          "description": "This recovers user account",
+          "operationId": "recoveraccount",
+          "parameters": [],
+          "requestBody": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/recoveraccountrequest"
+                    },
+                    {
+                      "example": {
+                        "token": "access token",
+                        "email": "ocjay24@gmail.com",
+                        "password": "user password"
+                      }
+                    }
+                  ]
+                },
+                "example": {
+                  "token": "access token",
+                  "email": "ocjay24@gmail.com",
+                  "password": "user password"
+                }
+              }
+            },
+            "required": true
+          },
+          "responses": {
+            "200": {
+              "description": "OK",
+              "headers": {},
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "allOf": [
+                      {
+                        "$ref": "#/components/schemas/recoveraccount"
+                      },
+                      {
+                        "example": {
+                          "status": "success",
+                          "message": "account recovered"
+                        }
+                      }
+                    ]
+                  },
+                  "example": {
+                    "status": "success",
+                    "message": "account recovered"
+                  }
+                }
+              }
+            }
+          },
+          "deprecated": false,
+          "security": []
+        }
+      },
+      "/auth/refresh": {
+        "get": {
+          "tags": [
+            "auth"
+          ],
+          "summary": "Refresh token",
+          "description": "This generates a refresh token",
+          "operationId": "Refreshtoken",
+          "parameters": [],
+          "responses": {
+            "200": {
+              "description": "OK",
+              "headers": {},
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "allOf": [
+                      {
+                        "$ref": "#/components/schemas/Refreshtoken"
+                      },
+                      {
+                        "example": {
+                          "accessToken": "token"
+                        }
+                      }
+                    ]
+                  },
+                  "example": {
+                    "accessToken": "token"
+                  }
+                }
+              }
+            }
+          },
+          "deprecated": false,
+          "security": []
+        }
+      },
+      "/event": {
+        "post": {
+          "tags": [
+            "Event"
+          ],
+          "summary": "Create event",
+          "description": "Creates a new event",
+          "operationId": "Createevent",
+          "parameters": [],
+          "requestBody": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/CreateeventRequest"
+                    },
+                    {
+                      "example": {
+                        "event_title": "Time out with friends",
+                        "event_description": "A date to have dinner with family and friends",
+                        "location": "Sheraton Hotels",
+                        "event_type": "Dinner",
+                        "participant_number": "5",
+                        "start_date": "25/12/22",
+                        "end_date": "25/12/22",
+                        "host_prefered_time": "7pm"
+                      }
+                    }
+                  ]
+                },
+                "example": {
+                  "event_title": "Time out with friends",
+                  "event_description": "A date to have dinner with family and friends",
+                  "location": "Sheraton Hotels",
+                  "event_type": "Dinner",
+                  "participant_number": "5",
+                  "start_date": "25/12/22",
+                  "end_date": "25/12/22",
+                  "host_prefered_time": "7pm"
+                }
+              }
+            },
+            "required": true
+          },
+          "responses": {
+            "200": {
+              "description": "OK",
+              "headers": {},
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "allOf": [
+                      {
+                        "$ref": "#/components/schemas/Createevent"
+                      },
+                      {
+                        "example": {
+                          "event_description": "A date to have dinner with family and friends",
+                          "location": "Sheraton Hotels",
+                          "event_type": "Dinner",
+                          "participant_number": "5",
+                          "start_date": "25/12/22",
+                          "end_date": "25/12/22",
+                          "host_prefered_time": "7pm",
+                          "event_title": "Time out with friends"
+                        }
+                      }
+                    ]
+                  },
+                  "example": {
+                    "event_description": "A date to have dinner with family and friends",
+                    "location": "Sheraton Hotels",
+                    "event_type": "Dinner",
+                    "participant_number": "5",
+                    "start_date": "25/12/22",
+                    "end_date": "25/12/22",
+                    "host_prefered_time": "7pm",
+                    "event_title": "Time out with friends"
+                  }
+                }
+              }
+            }
+          },
+          "deprecated": false,
+          "security": [
+            {
+              "bearer": []
+            }
+          ]
+        },
+        "get": {
+          "tags": [
+            "Event"
+          ],
+          "summary": "Get all events",
+          "description": "Returns all the users events.",
+          "operationId": "Getallevents",
+          "parameters": [],
+          "responses": {
+            "200": {
+              "description": "OK",
+              "headers": {},
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "allOf": [
+                      {
+                        "$ref": "#/components/schemas/Getallevents"
+                      },
+                      {
+                        "example": {
+                          "status": "status of the operation",
+                          "token": "data_id token",
+                          "message": "error or success message",
+                          "data": "events object"
+                        }
+                      }
+                    ]
+                  },
+                  "example": {
+                    "status": "status of the operation",
+                    "token": "data_id token",
+                    "message": "error or success message",
+                    "data": "events object"
+                  }
+                }
+              }
+            }
+          },
+          "deprecated": false,
+          "security": [
+            {
+              "bearer": []
+            }
+          ]
+        }
+      },
+      "/event/{id}": {
+        "get": {
+          "tags": [
+            "Event"
+          ],
+          "summary": "Get One Event",
+          "description": "This returns a single event.",
+          "operationId": "GetOneEvent",
+          "parameters": [
+            {
+              "name": "id",
+              "in": "path",
+              "description": "Single event id",
+              "required": true,
+              "style": "simple",
+              "schema": {
+                "type": "string",
+                "example": "null"
+              }
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "OK",
+              "headers": {},
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "allOf": [
+                      {
+                        "$ref": "#/components/schemas/GetOneEvent"
+                      },
+                      {
+                        "example": {
+                          "status": "status of the operation",
+                          "token": "data_id token",
+                          "message": "error or success message",
+                          "data": "single event"
+                        }
+                      }
+                    ]
+                  },
+                  "example": {
+                    "status": "status of the operation",
+                    "token": "data_id token",
+                    "message": "error or success message",
+                    "data": "single event"
+                  }
+                }
+              }
+            }
+          },
+          "deprecated": false,
+          "security": [
+            {
+              "bearer": []
+            }
+          ]
+        },
+        "delete": {
+          "tags": [
+            "Event"
+          ],
+          "summary": "Delete Event",
+          "description": "An endpoint to delete an event.",
+          "operationId": "DeleteEvent",
+          "parameters": [
+            {
+              "name": "id",
+              "in": "path",
+              "description": "Single event id",
+              "required": true,
+              "style": "simple",
+              "schema": {
+                "type": "string",
+                "example": "null"
+              }
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "OK",
+              "headers": {},
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "allOf": [
+                      {
+                        "$ref": "#/components/schemas/DeleteEvent"
+                      },
+                      {
+                        "example": {
+                          "status": "status of the operation",
+                          "message": "success message",
+                          "data": "deleted event"
+                        }
+                      }
+                    ]
+                  },
+                  "example": {
+                    "status": "status of the operation",
+                    "message": "success message",
+                    "data": "deleted event"
+                  }
+                }
+              }
+            }
+          },
+          "deprecated": false,
+          "security": [
+            {
+              "bearer": []
+            }
+          ]
+        },
+        "patch": {
+          "tags": [
+            "Event"
+          ],
+          "summary": "Update Event",
+          "description": "Update a single event.",
+          "operationId": "UpdateEvent",
+          "parameters": [
+            {
+              "name": "id",
+              "in": "path",
+              "description": "Single event id",
+              "required": true,
+              "style": "simple",
+              "schema": {
+                "type": "string",
+                "example": "null"
+              }
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "OK",
+              "headers": {},
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "allOf": [
+                      {
+                        "$ref": "#/components/schemas/UpdateEvent"
+                      },
+                      {
+                        "example": {
+                          "status": "status of the operation",
+                          "token": "data_id token",
+                          "message": "success message",
+                          "data": "updated event object"
+                        }
+                      }
+                    ]
+                  },
+                  "example": {
+                    "status": "status of the operation",
+                    "token": "data_id token",
+                    "message": "success message",
+                    "data": "updated event object"
+                  }
+                }
+              }
+            }
+          },
+          "deprecated": false,
+          "security": [
+            {
+              "bearer": []
+            }
+          ]
+        }
+      },
+      "/event/token/{id}": {
+        "get": {
+          "tags": [
+            "Event"
+          ],
+          "summary": "Get single Event by Token",
+          "description": "This endpoint returns a single event by token",
+          "operationId": "GetsingleEventbyToken",
+          "parameters": [
+            {
+              "name": "id",
+              "in": "path",
+              "description": "Event token id",
+              "required": true,
+              "style": "simple",
+              "schema": {
+                "type": "string",
+                "example": "null"
+              }
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "OK",
+              "headers": {},
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "allOf": [
+                      {
+                        "$ref": "#/components/schemas/GetsingleEventbyToen"
+                      },
+                      {
+                        "example": {
+                          "status": "status of the operation",
+                          "token": "data_id token",
+                          "message": "success message",
+                          "data": "single event object"
+                        }
+                      }
+                    ]
+                  },
+                  "example": {
+                    "status": "status of the operation",
+                    "token": "data_id token",
+                    "message": "success message",
+                    "data": "single event object"
+                  }
+                }
+              }
+            }
+          },
+          "deprecated": false
+        }
+      },
+      "/participant/addpart": {
+        "post": {
+          "tags": [
+            "Participant"
+          ],
+          "summary": "Create Participant",
+          "description": "Create a new participant for an event.",
+          "operationId": "CreateParticipant",
+          "parameters": [],
+          "requestBody": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/CreateParticipantRequest"
+                    },
+                    {
+                      "example": {
+                        "fullname": "James Ochapa",
+                        "email": "ocee@catchup.com",
+                        "prefered_date_time": "25/12/2022 4:00"
+                      }
+                    }
+                  ]
+                },
+                "example": {
+                  "fullname": "James Ochapa",
+                  "email": "ocee@catchup.com",
+                  "prefered_date_time": "25/12/2022 4:00"
+                }
+              }
+            },
+            "required": true
+          },
+          "responses": {
+            "200": {
+              "description": "OK",
+              "headers": {},
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "allOf": [
+                      {
+                        "$ref": "#/components/schemas/CreateParticipant"
+                      },
+                      {
+                        "example": {
+                          "fullname": "James Ochapa",
+                          "email": "ocee@catchup.com",
+                          "prefered_date_time": "25/12/2022 4:00"
+                        }
+                      }
+                    ]
+                  },
+                  "example": {
+                    "fullname": "James Ochapa",
+                    "email": "ocee@catchup.com",
+                    "prefered_date_time": "25/12/2022 4:00"
+                  }
+                }
+              }
+            }
+          },
+          "deprecated": false,
+          "security": []
+        }
+      },
+      "/participant/delete/{id}": {
+        "delete": {
+          "tags": [
+            "Participant"
+          ],
+          "summary": "delete Participant",
+          "description": "Delete a single participant from an event.",
+          "operationId": "deleteParticipant",
+          "parameters": [
+            {
+              "name": "id",
+              "in": "path",
+              "description": "",
+              "required": true,
+              "style": "simple",
+              "schema": {
+                "type": "string",
+                "example": "null"
+              }
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "",
+              "headers": {}
+            }
+          },
+          "deprecated": false,
+          "security": [
+            {
+              "bearer": []
+            }
+          ]
+        }
+      },
+      "/participant/update/{id}": {
+        "patch": {
+          "tags": [
+            "Participant"
+          ],
+          "summary": "Get One Participant",
+          "description": "Update an event's participant.",
+          "operationId": "GetOneParticipant",
+          "parameters": [
+            {
+              "name": "id",
+              "in": "path",
+              "description": "",
+              "required": true,
+              "style": "simple",
+              "schema": {
+                "type": "string",
+                "example": "null"
+              }
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "",
+              "headers": {}
+            }
+          },
+          "deprecated": false,
+          "security": [
+            {
+              "bearer": []
+            }
+          ]
+        }
+      }
+    },
+    "components": {
+      "schemas": {
+        "signuprequest": {
+          "title": "signuprequest",
+          "required": [
+            "name",
+            "email",
+            "password"
+          ],
+          "type": "object",
+          "properties": {
+            "name": {
+              "type": "string"
+            },
+            "email": {
+              "type": "string"
+            },
+            "password": {
+              "type": "string"
+            }
+          },
+          "example": {
+            "name": "James Ocee",
+            "email": "ocjay24@gmail.com",
+            "password": "catchup123"
+          }
+        },
+        "example": {
+          "title": "example",
+          "required": [
+            "status",
+            "token",
+            "message",
+            "data"
+          ],
+          "type": "object",
+          "properties": {
+            "status": {
+              "type": "string"
+            },
+            "token": {
+              "type": "string"
+            },
+            "message": {
+              "type": "string"
+            },
+            "data": {
+              "type": "object"
+            }
+          },
+          "example": {
+            "status": "success",
+            "token": "",
+            "message": "Account created successfully",
+            "data": {}
+          }
+        },
+        "signinrequest": {
+          "title": "signinrequest",
+          "required": [
+            "email",
+            "password"
+          ],
+          "type": "object",
+          "properties": {
+            "email": {
+              "type": "string"
+            },
+            "password": {
+              "type": "string"
+            }
+          },
+          "example": {
+            "email": "ocjay24@gmail.com",
+            "password": "catchup123"
+          }
+        },
+        "signin": {
+          "title": "signin",
+          "required": [
+            "success",
+            "message",
+            "user",
+            "accessToken"
+          ],
+          "type": "object",
+          "properties": {
+            "success": {
+              "type": "boolean"
+            },
+            "message": {
+              "type": "string"
+            },
+            "user": {
+              "allOf": [
+                {
+                  "$ref": "#/components/schemas/User"
+                },
+                {}
+              ]
+            },
+            "accessToken": {
+              "type": "string"
+            }
+          },
+          "example": {
+            "success": true,
+            "message": "Logged in successfully",
+            "user": {
+              "name": "user name",
+              "id": "user_id",
+              "email": "user email"
+            },
+            "accessToken": "token"
+          }
+        },
+        "User": {
+          "title": "User",
+          "required": [
+            "name",
+            "id",
+            "email"
+          ],
+          "type": "object",
+          "properties": {
+            "name": {
+              "type": "string"
+            },
+            "id": {
+              "type": "string"
+            },
+            "email": {
+              "type": "string"
+            }
+          },
+          "example": {
+            "name": "user name",
+            "id": "user_id",
+            "email": "user email"
+          }
+        },
+        "generaterecovertokenrequest": {
+          "title": "generaterecovertokenrequest",
+          "required": [
+            "email"
+          ],
+          "type": "object",
+          "properties": {
+            "email": {
+              "type": "string"
+            }
+          },
+          "example": {
+            "email": "ocjay@gmail.com"
+          }
+        },
+        "generaterecovertoken": {
+          "title": "generaterecovertoken",
+          "required": [
+            "status",
+            "message",
+            "data"
+          ],
+          "type": "object",
+          "properties": {
+            "status": {
+              "type": "string"
+            },
+            "message": {
+              "type": "string"
+            },
+            "data": {
+              "allOf": [
+                {
+                  "$ref": "#/components/schemas/Data"
+                },
+                {}
+              ]
+            }
+          },
+          "example": {
+            "status": "success",
+            "message": "account recovery token has been sent to your email",
+            "data": {
+              "account_recovery_token": "account Recovery Token token"
+            }
+          }
+        },
+        "Data": {
+          "title": "Data",
+          "required": [
+            "account_recovery_token"
+          ],
+          "type": "object",
+          "properties": {
+            "account_recovery_token": {
+              "type": "string"
+            }
+          },
+          "example": {
+            "account_recovery_token": "account Recovery Token token"
+          }
+        },
+        "recoveraccountrequest": {
+          "title": "recoveraccountrequest",
+          "required": [
+            "token",
+            "email",
+            "password"
+          ],
+          "type": "object",
+          "properties": {
+            "token": {
+              "type": "string"
+            },
+            "email": {
+              "type": "string"
+            },
+            "password": {
+              "type": "string"
+            }
+          },
+          "example": {
+            "token": "access token",
+            "email": "ocjay24@gmail.com",
+            "password": "user password"
+          }
+        },
+        "recoveraccount": {
+          "title": "recoveraccount",
+          "required": [
+            "status",
+            "message"
+          ],
+          "type": "object",
+          "properties": {
+            "status": {
+              "type": "string"
+            },
+            "message": {
+              "type": "string"
+            }
+          },
+          "example": {
+            "status": "success",
+            "message": "account recovered"
+          }
+        },
+        "Refreshtoken": {
+          "title": "Refreshtoken",
+          "required": [
+            "accessToken"
+          ],
+          "type": "object",
+          "properties": {
+            "accessToken": {
+              "type": "string"
+            }
+          },
+          "example": {
+            "accessToken": "token"
+          }
+        },
+        "CreateeventRequest": {
+          "title": "CreateeventRequest",
+          "required": [
+            "event_title",
+            "event_description",
+            "location",
+            "event_type",
+            "participant_number",
+            "start_date",
+            "end_date",
+            "host_prefered_time"
+          ],
+          "type": "object",
+          "properties": {
+            "event_title": {
+              "type": "string"
+            },
+            "event_description": {
+              "type": "string"
+            },
+            "location": {
+              "type": "string"
+            },
+            "event_type": {
+              "type": "string"
+            },
+            "participant_number": {
+              "type": "string"
+            },
+            "start_date": {
+              "type": "string"
+            },
+            "end_date": {
+              "type": "string"
+            },
+            "host_prefered_time": {
+              "type": "string"
+            }
+          },
+          "example": {
+            "event_title": "Time out with friends",
+            "event_description": "A date to have dinner with family and friends",
+            "location": "Sheraton Hotels",
+            "event_type": "Dinner",
+            "participant_number": "5",
+            "start_date": "25/12/22",
+            "end_date": "25/12/22",
+            "host_prefered_time": "7pm"
+          }
+        },
+        "Createevent": {
+          "title": "Createevent",
+          "required": [
+            "event_description",
+            "location",
+            "event_type",
+            "participant_number",
+            "start_date",
+            "end_date",
+            "host_prefered_time",
+            "event_title"
+          ],
+          "type": "object",
+          "properties": {
+            "event_description": {
+              "type": "string"
+            },
+            "location": {
+              "type": "string"
+            },
+            "event_type": {
+              "type": "string"
+            },
+            "participant_number": {
+              "type": "string"
+            },
+            "start_date": {
+              "type": "string"
+            },
+            "end_date": {
+              "type": "string"
+            },
+            "host_prefered_time": {
+              "type": "string"
+            },
+            "event_title": {
+              "type": "string"
+            }
+          },
+          "example": {
+            "event_description": "A date to have dinner with family and friends",
+            "location": "Sheraton Hotels",
+            "event_type": "Dinner",
+            "participant_number": "5",
+            "start_date": "25/12/22",
+            "end_date": "25/12/22",
+            "host_prefered_time": "7pm",
+            "event_title": "Time out with friends"
+          }
+        },
+        "Getallevents": {
+          "title": "Getallevents",
+          "required": [
+            "status",
+            "token",
+            "message",
+            "data"
+          ],
+          "type": "object",
+          "properties": {
+            "status": {
+              "type": "string"
+            },
+            "token": {
+              "type": "string"
+            },
+            "message": {
+              "type": "string"
+            },
+            "data": {
+              "type": "string"
+            }
+          },
+          "example": {
+            "status": "status of the operation",
+            "token": "data_id token",
+            "message": "error or success message",
+            "data": "events object"
+          }
+        },
+        "GetOneEvent": {
+          "title": "GetOneEvent",
+          "required": [
+            "status",
+            "token",
+            "message",
+            "data"
+          ],
+          "type": "object",
+          "properties": {
+            "status": {
+              "type": "string"
+            },
+            "token": {
+              "type": "string"
+            },
+            "message": {
+              "type": "string"
+            },
+            "data": {
+              "type": "string"
+            }
+          },
+          "example": {
+            "status": "status of the operation",
+            "token": "data_id token",
+            "message": "error or success message",
+            "data": "single event"
+          }
+        },
+        "GetsingleEventbyToen": {
+          "title": "GetsingleEventbyToen",
+          "required": [
+            "status",
+            "token",
+            "message",
+            "data"
+          ],
+          "type": "object",
+          "properties": {
+            "status": {
+              "type": "string"
+            },
+            "token": {
+              "type": "string"
+            },
+            "message": {
+              "type": "string"
+            },
+            "data": {
+              "type": "string"
+            }
+          },
+          "example": {
+            "status": "status of the operation",
+            "token": "data_id token",
+            "message": "success message",
+            "data": "single event object"
+          }
+        },
+        "DeleteEvent": {
+          "title": "DeleteEvent",
+          "required": [
+            "status",
+            "message",
+            "data"
+          ],
+          "type": "object",
+          "properties": {
+            "status": {
+              "type": "string"
+            },
+            "message": {
+              "type": "string"
+            },
+            "data": {
+              "type": "string"
+            }
+          },
+          "example": {
+            "status": "status of the operation",
+            "message": "success message",
+            "data": "deleted event"
+          }
+        },
+        "UpdateEvent": {
+          "title": "UpdateEvent",
+          "required": [
+            "status",
+            "token",
+            "message",
+            "data"
+          ],
+          "type": "object",
+          "properties": {
+            "status": {
+              "type": "string"
+            },
+            "token": {
+              "type": "string"
+            },
+            "message": {
+              "type": "string"
+            },
+            "data": {
+              "type": "string"
+            }
+          },
+          "example": {
+            "status": "status of the operation",
+            "token": "data_id token",
+            "message": "success message",
+            "data": "updated event object"
+          }
+        },
+        "CreateParticipantRequest": {
+          "title": "CreateParticipantRequest",
+          "required": [
+            "fullname",
+            "email",
+            "prefered_date_time"
+          ],
+          "type": "object",
+          "properties": {
+            "fullname": {
+              "type": "string"
+            },
+            "email": {
+              "type": "string"
+            },
+            "prefered_date_time": {
+              "type": "string"
+            }
+          },
+          "example": {
+            "fullname": "James Ochapa",
+            "email": "ocee@catchup.com",
+            "prefered_date_time": "25/12/2022 4:00"
+          }
+        },
+        "CreateParticipant": {
+          "title": "CreateParticipant",
+          "required": [
+            "fullname",
+            "email",
+            "prefered_date_time"
+          ],
+          "type": "object",
+          "properties": {
+            "fullname": {
+              "type": "string"
+            },
+            "email": {
+              "type": "string"
+            },
+            "prefered_date_time": {
+              "type": "string"
+            }
+          },
+          "example": {
+            "fullname": "James Ochapa",
+            "email": "ocee@catchup.com",
+            "prefered_date_time": "25/12/2022 4:00"
+          }
+        }
+      },
+      "securitySchemes": {
+        "bearer": {
+          "type": "http",
+          "scheme": "bearer"
+        }
+      }
+    },
+    "security": [],
+    "tags": [
+      {
+        "name": "auth"
+      },
+      {
+        "name": "Event"
+      },
+      {
+        "name": "Participant"
+      }
+    ]
+  }
 module.exports = swaggerDocumentation;
