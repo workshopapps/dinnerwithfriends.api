@@ -80,8 +80,7 @@ This endpoint is responsible for removing an event from the database by the host
 This endpoint is responsible for keeping record of an event in the event database up-to-date
 
 13. ### GET SINGLE EVENT BY TOKEN:
-[`https://prybar.onrender.com/api/v1/event/token/:id`]
-(https://prybar.onrender.com/api/v1/event/token/:id)
+[`https://prybar.onrender.com/api/v1/event/token/:id`](https://prybar.onrender.com/api/v1/event/token/:id)
 
 
 
