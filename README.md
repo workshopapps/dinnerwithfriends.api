@@ -71,6 +71,30 @@ This endpoint is responsible for keeping record of an event in the event databas
 
 This endpoint is responsible for getting an event by using the token
 
+### SWAGGER API DOCUMENTATION
+
+Follow the guidelines below to make use of the swagger documentation on https://prybar.onrender.com/api-docs
+
+1. First, you have to go to https://prybar.onrender.com/api-docs to gain access to the Catchup swagger API documentation
+
+2. Once on the above route, there are 3 collections: auth, events and paricipants - housing the related endpoints
+
+3. Select the production server
+
+4. To test an endpoint, select a collection e.g auth
+
+5. Click on any of the displayed endpoints to learn more about it's use case
+
+6. To run/test the endpoint click on the 'Try it out' button. This displays a preview page where you can modify/input parameters or the request body
+
+7. For clarity, an example of the expected response is displayed iin the endpoint page
+
+8. In the case of routes requiring parameters such as 'api/v1/:id' you can input the id in the provided id field
+
+9. Once this is all set, click on the execute button to send a request to the enpoint
+
+10. The server then sends response which is displayed in the response section right below the execute button.
+
 
 
 
