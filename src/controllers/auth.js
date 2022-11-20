@@ -272,7 +272,7 @@ const googleUserX = asyncHandler( async( req, res, next) => {
           httpOnly: true,
           maxAge: 24 * 60 * 60 * 1000,
         });
-        return services.googleSendToken(rt._id, 'success', message, res);
+        return services.googleSendToken(access_token, 'success', message, res);
       } catch (error) {
         const userExists = await User.findOne({ email })
         let message = "registered"
@@ -280,7 +280,7 @@ const googleUserX = asyncHandler( async( req, res, next) => {
           httpOnly: true,
           maxAge: 24 * 60 * 60 * 1000,
         });
-        return services.googleSendToken(userExists._id, 'registered', message, res);
+        return services.googleSendToken(access_token, 'registered', message, res);
       }
     })
     .catch((error) => {
