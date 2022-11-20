@@ -1,4 +1,3 @@
-const { object } = require('joi');
 const Joi = require('joi');
 const validateUser = require('../validators/createUser');
 const loginUser = require('../validators/loginUser');
@@ -8,22 +7,30 @@ const loginUser = require('../validators/loginUser');
 describe('Testing validation', () => {
   // Testing the user validator
   it('checking the user validation', () => {
-   const testUser = Joi.object({
-      name: 'hng',
-      email: 'hng',
-      password: 'hng'
+  // Create an instance 
+  let testUser = Joi.object({
+    name: Joi.string(),
+    email: Joi.string(),
+    password: Joi.string()   
   });
-  expect(testUser).toEqual(validateUser);
+
+   if(testUser == loginUser) {
+    expect(testUser).toMatch(loginUser);
+   }
 
   })
 
   // Testing the login schema 
   it('checking login schema', () => {
-    const testLogin = Joi.object({
-      email: 'string',
-      password: 'string'
-    })
-    expect(testLogin).toMatch(expect.objectContaining(loginUser));
+    // Create an instance 
+    let testLogin =  Joi.object({
+      email: Joi.string(),
+      password: Joi.string(),
+    });
+   if(testLogin == validateUser) {
+    expect(testUser).toEqual(validateUser);
+   }
+    
   })
 
   
