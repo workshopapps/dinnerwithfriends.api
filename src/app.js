@@ -6,6 +6,8 @@ const xss = require('xss-clean');
 const v1 = require('./routes');
 const { baseRouter } = require('./routes/v1/index');
 const { globalErrorHandler } = require('./controllers');
+const swaggerUi = require('swagger-ui-express');
+const swaggerDocumentation = require('./utilities/documentation');
 const passport = require('passport');
 const cookieParser = require('cookie-parser');
 
@@ -14,6 +16,8 @@ const cookieParser = require('cookie-parser');
 const app = express();
 
 // middlewares
+app.use('/api-docs', swaggerUi.serve);
+app.use('/api-docs', swaggerUi.setup(swaggerDocumentation));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
