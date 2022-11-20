@@ -70,7 +70,7 @@ This endpoint is responsible for querying the event database and getting list of
 This endpoint is responsible for retrieving information for a particular event
 
 11. ### DELETE EVENT:
-[`https://prybar.onrender.com/api/v1/event/:id`][https://prybar.onrender.com/api/v1/event/:id]
+[`https://prybar.onrender.com/api/v1/event/:id`](https://prybar.onrender.com/api/v1/event/:id)
 
 This endpoint is responsible for removing an event from the database by the host
 
