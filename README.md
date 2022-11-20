@@ -95,7 +95,7 @@ This endpoint is responsible for creating a participant on the database
 15. ### DELETE PARTICIPANT
 [`https://prybar.onrender.com/api/v1/participant/delete/:id`](https://prybar.onrender.com/api/v1/participant/delete/:id)
 
-This endpoint is responsible for removing a participant from an event
+This endpoint is responsible for removing a participants from an event
 
 16. ### UPDATE PARTICIPANT
 [`https://prybar.onrender.com/api/v1/participant/update/:id`](https://prybar.onrender.com/api/v1/participant/update/:id)
