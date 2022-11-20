@@ -2,11 +2,6 @@
 const mongoose = require('mongoose');
 
 const participantSchema = new mongoose.Schema({
-  // user_id: {
-  //   type: mongoose.Schema.Types.ObjectId,
-  //   ref: 'User',
-  //   required: true,
-  // },
   fullname: {
     type: String,
     required: true,

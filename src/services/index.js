@@ -1,10 +1,13 @@
-const {createSendToken, protect} = require("./auth")
+const {createSendToken, protect, googleSendToken} = require("./auth")
 const {newParticipantToken, protectParticipant} = require("./participant")
-
+const {newEventToken, protectEvent} = require("./event")
 
 module.exports = {
     createSendToken,
     protect,
     newParticipantToken,
-    protectParticipant
+    protectParticipant,
+    newEventToken,
+    protectEvent,
+    googleSendToken
 }
