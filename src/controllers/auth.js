@@ -3,12 +3,13 @@ const { createUserSchema, loginUserSchema } = require('../validators');
 const asyncHandler = require('express-async-handler');
 const services = require('../services');
 const { AppError } = require('../utilities');
-const bcrypt = require('bcrypt');
 const { generateJWTToken } = require('../services/auth');
 const jwt = require('jsonwebtoken');
 const random = require('lodash/random');
 const moment = require('moment');
 const sendAccountRecoveryToken = require('../services/Mail/sendAccountRecoveryToken');
+const queryString = require('node:querystring');
+const axios = require('axios')
 
 // Signup Controller
 const signup = asyncHandler(async (req, res, next) => {
@@ -204,10 +205,100 @@ const recoverAccount = asyncHandler(async (req, res, next) => {
   });
 });
 
+//  Get Google login URL
+const getGAuthURL = asyncHandler( async( req, res, next) => {
+  function getGoogleAuthURL() {
+    const rootURL = 'https://accounts.google.com/o/oauth2/auth'
+    const options = {
+      redirect_uri:`${process.env.SERVER_ROOT_URI}`,
+      client_id: `${process.env.GOOGLE_CLIENT_ID}`,
+      access_type: 'offline',
+      response_type: 'code',
+      prompt: 'consent',
+      scope: [
+        'https://www.googleapis.com/auth/userinfo.profile',
+        'https://www.googleapis.com/auth/userinfo.email',
+        'https://www.googleapis.com/auth/calendar'
+      ]
+      .join(' ')
+    }
+    return(`${rootURL}?${queryString.stringify(options)}`)
+  }
+  return res.send(getGoogleAuthURL())
+})
+//  Get User from Google
+const googleUserX = asyncHandler( async( req, res, next) => {
+  const url = "https://oauth2.googleapis.com/token";
+  const code = req.query.code
+  const values = {
+    code,
+    client_id: process.env.GOOGLE_CLIENT_ID,
+    client_secret: process.env.GOOGLE_CLIENT_SECRET,
+    redirectUri: process.env.SERVER_ROOT_URI,
+    grant_type: "authorization_code",
+  }
+  axios.post( url, queryString.stringify(values),{
+    headers: {
+      "Content-Type": "application/x-www-form-urlencoded",
+    }
+  })
+  .then( async(resD) => {
+    const { id_token, access_token, refresh_token} = resD.data
+    // Fetch the user's profile with the access token and bearer
+    await axios
+    .get(
+      `https://www.googleapis.com/oauth2/v1/userinfo?alt=json&access_token=${access_token}`,
+      {
+        headers: {
+          Authorization: `Bearer ${id_token}`,
+        },
+      }
+    )
+    .then(async (resK) => {
+      const name = resK.data.name,
+      email = resK.data.email,
+      verifiedEmail = resK.data.verified_email,
+      refreshToken = refresh_token,
+      userData = {
+        name,
+        email,
+        verifiedEmail,
+        refreshToken
+      };
+      try {
+        let rt = await new User(userData).save()
+        let message = "success"
+        res.cookie('jwt', refreshToken, {
+          httpOnly: true,
+          maxAge: 24 * 60 * 60 * 1000,
+        });
+        return services.googleSendToken(rt._id, 'success', message, res);
+      } catch (error) {
+        const userExists = await User.findOne({ email })
+        let message = "registered"
+        res.cookie('jwt', refreshToken, {
+          httpOnly: true,
+          maxAge: 24 * 60 * 60 * 1000,
+        });
+        return services.googleSendToken(userExists._id, 'registered', message, res);
+      }
+    })
+    .catch((error) => {
+      next(error.message);
+    });
+  })
+  .catch((error) => {
+    next(error.message);
+  });
+  
+})
+
 module.exports = {
   signup,
   signin,
   handleRefreshToken,
   generateRecoverAccountToken,
   recoverAccount,
+  getGAuthURL,
+  googleUserX
 };
