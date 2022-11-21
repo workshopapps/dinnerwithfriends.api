@@ -4,6 +4,7 @@ const loginUser = require('../validators/loginUser');
 
 
 
+
 describe('Testing validation', () => {
   // Testing the user validator
   it('checking the user validation', () => {
