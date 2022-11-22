@@ -73,27 +73,29 @@ This endpoint is responsible for getting an event by using the token
 
 ### SWAGGER API DOCUMENTATION
 
-Follow the guidelines below to make use of the swagger documentation on https://prybar.onrender.com/api-docs
+Follow the guidelines below to make use of the swagger documentation on http://api.catchup.hng.tech/api-docs
 
-1. First, you have to go to https://prybar.onrender.com/api-docs to gain access to the Catchup swagger API documentation
+1. First, you have to go to http://api.catchup.hng.tech/api-docs to gain access to the Catchup swagger API documentation
 
 2. Once on the above route, there are 3 collections: auth, events and paricipants - housing the related endpoints
 
 3. Select the production server
 
-4. To test an endpoint, select a collection e.g auth
+4. To test an endpoint, select a collection e.g auth. To access protected enpoint you will need to signup and then sign in and copy the access token from the response
 
-5. Click on any of the displayed endpoints to learn more about it's use case
+5. After a successful sign in, click on the authorize button at the top right corner and input the access token in the provided field
 
-6. To run/test the endpoint click on the 'Try it out' button. This displays a preview page where you can modify/input parameters or the request body
+6. Click on any of the displayed endpoints to learn more about it's use case
 
-7. For clarity, an example of the expected response is displayed iin the endpoint page
+7. To run/test the endpoint click on the 'Try it out' button. This displays a preview page where you can modify/input parameters or the request body
 
-8. In the case of routes requiring parameters such as 'api/v1/:id' you can input the id in the provided id field
+8. For clarity, an example of the expected response is displayed iin the endpoint page
 
-9. Once this is all set, click on the execute button to send a request to the enpoint
+9. In the case of routes requiring parameters such as 'api/v1/:id' you can input the id in the provided id field
 
-10. The server then sends response which is displayed in the response section right below the execute button.
+10. Once this is all set, click on the execute button to send a request to the enpoint
+
+11. The server then sends response which is displayed in the response section right below the execute button.
 
 
 
