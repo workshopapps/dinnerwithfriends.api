@@ -3,7 +3,7 @@ const { createUserSchema, loginUserSchema } = require('../validators');
 const asyncHandler = require('express-async-handler');
 const services = require('../services');
 const { AppError } = require('../utilities');
-const { generateJWTToken } = require('../services/auth');
+const { signRefreshToken } = require('../services/auth');
 const jwt = require('jsonwebtoken');
 const random = require('lodash/random');
 const moment = require('moment');
@@ -54,13 +54,13 @@ const signup = asyncHandler(async (req, res, next) => {
 
 const signin = asyncHandler(async (req, res, next) => {
   const { email, password } = req.body;
-  const validateUserInput = createUserSchema.validate({
+  const validateUserInput = loginUserSchema.validate({
     email,
     password,
   });
 
+  let message = '';
   if (validateUserInput.error) {
-    let message = '';
     if (validateUserInput.error.details[0].path[0] === 'email')
       message =
         'Email has to start with a letter, can contain numbers and underscores, must be at least 3 characters, must have @com or @net. No spaces and no other special characters allowed';
@@ -85,33 +85,17 @@ const signin = asyncHandler(async (req, res, next) => {
     email: user.email,
   };
 
-  const token = await generateJWTToken(payload, process.env.JWT_SECRET, '1d');
-
-  const refreshToken = await generateJWTToken(
-    payload,
-    process.env.REFRESH_TOKEN_SECRET,
-    '2d'
-  );
-
-  console.log(refreshToken);
+  const refreshToken = signRefreshToken(payload)
   user.refreshToken = refreshToken;
-  const result = await user.save();
+  await user.save();
   // // Creates Secure Cookie with refresh token
   res.cookie('jwt', refreshToken, {
     httpOnly: true,
     maxAge: 24 * 60 * 60 * 1000,
   });
 
-  return res.status(200).send({
-    success: true,
-    message: 'Logged in successfully',
-    user: {
-      name: user.name,
-      id: user._id,
-      email: user.email,
-    },
-    accessToken: token,
-  });
+  message = 'Logged in successfully'
+  return services.createSendToken(user, true, message, res);
 });
 
 const handleRefreshToken = asyncHandler(async (req, res, next) => {

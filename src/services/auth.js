@@ -7,40 +7,48 @@ const signToken = (id) =>
     expiresIn: process.env.JWT_EXPIRES_IN,
   });
 
+const signRefreshToken = (payload) => {
+  return jwt.sign({ ...payload }, process.env.JWT_SECRET, {
+    expiresIn: process.env.JWT_EXPIRES_IN,
+  });
+};
+
 const createSendToken = (data, status, message, res) => {
-  let token = '';
+  let accessToken = '';
 
   // remove password from output
   if (data && data.password) {
-    token = signToken(data._id);
+    console.log("hey")
+    accessToken = signToken(data._id);
     data.password = null;
+    data.refreshToken = null;
   }
 
   return res.json({
     status,
-    token,
+    accessToken,
     message,
     data,
   });
 };
 
-async function generateJWTToken(payload, secret, expireDuration) {
-  return new Promise((resolve, reject) => {
-    jwt.sign(
-      {
-        ...payload,
-      },
-      secret,
-      { expiresIn: expireDuration },
-      (err, token) => {
-        if (err) {
-          reject(err);
-        }
-        resolve(token);
-      }
-    );
-  });
-}
+// async function generateJWTToken(payload, secret, expireDuration) {
+//   return new Promise((resolve, reject) => {
+//     jwt.sign(
+//       {
+//         ...payload,
+//       },
+//       secret,
+//       { expiresIn: expireDuration },
+//       (err, token) => {
+//         if (err) {
+//           reject(err);
+//         }
+//         resolve(token);
+//       }
+//     );
+//   });
+// }
 
 const googleSendToken = (data, status, message, res) => {
   let token = '';
@@ -95,6 +103,7 @@ const protect = asyncHandler(async (req, res, next) => {
 module.exports = {
   createSendToken,
   protect,
-  generateJWTToken,
-  googleSendToken
+  // generateJWTToken,
+  signRefreshToken,
+  googleSendToken,
 };
