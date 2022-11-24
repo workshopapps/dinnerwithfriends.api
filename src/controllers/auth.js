@@ -95,7 +95,7 @@ const signin = asyncHandler(async (req, res, next) => {
   });
 
   message = 'Logged in successfully'
-  return services.createSendToken(user, true, message, res);
+  return services.createSendToken(user, "success", message, res);
 });
 
 const handleRefreshToken = asyncHandler(async (req, res, next) => {
