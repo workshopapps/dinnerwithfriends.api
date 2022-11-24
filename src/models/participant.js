@@ -16,7 +16,7 @@ const participantSchema = new mongoose.Schema({
     lowercase: true,
   },
 
-  prefered_date_time: {
+  preferred_date_time: {
     type: String,
     required: true,
     trim: true,
