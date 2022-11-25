@@ -90,4 +90,17 @@ module.exports.updateInvite = asyncHandler(async (req, res, next) => {
   });
 });
 
-module.exports.deleteInvite = asyncHandler(async (req, res, next) => {});
+module.exports.deleteInvite = asyncHandler(async (req, res, next) => {
+  const { email, event_id } = req.body;
+  const { id } = req.params;
+  const newInvitation = await Invitation.findByIdAndUpdate(id, {
+    $pull: { email_list: email },
+  });
+  return res.send({
+    status: 'success',
+    message: 'Invitated email deleted successfully',
+    // data: {
+    //   newInvitation: newInvitation,
+    // },
+  });
+});
