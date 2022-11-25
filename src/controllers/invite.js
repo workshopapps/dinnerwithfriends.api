@@ -27,9 +27,9 @@ module.exports.createInvite = asyncHandler(async (req, res, next) => {
       const invitationLink =
         'https://catchup.hng.tech/participants/' + eventToken;
       const email = email_list[i];
+      await sendInvitationLink(invitationLink, email);
       memo.push(email_list[i].toLowerCase());
     }
-    await sendInvitationLink(invitationLink, email);
   }
 
   const invitationPayload = {
@@ -54,8 +54,6 @@ module.exports.updateInvite = asyncHandler(async (req, res, next) => {
   const { email_list, event_id } = req.body;
   const { id } = req.params;
 
-  const invitation = await Invitation.findOne({ event_id: event_id });
-
   let memo = [];
   for (let i = 0; i < email_list.length; i++) {
     if (memo.includes(email_list[i].toLowerCase()) === false) {
@@ -72,6 +70,18 @@ module.exports.updateInvite = asyncHandler(async (req, res, next) => {
     }
     // await sendInvitationLink(invitationLink, email);
   }
+
+  const newInvitation = await Invitation.findById(id);
+
+  newInvitation.email_list = [...newInvitation.email_list, ...memo];
+  newInvitation.save();
+  return res.send({
+    status: 'success',
+    message: 'Invitations have been updated and send successfully',
+    data: {
+      newInvitation: newInvitation,
+    },
+  });
 });
 
 module.exports.deleteInvite = asyncHandler(async (req, res, next) => {});
