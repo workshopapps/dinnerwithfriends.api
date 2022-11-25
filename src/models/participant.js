@@ -15,7 +15,11 @@ const participantSchema = new mongoose.Schema({
     required: [true, 'email field must be specified !!!'],
     lowercase: true,
   },
-
+  event_id:{
+    type:mongoose.Schema.Types.ObjectId,
+    ref: "Event",
+    required: true
+  },
   preferred_date_time: {
     type: String,
     required: true,
