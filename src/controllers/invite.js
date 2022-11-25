@@ -29,7 +29,7 @@ module.exports.createInvite = asyncHandler(async (req, res, next) => {
       const email = email_list[i];
       memo.push(email_list[i].toLowerCase());
     }
-    // await sendInvitationLink(invitationLink, email);
+    await sendInvitationLink(invitationLink, email);
   }
 
   const invitationPayload = {
