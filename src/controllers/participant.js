@@ -2,38 +2,40 @@
 const jwt = require('jsonwebtoken');
 const mongoose = require('mongoose');
 const { validationResult } = require('express-validator');
-const { Participant } = require('../models');
+const { Participant,Event } = require('../models');
+const asyncHandler = require("express-async-handler")
 
 // adding a participant
-const addParticipant = (req, res, next) => {
-  const errors = validationResult(req);
+const addParticipant = asyncHandler( async ( req, res, next) => {
+  // const errors = validationResult(req);
 
-  if (!errors.isEmpty()) {
-    console.log(errors.array());
-    return res.status(422).json({ errors: errors.array() });
+  // if (!errors.isEmpty()) {
+  //   console.log(errors.array());
+  //   return res.status(422).json({ errors: errors.array() });
+
+  // }
+  const {fullname, event_id, email, preferred_date_time} = req.body
+  let message;
+  const participantExists = await Participant.find({ email: req.body.email })
+  if(participantExists){
+     message = 'Participant exists';
+    return services.createSendToken({}, 'error', message, res);
   }
-  Participant.find({ email: req.body.email })
-    .then((part) => {
-      if (part.length >= 1) {
-        return res.status(409).json({ message: 'Participant with this email already added' });
+  
+      const eventExist = await Event.findById(event_id)
+      if (!eventExist){
+        return services.createSendToken({}, 'error', message, res)
       }
-      const npart = new Participant({
-        _id: new mongoose.Types.ObjectId(),
-        fullname: req.body.fullname,
-        email: req.body.email,
-        prefered_date_time: req.body.preferred_date_time,
-      });
-      npart.save()
-        .then((jpart) => {
-          const token = jwt.sign({ email: jpart.email }, process.env.JWT_SECRET);
-          res.status(201).json({ message: 'Participant created', token });
-        })
-        .catch((err) => {
-          console.log(err);
-          res.status(500).json({ error: err });
-        });
-    });
-};
+      const newParticipant = {
+        fullname,
+        event_id,
+        email,
+        preferred_date_time
+      };
+       await Participant(newParticipant).save()
+       return services.createSendToken(newParticipant, 'success', message, res);
+
+});
 
 // deleting a participant
 const deleteParticipant = (req, res, next) => {
