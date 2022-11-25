@@ -10,7 +10,7 @@ const router = express.Router();
 router.use(services.protect);
 
 router.get('/', (req, res) => {
-  res.send('hello');
+  res.send('hello there');
 });
 
 router.post('/', createInvite);
