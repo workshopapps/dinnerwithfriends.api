@@ -1,14 +1,10 @@
 module.exports.verifyEmailToken = {
-  body: require("./_/verifyEmailToken")
+  body: require('./_/verifyEmailToken'),
 };
-
-
 
 module.exports.accountRecoveryToken = {
-  body: require("./_/accountRecoveryToken")
+  body: require('./_/accountRecoveryToken'),
 };
-
-
 
 module.exports.verificationToken = {
   body: `
@@ -16,5 +12,9 @@ module.exports.verificationToken = {
         <p>Hello</p>
         <p>{{ platform.name }} needs this number {{ code }} to verify that you are the one making this request. 
         Please enter the number to continue</p>
-      `
+      `,
+};
+
+module.exports.sendInvitationLink = {
+  body: require('./_/sendInvitationLink'),
 };
