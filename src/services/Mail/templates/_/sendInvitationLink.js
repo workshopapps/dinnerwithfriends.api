@@ -9,7 +9,7 @@ module.exports = `
     </tr>
     <tr>
         <td style="padding-bottom: 24px; font-size: 28px; color: #374072; font-weight: bold;">
-            Catch up invitation!!
+            Catch up invitation!! 
         </td>
     </tr>
     </thead>
@@ -23,7 +23,7 @@ module.exports = `
     <tr>
         <td style="padding-top: 24px; font-size: 18px; color: #646A86;">
             <p>
-                Kindly use the invitation link above to process your Invitation
+                Kindly use the invitation link above to process your invitation
             </p>
             <p>
                 It will expire in 1 day:
