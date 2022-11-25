@@ -17,7 +17,7 @@ const { generateFinalEventsDates } = require('./services/generateFinalEventDate'
 // create an express app
 const app = express();
 
-cron.schedule('* * * * *', async () => {
+cron.schedule('0 1 * * *', async () => {
     console.log('Running a task every midnight (1:00 am)');
     await generateFinalEventsDates()
   });
