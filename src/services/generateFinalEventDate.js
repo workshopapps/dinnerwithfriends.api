@@ -2,12 +2,11 @@ const { Event, ParticipantCount, Participant } = require('../models');
 
 const convertIsoToMiliseconds = (string) => {
   const myDate = new Date(string).getTime();
-  const dateOffset = myDate.getTimezoneOffset() * 60 * 1000;
-  return myDate - dateOffset;
+  return myDate;
 };
 
 const generateFinalEventDate = async (model, id) => {
-  const modelData = await model.find({event_id:id});
+  const modelData = await model.find({ event_id: id });
   const dateFrequency = {};
   for (let data in modelData) {
     const convertedData = convertIsoToMiliseconds(data).toString();
@@ -20,7 +19,7 @@ const generateFinalEventDate = async (model, id) => {
   const milliseconds = Object.keys(dateFrequency).reduce((a, b) =>
     dateFrequency[a] > dateFrequency[b] ? a : b
   );
-  return new Date(milliseconds).toISOString();
+  return new Date(Number(milliseconds)).toISOString();
 };
 
 const generateFinalEventsDates = async () => {
@@ -30,11 +29,12 @@ const generateFinalEventsDates = async () => {
       event_id: event._id,
     });
     if (participantCount.participant_count === event.participant_number) {
+      const finalDate = await generateFinalEventDate(Participant, event._id);
       await Event.findByIdAndUpdate(
         { _id: event._id },
         {
           published: true,
-          final_event_date: generateFinalEventDate(Participant, event._id),
+          final_event_date: finalDate,
         },
         {
           new: true,
@@ -43,10 +43,10 @@ const generateFinalEventsDates = async () => {
       );
     }
   }
-  return events
+  return events;
 };
 
 module.exports = {
-    generateFinalEventDate,
-    generateFinalEventsDates
+  generateFinalEventDate,
+  generateFinalEventsDates,
 };
