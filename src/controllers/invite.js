@@ -54,6 +54,11 @@ module.exports.updateInvite = asyncHandler(async (req, res, next) => {
   const { email_list, event_id } = req.body;
   const { id } = req.params;
 
+  const newInvitation = await Invitation.findById(id);
+  if (!newInvitation) {
+    next(new AppError('Invitation not found', 404));
+  }
+
   let memo = [];
   for (let i = 0; i < email_list.length; i++) {
     if (memo.includes(email_list[i].toLowerCase()) === false) {
@@ -68,10 +73,8 @@ module.exports.updateInvite = asyncHandler(async (req, res, next) => {
       const email = email_list[i];
       memo.push(email_list[i].toLowerCase());
     }
-    // await sendInvitationLink(invitationLink, email);
+    await sendInvitationLink(invitationLink, email);
   }
-
-  const newInvitation = await Invitation.findById(id);
 
   newInvitation.email_list = [...newInvitation.email_list, ...memo];
   newInvitation.save();
