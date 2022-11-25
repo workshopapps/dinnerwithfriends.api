@@ -29,6 +29,6 @@ const profile = expressAsyncHandler(async (req, res, next) => {
   }
 });
 
-module.export = {
+module.exports = {
   profile,
 };
