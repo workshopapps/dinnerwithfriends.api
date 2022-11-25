@@ -1,4 +1,4 @@
-const {Event} = require("./../models");
+const {Event,Participant, ParticipantCount} = require("./../models");
 const {createEventSchema} = require("../validators")
 const asyncHandler = require("express-async-handler")
 const services = require("../services")
@@ -101,8 +101,21 @@ const addEvent = asyncHandler(async (req, res, next) => {
         host_prefered_time,
         user_id: req.user._id
     }
-
         const event = await new Event(eventData).save();
+        const participantData = {
+            event_id:event._id,
+            email:req.user.email,
+            preferred_date_time:event.host_prefered_time,
+            fullname:req.user.name
+        }
+
+        const participantCountData ={
+            event_id:event._id,
+            count:1
+        } 
+
+        await new Participant(participantData).save()
+        await new ParticipantCount(participantCountData).save()
         const message = 'New Event created successfully';
         return services.newEventToken(event, 'success', message, res);
   });

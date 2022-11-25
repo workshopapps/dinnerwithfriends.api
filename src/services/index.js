@@ -1,6 +1,7 @@
 const {createSendToken, protect, googleSendToken,signRefreshToken} = require("./auth")
 const {newParticipantToken, protectParticipant} = require("./participant")
 const {newEventToken, protectEvent} = require("./event")
+const generateFinalEventDate = require("./generateFinalEventDate")
 
 module.exports = {
     createSendToken,
@@ -10,5 +11,6 @@ module.exports = {
     protectParticipant,
     newEventToken,
     protectEvent,
-    googleSendToken
+    googleSendToken,
+    generateFinalEventDate
 }
