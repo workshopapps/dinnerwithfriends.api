@@ -61,7 +61,10 @@ module.exports.updateInvite = asyncHandler(async (req, res, next) => {
 
   let memo = [];
   for (let i = 0; i < email_list.length; i++) {
-    if (memo.includes(email_list[i].toLowerCase()) === false) {
+    if (
+      memo.includes(email_list[i].toLowerCase()) === false &&
+      newInvitation.email_list.includes(email_list[i].toLowerCase()) === false
+    ) {
       const eventToken = await generateJWTToken(
         event_id,
         process.env.INVITATION_TOKEN_SECRET,
@@ -72,8 +75,8 @@ module.exports.updateInvite = asyncHandler(async (req, res, next) => {
         'https://catchup.hng.tech/participants/' + eventToken;
       const email = email_list[i];
       memo.push(email_list[i].toLowerCase());
+      await sendInvitationLink(invitationLink, email);
     }
-    await sendInvitationLink(invitationLink, email);
   }
 
   newInvitation.email_list = [...newInvitation.email_list, ...memo];
