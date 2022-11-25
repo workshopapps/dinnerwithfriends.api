@@ -26,6 +26,10 @@ const participantSchema = new mongoose.Schema({
     trim: true,
   },
 
-});
+},
+{ timestamps: true, toJSON: { virtuals: true }, toObject: { virtuals: true } }
+);
 
-module.exports = mongoose.model('Participant', participantSchema);
+const Participant = mongoose.model('Participant', participantSchema);
+
+module.exports = Participant

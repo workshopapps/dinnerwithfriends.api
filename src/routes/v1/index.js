@@ -3,6 +3,7 @@ const authRouter = require('./auth');
 const participantRouter = require('./participant');
 const eventRouter = require('./event');
 const invitationRouter = require('./invitation');
+const userRouter = require('./user')
 
 module.exports = {
   baseRouter,
@@ -10,4 +11,5 @@ module.exports = {
   participantRouter,
   eventRouter,
   invitationRouter,
+  userRouter
 };
