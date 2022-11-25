@@ -12,7 +12,10 @@ const sendInvitationLink = async (token, email) => {
     },
     to: email,
     subject: 'Catchup Invitation',
-    html: templates.accountRecoveryToken.body.replace('{{ invitationLink }}', token),
+    html: templates.sendInvitationLink.body.replace(
+      '{{ invitationLink }}',
+      token
+    ),
   };
 
   return await sendgrid.send(options);
