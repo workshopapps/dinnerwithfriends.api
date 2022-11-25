@@ -67,17 +67,14 @@ const signin = asyncHandler(async (req, res, next) => {
     if (validateUserInput.error.details[0].path[0] === 'password')
       message =
         'Password has to start with a letter, can contain numbers, must be at least 8 characters, and no more than 30 characters. No spaces and special characters allowed';
+    return services.createSendToken({}, 'error', message, res);
   }
 
   const user = await User.findOne({ email: email });
 
-  if (!user) {
-    next(new AppError('This email is not registered', 422));
-  }
-
-  const isPasswordCorrect = await user.comparePassword(password, user.password);
-  if (!isPasswordCorrect) {
-    next(new AppError('Incorrect password', 422));
+  //1) if email and password exist
+  if (!user || !(await user.comparePassword(password, user.password))) {
+    return next(new AppError('incorrect email or password', 401));
   }
 
   const payload = {
@@ -158,7 +155,7 @@ const generateRecoverAccountToken = asyncHandler(async (req, res, next) => {
     status: 'success',
     message: 'account recovery token has been sent to your email',
     data: {
-      newInvitation: newInvitation,
+      account_recovery_token: accountRecoveryToken.token,
     },
   });
 });

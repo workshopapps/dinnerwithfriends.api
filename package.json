@@ -45,9 +45,10 @@
     "mongoose": "^6.2.8",
     "mongoose-fuzzy-searching": "^2.0.2",
     "morgan": "^1.10.0",
-    "swagger-ui-express": "^4.6.0",
+    "node-cron": "^3.0.2",
     "passport": "^0.6.0",
     "passport-jwt": "^4.0.0",
+    "swagger-ui-express": "^4.6.0",
     "xss-clean": "^0.1.1"
   },
   "devDependencies": {

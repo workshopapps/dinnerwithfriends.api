@@ -18,12 +18,13 @@ const createSendToken = (data, status, message, res) => {
 
   // remove password from output
   if (data && data.password) {
-    console.log('hey');
     accessToken = signToken(data._id);
     data.password = null;
     data.refreshToken = null;
+  }else{
+    accessToken = null
+    data = null
   }
-
   return res.json({
     status,
     accessToken,
