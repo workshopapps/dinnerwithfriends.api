@@ -15,13 +15,21 @@ const participantSchema = new mongoose.Schema({
     required: [true, 'email field must be specified !!!'],
     lowercase: true,
   },
-
-  prefered_date_time: {
+  event_id:{
+    type:mongoose.Schema.Types.ObjectId,
+    ref: "Event",
+    required: true
+  },
+  preferred_date_time: {
     type: String,
     required: true,
     trim: true,
   },
 
-});
+},
+{ timestamps: true, toJSON: { virtuals: true }, toObject: { virtuals: true } }
+);
 
-module.exports = mongoose.model('Participant', participantSchema);
+const Participant = mongoose.model('Participant', participantSchema);
+
+module.exports = Participant

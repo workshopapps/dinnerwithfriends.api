@@ -10,10 +10,17 @@ const swaggerUi = require('swagger-ui-express');
 const swaggerDocumentation = require('./utilities/documentation');
 const passport = require('passport');
 const cookieParser = require('cookie-parser');
+const cron = require("node-cron");
+const { generateFinalEventsDates } = require('./services/generateFinalEventDate');
 
 
 // create an express app
 const app = express();
+
+cron.schedule('0 1 * * *', async () => {
+    console.log('Running a task every midnight (1:00 am)');
+    await generateFinalEventsDates()
+  });
 
 // middlewares
 app.use('/api-docs', swaggerUi.serve);

@@ -7,18 +7,24 @@ const signToken = (id) =>
     expiresIn: process.env.JWT_EXPIRES_IN,
   });
 
+const signRefreshToken = (payload) => {
+  return jwt.sign({ ...payload }, process.env.JWT_SECRET, {
+    expiresIn: process.env.JWT_EXPIRES_IN,
+  });
+};
+
 const createSendToken = (data, status, message, res) => {
-  let token = '';
+  let accessToken = '';
 
   // remove password from output
   if (data && data.password) {
-    token = signToken(data._id);
+    accessToken = signToken(data._id);
     data.password = null;
+    data.refreshToken = null;
   }
-
   return res.json({
     status,
-    token,
+    accessToken,
     message,
     data,
   });
@@ -92,9 +98,21 @@ const protect = asyncHandler(async (req, res, next) => {
   next();
 });
 
+
+const createSendData = function sendData(data, status, message, res) {
+  return res.json({
+    status,
+    message,
+    data,
+  });
+};
+
+
 module.exports = {
   createSendToken,
   protect,
   generateJWTToken,
-  googleSendToken
+  signRefreshToken,
+  googleSendToken,
+  createSendData
 };
