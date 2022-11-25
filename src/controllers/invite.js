@@ -8,10 +8,12 @@ const { Event } = require('../models');
 module.exports.createInvite = asyncHandler(async (req, res, next) => {
   const { email_list, event_id } = req.body;
 
-  // const foundEvent = await Event.findOne({_id: event_id});
-
-  // if (!foundEvent) {
-  //   next(new AppError('Event not found', 404));
+  // if (event_id.match(/^[0-9a-fA-F]{24}$/)) {
+  //   const foundEvent = await Event.findOne({ _id: event_id });
+  //   // Yes, it's a valid ObjectId, proceed with `findById` call.
+  //   if (!foundEvent) {
+  //     next(new AppError('Event not found', 404));
+  //   }
   // }
 
   for (let i = 0; i < email_list.length; i++) {
@@ -23,7 +25,7 @@ module.exports.createInvite = asyncHandler(async (req, res, next) => {
     const invitationLink =
       'https://catchup.hng.tech/participants/' + eventToken;
     const email = email_list[i];
-    await sendInvitationLink(invitationLink, email);
+    // await sendInvitationLink(invitationLink, email);
   }
 
   const invitationPayload = {

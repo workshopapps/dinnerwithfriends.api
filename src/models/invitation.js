@@ -12,7 +12,8 @@ const invitationSchema = new mongoose.Schema(
       lowercase: true,
     },
     event_id: {
-      type: String,
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'Event',
       required: true,
     },
     active: {
