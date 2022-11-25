@@ -207,8 +207,8 @@ const getGAuthURL = asyncHandler(async (req, res, next) => {
     };
     return `${rootURL}?${queryString.stringify(options)}`;
   }
-  return res.send(getGoogleAuthURL());
-});
+  return res.redirect(getGoogleAuthURL())
+})
 //  Get User from Google
 const googleUserX = asyncHandler(async (req, res, next) => {
   const url = 'https://oauth2.googleapis.com/token';
