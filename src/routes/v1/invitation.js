@@ -14,7 +14,7 @@ router.get('/', (req, res) => {
 });
 
 router.post('/', createInvite);
-router.patch('/:id', updateInvite)
+router.patch('/:id', updateInvite);
 router.delete('/:id', deleteInvite);
 
 module.exports = router;
