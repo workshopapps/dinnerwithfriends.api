@@ -8,7 +8,6 @@ const { Event } = require('../models');
 module.exports.createInvite = asyncHandler(async (req, res, next) => {
   const { email_list, event_id } = req.body;
 
-
   // if (event_id.match(/^[0-9a-fA-F]{24}$/)) {
   //   const foundEvent = await Event.findOne({ _id: event_id });
   //   // Yes, it's a valid ObjectId, proceed with `findById` call.
@@ -103,5 +102,18 @@ module.exports.deleteInvite = asyncHandler(async (req, res, next) => {
     // data: {
     //   newInvitation: newInvitation,
     // },
+  });
+});
+
+module.exports.getAllInvites = asyncHandler(async (req, res, next) => {
+  const invites = await Invitation.find().sort({
+    createdAt: 'desc',
+  });
+  return res.send({
+    status: 'success',
+    message: 'Invites retrieved successfully',
+    data: {
+      invites,
+    },
   });
 });
