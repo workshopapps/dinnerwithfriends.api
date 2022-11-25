@@ -6,6 +6,7 @@ const { Participant, ParticipantCount, Event } = require('../models');
 const asyncHandler = require('express-async-handler');
 const { AppError } = require('../utilities');
 const { generateFinalEventDate } = require('../services');
+const { generateFinalEventsDates } = require('../services/generateFinalEventDate');
 
 // adding a participant
 const addParticipant = asyncHandler(async (req, res, next) => {
@@ -28,15 +29,13 @@ const addParticipant = asyncHandler(async (req, res, next) => {
   if (!eventExist) {
     return next(new AppError('No event found with that ID', 404));
   }
-  let participantCount = await ParticipantCount.findById(event_id);
+  let participantCount = await ParticipantCount.find({event_id});
   if (participantCount.participant_count === eventExist.participant_number) {
-    eventExist.final_event_date = await generateFinalEventDate(Participant);
-    eventExist.published = true;
-    await eventExist.save();
-    return;
+    await generateFinalEventsDates()
+    return next(AppError("Event date already decided please refresh the page",404));
   }
-  await ParticipantCount.findByIdAndUpdate(
-    { _id: event_id },
+  await ParticipantCount.findOneAndUpdate(
+    { event_id: event_id },
     { $inc: { participant_count: 1 } },
     {
       new: true,
@@ -52,7 +51,6 @@ const addParticipant = asyncHandler(async (req, res, next) => {
   };
   await Participant(newParticipant).save();
 
-  // if (eventExist.participant_number ===)
   return services.createSendToken(newParticipant, 'success', message, res);
 });
 

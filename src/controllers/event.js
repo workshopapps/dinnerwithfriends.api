@@ -1,7 +1,8 @@
 const {Event,Participant, ParticipantCount} = require("./../models");
 const {createEventSchema} = require("../validators")
 const asyncHandler = require("express-async-handler")
-const services = require("../services")
+const services = require("../services");
+const { checkEventValidity } = require("../services/Event/checkEventValidity");
 
 // Get All Events Controller
 const getAllEvents = asyncHandler(async (req, res, next) => {
