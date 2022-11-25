@@ -15,21 +15,25 @@ module.exports.createInvite = asyncHandler(async (req, res, next) => {
   //     next(new AppError('Event not found', 404));
   //   }
   // }
-
+  let memo = [];
   for (let i = 0; i < email_list.length; i++) {
-    const eventToken = await generateJWTToken(
-      event_id,
-      process.env.INVITATION_TOKEN_SECRET,
-      '1d'
-    );
-    const invitationLink =
-      'https://catchup.hng.tech/participants/' + eventToken;
-    const email = email_list[i];
+    if (memo.includes(email_list[i].toLowerCase()) === false) {
+      const eventToken = await generateJWTToken(
+        event_id,
+        process.env.INVITATION_TOKEN_SECRET,
+        '1d'
+      );
+
+      const invitationLink =
+        'https://catchup.hng.tech/participants/' + eventToken;
+      const email = email_list[i];
+      memo.push(email_list[i].toLowerCase());
+    }
     // await sendInvitationLink(invitationLink, email);
   }
 
   const invitationPayload = {
-    email_list,
+    email_list: memo,
     event_id,
     userId: req.user.id,
     active: true,
@@ -48,29 +52,26 @@ module.exports.createInvite = asyncHandler(async (req, res, next) => {
 
 module.exports.updateInvite = asyncHandler(async (req, res, next) => {
   const { email_list, event_id } = req.body;
+  const { id } = req.params;
 
   const invitation = await Invitation.findOne({ event_id: event_id });
 
+  let memo = [];
   for (let i = 0; i < email_list.length; i++) {
-    if (invitation.email_list.includes(email_list[i] === false)) {
+    if (memo.includes(email_list[i].toLowerCase()) === false) {
       const eventToken = await generateJWTToken(
         event_id,
         process.env.INVITATION_TOKEN_SECRET,
         '1d'
       );
+
       const invitationLink =
         'https://catchup.hng.tech/participants/' + eventToken;
       const email = email_list[i];
-      await sendInvitationLink(invitationLink, email);
+      memo.push(email_list[i].toLowerCase());
     }
+    // await sendInvitationLink(invitationLink, email);
   }
-
-  const invitationPayload = {
-    email_list,
-    event_id,
-    user_id: req.user.id,
-    active: true,
-  };
-
-  const newInvitationawait = new Invitation(invitation);
 });
+
+module.exports.deleteInvite = asyncHandler(async (req, res, next) => {});

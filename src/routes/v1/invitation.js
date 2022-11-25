@@ -1,5 +1,9 @@
 const express = require('express');
-const { createInvite } = require('../../controllers/invite');
+const {
+  createInvite,
+  updateInvite,
+  deleteInvite,
+} = require('../../controllers/invite');
 const services = require('../../services');
 
 const router = express.Router();
@@ -10,5 +14,7 @@ router.get('/', (req, res) => {
 });
 
 router.post('/', createInvite);
+router.patch('/:id', updateInvite);
+router.delete('/:id', deleteInvite);
 
 module.exports = router;
