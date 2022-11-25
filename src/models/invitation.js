@@ -15,7 +15,7 @@ const invitationSchema = new mongoose.Schema(
       type: mongoose.Schema.Types.ObjectId,
       ref: 'Event',
       required: true,
-    },
+  },
     active: {
       type: Boolean,
       required: true,
