@@ -33,23 +33,23 @@ const createSendToken = (data, status, message, res) => {
   });
 };
 
-// async function generateJWTToken(payload, secret, expireDuration) {
-//   return new Promise((resolve, reject) => {
-//     jwt.sign(
-//       {
-//         ...payload,
-//       },
-//       secret,
-//       { expiresIn: expireDuration },
-//       (err, token) => {
-//         if (err) {
-//           reject(err);
-//         }
-//         resolve(token);
-//       }
-//     );
-//   });
-// }
+async function generateJWTToken(payload, secret, expireDuration) {
+  return new Promise((resolve, reject) => {
+    jwt.sign(
+      {
+        ...payload,
+      },
+      secret,
+      { expiresIn: expireDuration },
+      (err, token) => {
+        if (err) {
+          reject(err);
+        }
+        resolve(token);
+      }
+    );
+  });
+}
 
 const googleSendToken = (data, status, message, res) => {
   let token = '';
@@ -104,7 +104,7 @@ const protect = asyncHandler(async (req, res, next) => {
 module.exports = {
   createSendToken,
   protect,
-  // generateJWTToken,
+  generateJWTToken,
   signRefreshToken,
   googleSendToken,
 };
