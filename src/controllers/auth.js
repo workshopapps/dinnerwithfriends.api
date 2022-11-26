@@ -8,7 +8,7 @@ const jwt = require('jsonwebtoken');
 const random = require('lodash/random');
 const moment = require('moment');
 const sendAccountRecoveryToken = require('../services/Mail/sendAccountRecoveryToken');
-const queryString = require('node:querystring');
+const queryString = require('querystring');
 const axios = require('axios');
 
 // Signup Controller
