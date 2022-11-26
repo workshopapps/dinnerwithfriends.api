@@ -25,7 +25,7 @@ jobs:
       - name: Install npm and run
         run: |
           npm i
-          npm run build
+          npm start
         env:
           CI: true
       - name: Log in to Docker Hub
