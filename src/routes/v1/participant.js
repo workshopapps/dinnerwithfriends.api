@@ -5,7 +5,7 @@ const { protect } = require('../../services');
 
 const router = express.Router();
 
-router.post('/addpart', protect, participantControllers.addParticipant);
+router.post('/addpart', participantControllers.addParticipant);
 
 // delete user
 router.delete('/delete/:id', participantControllers.deleteParticipant);
