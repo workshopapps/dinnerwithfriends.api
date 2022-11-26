@@ -1,10 +1,11 @@
 /* eslint-disable linebreak-style */
 const express = require('express');
 const { participantControllers } = require('../../controllers');
+const { protect } = require('../../services');
 
 const router = express.Router();
 
-router.post('/addpart', participantControllers.addParticipant);
+router.post('/addpart', protect, participantControllers.addParticipant);
 
 // delete user
 router.delete('/delete/:id', participantControllers.deleteParticipant);

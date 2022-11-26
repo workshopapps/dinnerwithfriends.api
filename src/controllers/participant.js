@@ -5,8 +5,10 @@ const { validationResult } = require('express-validator');
 const { Participant, ParticipantCount, Event } = require('../models');
 const asyncHandler = require('express-async-handler');
 const { AppError } = require('../utilities');
-const { generateFinalEventDate } = require('../services');
-const { generateFinalEventsDates } = require('../services/generateFinalEventDate');
+const { createSendData } = require('../services');
+const {
+  generateFinalEventsDates,
+} = require('../services/generateFinalEventDate');
 
 // adding a participant
 const addParticipant = asyncHandler(async (req, res, next) => {
@@ -19,21 +21,26 @@ const addParticipant = asyncHandler(async (req, res, next) => {
   // }
   const { fullname, event_id, email, preferred_date_time } = req.body;
   let message;
-  const participantExists = await Participant.find({ email: req.body.email });
-  if (participantExists) {
-    message = 'Participant exists';
-    return next(new AppError(message, 409));
-  }
 
   const eventExist = await Event.findById(event_id);
   if (!eventExist) {
     return next(new AppError('No event found with that ID', 404));
   }
-  let participantCount = await ParticipantCount.find({event_id});
-  if (participantCount.participant_count === eventExist.participant_number) {
-    await generateFinalEventsDates()
-    return next(AppError("Event date already decided please refresh the page",404));
+  let participantCount = await ParticipantCount.find({ event_id });
+  if (participantCount[0].participant_count === eventExist.participant_number) {
+    await generateFinalEventsDates();
+    return next(
+      new AppError('Event date already decided please refresh the page', 404)
+    );
   }
+  const participantExists = await Participant.findOne({
+    email: req.body.email,
+  });
+  if (participantExists) {
+    message = 'Participant exists';
+    return next(new AppError(message, 409));
+  }
+
   await ParticipantCount.findOneAndUpdate(
     { event_id: event_id },
     { $inc: { participant_count: 1 } },
@@ -43,15 +50,14 @@ const addParticipant = asyncHandler(async (req, res, next) => {
     }
   );
 
-  const newParticipant = {
+  const newParticipantData = {
     fullname,
     event_id,
     email,
     preferred_date_time,
   };
-  await Participant(newParticipant).save();
-
-  return services.createSendToken(newParticipant, 'success', message, res);
+  const participant = await new Participant(newParticipantData).save();
+  return createSendData(participant, 'success', message, res);
 });
 
 // deleting a participant

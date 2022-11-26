@@ -106,13 +106,13 @@ const addEvent = asyncHandler(async (req, res, next) => {
         const participantData = {
             event_id:event._id,
             email:req.user.email,
-            preferred_date_time:event.host_prefered_time,
+            preferred_date_time:host_prefered_time,
             fullname:req.user.name
         }
 
         const participantCountData ={
             event_id:event._id,
-            count:1
+            participant_count:1
         } 
 
         await new Participant(participantData).save()
