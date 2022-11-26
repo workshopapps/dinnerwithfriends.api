@@ -51,13 +51,13 @@ jobs:
           port: 22
           envs: GITHUB_USERNAME, GITHUB_TOKEN
           script: |
+            source ~/.bashrc
             cd calendarApp/
             docker stop $(docker ps -qf expose=8000)
             rm -r dinnerwithfriends.api/
             git clone https://github.com/workshopapps/dinnerwithfriends.api
             cd dinnerwithfriends.api/
             yarn install
-            source ~/.bashrc
             sudo docker build -t thebackend:$(date +'%Y-%m-%d') .
             sudo docker run -d -p 8000:8000 thebackend:$(date +'%Y-%m-%d')
             echo "refresh the page and check"
