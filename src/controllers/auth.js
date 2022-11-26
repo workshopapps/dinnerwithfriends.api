@@ -97,9 +97,7 @@ const signin = asyncHandler(async (req, res, next) => {
 
 const handleRefreshToken = asyncHandler(async (req, res, next) => {
   const cookies = req.cookies;
-  // console.log('hello');
-  console.log(cookies);
-  if (!cookies?.jwt) next(new AppError('No refresh token found', 401));
+  if (!cookies.jwt) next(new AppError('No refresh token found', 401));
 
   const refreshToken = cookies.jwt;
 
