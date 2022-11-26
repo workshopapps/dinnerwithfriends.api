@@ -3,13 +3,13 @@ const { createUserSchema, loginUserSchema } = require('../validators');
 const asyncHandler = require('express-async-handler');
 const services = require('../services');
 const { AppError } = require('../utilities');
-const { generateJWTToken } = require('../services/auth');
+const { signRefreshToken } = require('../services/auth');
 const jwt = require('jsonwebtoken');
 const random = require('lodash/random');
 const moment = require('moment');
 const sendAccountRecoveryToken = require('../services/Mail/sendAccountRecoveryToken');
-const queryString = require('node:querystring');
-const axios = require('axios')
+const queryString = require('querystring');
+const axios = require('axios');
 
 // Signup Controller
 const signup = asyncHandler(async (req, res, next) => {
@@ -54,30 +54,27 @@ const signup = asyncHandler(async (req, res, next) => {
 
 const signin = asyncHandler(async (req, res, next) => {
   const { email, password } = req.body;
-  const validateUserInput = createUserSchema.validate({
+  const validateUserInput = loginUserSchema.validate({
     email,
     password,
   });
 
+  let message = '';
   if (validateUserInput.error) {
-    let message = '';
     if (validateUserInput.error.details[0].path[0] === 'email')
       message =
         'Email has to start with a letter, can contain numbers and underscores, must be at least 3 characters, must have @com or @net. No spaces and no other special characters allowed';
     if (validateUserInput.error.details[0].path[0] === 'password')
       message =
         'Password has to start with a letter, can contain numbers, must be at least 8 characters, and no more than 30 characters. No spaces and special characters allowed';
+    return services.createSendToken({}, 'error', message, res);
   }
 
   const user = await User.findOne({ email: email });
 
-  if (!user) {
-    next(new AppError('This email is not registered', 422));
-  }
-
-  const isPasswordCorrect = await user.comparePassword(password, user.password);
-  if (!isPasswordCorrect) {
-    next(new AppError('Incorrect password', 422));
+  //1) if email and password exist
+  if (!user || !(await user.comparePassword(password, user.password))) {
+    return next(new AppError('incorrect email or password', 401));
   }
 
   const payload = {
@@ -85,40 +82,22 @@ const signin = asyncHandler(async (req, res, next) => {
     email: user.email,
   };
 
-  const token = await generateJWTToken(payload, process.env.JWT_SECRET, '1d');
-
-  const refreshToken = await generateJWTToken(
-    payload,
-    process.env.REFRESH_TOKEN_SECRET,
-    '2d'
-  );
-
-  console.log(refreshToken);
+  const refreshToken = signRefreshToken(payload);
   user.refreshToken = refreshToken;
-  const result = await user.save();
+  await user.save();
   // // Creates Secure Cookie with refresh token
   res.cookie('jwt', refreshToken, {
     httpOnly: true,
     maxAge: 24 * 60 * 60 * 1000,
   });
 
-  return res.status(200).send({
-    success: true,
-    message: 'Logged in successfully',
-    user: {
-      name: user.name,
-      id: user._id,
-      email: user.email,
-    },
-    accessToken: token,
-  });
+  message = 'Logged in successfully';
+  return services.createSendToken(user, 'success', message, res);
 });
 
 const handleRefreshToken = asyncHandler(async (req, res, next) => {
   const cookies = req.cookies;
-  // console.log('hello');
-  console.log(cookies);
-  if (!cookies?.jwt) next(new AppError('No refresh token found', 401));
+  if (!cookies.jwt) next(new AppError('No refresh token found', 401));
 
   const refreshToken = cookies.jwt;
 
@@ -206,11 +185,11 @@ const recoverAccount = asyncHandler(async (req, res, next) => {
 });
 
 //  Get Google login URL
-const getGAuthURL = asyncHandler( async( req, res, next) => {
+const getGAuthURL = asyncHandler(async (req, res, next) => {
   function getGoogleAuthURL() {
-    const rootURL = 'https://accounts.google.com/o/oauth2/auth'
+    const rootURL = 'https://accounts.google.com/o/oauth2/auth';
     const options = {
-      redirect_uri:`${process.env.SERVER_ROOT_URI}`,
+      redirect_uri: `${process.env.SERVER_ROOT_URI}`,
       client_id: `${process.env.GOOGLE_CLIENT_ID}`,
       access_type: 'offline',
       response_type: 'code',
@@ -218,80 +197,89 @@ const getGAuthURL = asyncHandler( async( req, res, next) => {
       scope: [
         'https://www.googleapis.com/auth/userinfo.profile',
         'https://www.googleapis.com/auth/userinfo.email',
-        'https://www.googleapis.com/auth/calendar'
-      ]
-      .join(' ')
-    }
-    return(`${rootURL}?${queryString.stringify(options)}`)
+        'https://www.googleapis.com/auth/calendar',
+      ].join(' '),
+    };
+    return `${rootURL}?${queryString.stringify(options)}`;
   }
-  return res.send(getGoogleAuthURL())
+  return res.redirect(getGoogleAuthURL())
 })
 //  Get User from Google
-const googleUserX = asyncHandler( async( req, res, next) => {
-  const url = "https://oauth2.googleapis.com/token";
-  const code = req.query.code
+const googleUserX = asyncHandler(async (req, res, next) => {
+  const url = 'https://oauth2.googleapis.com/token';
+  const code = req.query.code;
   const values = {
     code,
     client_id: process.env.GOOGLE_CLIENT_ID,
     client_secret: process.env.GOOGLE_CLIENT_SECRET,
     redirectUri: process.env.SERVER_ROOT_URI,
-    grant_type: "authorization_code",
-  }
-  axios.post( url, queryString.stringify(values),{
-    headers: {
-      "Content-Type": "application/x-www-form-urlencoded",
-    }
-  })
-  .then( async(resD) => {
-    const { id_token, access_token, refresh_token} = resD.data
-    // Fetch the user's profile with the access token and bearer
-    await axios
-    .get(
-      `https://www.googleapis.com/oauth2/v1/userinfo?alt=json&access_token=${access_token}`,
-      {
-        headers: {
-          Authorization: `Bearer ${id_token}`,
-        },
-      }
-    )
-    .then(async (resK) => {
-      const name = resK.data.name,
-      email = resK.data.email,
-      verifiedEmail = resK.data.verified_email,
-      refreshToken = refresh_token,
-      userData = {
-        name,
-        email,
-        verifiedEmail,
-        refreshToken
-      };
-      try {
-        let rt = await new User(userData).save()
-        let message = "success"
-        res.cookie('jwt', refreshToken, {
-          httpOnly: true,
-          maxAge: 24 * 60 * 60 * 1000,
+    grant_type: 'authorization_code',
+  };
+  axios
+    .post(url, queryString.stringify(values), {
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded',
+      },
+    })
+    .then(async (resD) => {
+      const { id_token, access_token, refresh_token } = resD.data;
+      // Fetch the user's profile with the access token and bearer
+      await axios
+        .get(
+          `https://www.googleapis.com/oauth2/v1/userinfo?alt=json&access_token=${access_token}`,
+          {
+            headers: {
+              Authorization: `Bearer ${id_token}`,
+            },
+          }
+        )
+        .then(async (resK) => {
+          const name = resK.data.name,
+            email = resK.data.email,
+            verifiedEmail = resK.data.verified_email,
+            refreshToken = refresh_token,
+            userData = {
+              name,
+              email,
+              verifiedEmail,
+              refreshToken,
+            };
+          try {
+            let rt = await new User(userData).save();
+            let message = 'success';
+            res.cookie('jwt', refreshToken, {
+              httpOnly: true,
+              maxAge: 24 * 60 * 60 * 1000,
+            });
+            return services.googleSendToken(
+              access_token,
+              'success',
+              message,
+              res
+            );
+          } catch (error) {
+            const userExists = await User.findOne({ email });
+            let message = 'registered';
+            res.cookie('jwt', refreshToken, {
+              httpOnly: true,
+              maxAge: 24 * 60 * 60 * 1000,
+            });
+            return services.googleSendToken(
+              access_token,
+              'registered',
+              message,
+              res
+            );
+          }
+        })
+        .catch((error) => {
+          next(error.message);
         });
-        return services.googleSendToken(rt._id, 'success', message, res);
-      } catch (error) {
-        const userExists = await User.findOne({ email })
-        let message = "registered"
-        res.cookie('jwt', refreshToken, {
-          httpOnly: true,
-          maxAge: 24 * 60 * 60 * 1000,
-        });
-        return services.googleSendToken(userExists._id, 'registered', message, res);
-      }
     })
     .catch((error) => {
       next(error.message);
     });
-  })
-  .catch((error) => {
-    next(error.message);
-  });
-  
-})
+});
 
 module.exports = {
   signup,
@@ -300,5 +288,5 @@ module.exports = {
   generateRecoverAccountToken,
   recoverAccount,
   getGAuthURL,
-  googleUserX
+  googleUserX,
 };
