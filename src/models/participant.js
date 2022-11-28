@@ -11,7 +11,6 @@ const participantSchema = new mongoose.Schema({
   email: {
     type: String,
     trim: true,
-    unique: true,
     required: [true, 'email field must be specified !!!'],
     lowercase: true,
   },
