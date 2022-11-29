@@ -2,10 +2,12 @@ const {createSendToken, protect, googleSendToken,signRefreshToken, createSendDat
 const {newParticipantToken, protectParticipant} = require("./participant")
 const {newEventToken, protectEvent} = require("./event")
 const generateFinalEventDate = require("./generateFinalEventDate")
+const jwt = require("./jwt.services")
 
 module.exports = {
     createSendToken,
     protect,
+    jwt,
     signRefreshToken,
     newParticipantToken,
     protectParticipant,
