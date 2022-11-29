@@ -2,6 +2,8 @@ const dotenv = require('dotenv');
 const asyncHandler = require('express-async-handler');
 const app = require('./app');
 const connect = require('./db');
+const { Event, ParticipantCount } = require('./models');
+
 
 // configure dotenv and port
 dotenv.config();
@@ -16,6 +18,7 @@ const start = asyncHandler(async (_port, _url, _app) => {
     console.log(error);
   }
 });
+
 
 // unhandled rejection
 process.on('unhandledRejection', (err) => {

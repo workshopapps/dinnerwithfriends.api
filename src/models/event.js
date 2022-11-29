@@ -10,32 +10,31 @@ const eventSchema = new mongoose.Schema({
         type: String,
         required: true,
         trim: true,
-        minlength: [3, `fullname can't be less than 3 characters`]
+        minlength: [3, `event title can't be less than 3 characters`]
     },
 
     event_description: {
         type: String,
         trim: true,
-        minlength: [3, `fullname can't be less than 3 characters`]
+        minlength: [3, `event description can't be less than 3 characters`]
     },
     location: {
         type: String,
         required: true,
         trim: true,
-        minlength: [3, `fullname can't be less than 3 characters`]
+        minlength: [3, `location can't be less than 3 characters`]
     },
 
     event_type: {
         type: String,
         required: true,
         trim: true,
-        minlength: [3, `fullname can't be less than 3 characters`]
+        minlength: [3, `event type can't be less than 3 characters`]
     },
 
     participant_number: {
         type: Number,
         required: true,
-        trim: true
     },
 
     start_date: {
@@ -49,7 +48,15 @@ const eventSchema = new mongoose.Schema({
         required: true,
         trim: true
     },
-
+    published:{
+        type:Boolean,
+        default:false,
+    },
+    final_event_date:{
+        type:String,
+        trim:true,
+        default:null
+    },
     host_prefered_time: {
         type: String,
         required: true,

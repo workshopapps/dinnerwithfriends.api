@@ -18,12 +18,10 @@ const createSendToken = (data, status, message, res) => {
 
   // remove password from output
   if (data && data.password) {
-    console.log('hey');
     accessToken = signToken(data._id);
     data.password = null;
     data.refreshToken = null;
   }
-
   return res.json({
     status,
     accessToken,
@@ -100,10 +98,21 @@ const protect = asyncHandler(async (req, res, next) => {
   next();
 });
 
+
+const createSendData = function sendData(data, status, message, res) {
+  return res.json({
+    status,
+    message,
+    data,
+  });
+};
+
+
 module.exports = {
   createSendToken,
   protect,
   generateJWTToken,
   signRefreshToken,
   googleSendToken,
+  createSendData
 };
