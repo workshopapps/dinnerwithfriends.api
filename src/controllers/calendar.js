@@ -66,8 +66,8 @@ const deleteCalendar = expressAsyncHandler(async (req, res, next) => {
     try {
         let response = await calendar.events.delete({
             auth: auth,
-            calendarId: req.calendarId,
-            eventId: eventId
+            calendarId: req.body.calendarId,
+            eventId: req.body.eventId
         });
 
         if (response.data === '') {
