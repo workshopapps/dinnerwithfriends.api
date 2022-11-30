@@ -1,6 +1,7 @@
 const allowedOrigins = [
   '*',
   'https://catchup.hng.tech',
+  'https://https://prybar.vercel.app',
   'http://localhost:3000',
   'http://127.0.0.1:3000',
   'http://localhost:3001',
