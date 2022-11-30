@@ -32,7 +32,7 @@ const getSingleEvent = asyncHandler(async (req, res, next) => {
   );
 });
 
-// getUserEvent
+// get all User Event
 
 const getUserEvent = asyncHandler(async (req, res, next) => {
   const event = await Event.find({ user_id: req.user._id });
