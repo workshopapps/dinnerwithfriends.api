@@ -6,7 +6,7 @@ const {User} = require('../models');
 const jwtSecretKey = process.env.JWT_SECRET;
 const signToken = (payload) => {
   try {
-    const token = jwt.sign(payload, jwtSecretKey, { expiresIn: '3h' });
+    const token = jwt.sign(payload, jwtSecretKey, { expiresIn: '4h' });
     return token;
   } catch (error) {
     return false;
