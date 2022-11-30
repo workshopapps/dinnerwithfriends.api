@@ -14,7 +14,7 @@ const cron = require('node-cron');
 const {
   generateFinalEventsDates,
 } = require('./services/generateFinalEventDate');
-const corsOptions = require('./config/corsOptions');
+// const corsOptions = require('./config/corsOptions');
 
 // create an express app
 const app = express();
