@@ -45,20 +45,18 @@ jobs:
           GITHUB_USERNAME: secrets.USERNAME_NAME
           GITHUB_TOKEN: ${{ secrets.TOKEN_TOKEN }}
         with:
-          host: 139.162.251.16
-          username: root
-          password: Linode123#Linode123#
-          port: 22
+          host: ${{ secrets.HOST_IP }}
+          username: ${{ secrets.HOST_USER }}
+          password: ${{ secrets.HOST_USER_PWD }}
+          port: ${{ secrets.HOST_PORT }}
           envs: GITHUB_USERNAME, GITHUB_TOKEN
           script: |
-            source ~/.bashrc
             cd calendarApp/
             docker stop $(docker ps -qf expose=8000)
             rm -r dinnerwithfriends.api/
             git clone https://github.com/workshopapps/dinnerwithfriends.api
+            cp .env /root/calendarApp/dinnerwithfriends.api
             cd dinnerwithfriends.api/
-            yarn install
-            source ~/.bashrc
             sudo docker build -t thebackend:$(date +'%Y-%m-%d') .
             sudo docker run -d -p 8000:8000 thebackend:$(date +'%Y-%m-%d')
             echo "refresh the page and check"

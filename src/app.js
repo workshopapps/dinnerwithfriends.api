@@ -17,6 +17,11 @@ const { generateFinalEventsDates } = require('./services/generateFinalEventDate'
 // create an express app
 const app = express();
 
+var corsOptions = {
+  origin: 'https://catchup.hng.tech',
+  optionsSuccessStatus: 200 // some legacy browsers (IE11, various SmartTVs) choke on 204
+}
+
 cron.schedule('0 1 * * *', async () => {
     console.log('Running a task every midnight (1:00 am)');
     await generateFinalEventsDates()
@@ -33,7 +38,7 @@ app.use('/api-docs', swaggerUi.setup(swaggerDocumentation));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
-app.use(cors());
+app.use(cors(corsOptions));
 app.use(helmet());
 app.use(xss());
 app.use(morgan('dev'));
