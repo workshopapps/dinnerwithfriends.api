@@ -31,7 +31,7 @@ const signup = asyncHandler(async (req, res, next) => {
         'Email has to start with a letter, can contain numbers and underscores, must be at least 3 characters, must have @com or @net. No spaces and no other special characters allowed';
     if (validateUserInput.error.details[0].path[0] === 'password')
       message =
-        'Password has to start with a letter, can contain numbers, must be at least 8 characters, and no more than 30 characters. No spaces and special characters allowed';
+        'Password has to start with a letter, can contain numbers, must be at least 9 characters, and no more than 30 characters. No spaces and special characters allowed';
     return services.createSendToken({}, 'error', message, res);
   }
 
@@ -47,9 +47,9 @@ const signup = asyncHandler(async (req, res, next) => {
     password,
   };
 
-  await new User(userData).save();
+  const user = await new User(userData).save();
   const message = 'Account created successfully';
-  return services.createSendToken({}, 'success', message, res);
+  return services.createSendToken(user, 'success', message, res);
 });
 
 const signin = asyncHandler(async (req, res, next) => {
@@ -66,7 +66,7 @@ const signin = asyncHandler(async (req, res, next) => {
         'Email has to start with a letter, can contain numbers and underscores, must be at least 3 characters, must have @com or @net. No spaces and no other special characters allowed';
     if (validateUserInput.error.details[0].path[0] === 'password')
       message =
-        'Password has to start with a letter, can contain numbers, must be at least 8 characters, and no more than 30 characters. No spaces and special characters allowed';
+        'Password has to start with a letter, can contain numbers, must be at least 9 characters, and no more than 30 characters. No spaces and special characters allowed';
     return services.createSendToken({}, 'error', message, res);
   }
 
