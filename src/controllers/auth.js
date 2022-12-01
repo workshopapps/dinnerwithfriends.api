@@ -186,28 +186,33 @@ const recoverAccount = asyncHandler(async (req, res, next) => {
 
 //  Get Google login URL
 const getGAuthURL = asyncHandler(async (req, res, next) => {
-  function getGoogleAuthURL() {
-    const rootURL = 'https://accounts.google.com/o/oauth2/auth';
-    const options = {
-      redirect_uri: `${process.env.SERVER_ROOT_URI}`,
-      client_id: `${process.env.GOOGLE_CLIENT_ID}`,
-      access_type: 'offline',
-      response_type: 'code',
-      prompt: 'consent',
-      scope: [
-        'https://www.googleapis.com/auth/userinfo.profile',
-        'https://www.googleapis.com/auth/userinfo.email',
-        'https://www.googleapis.com/auth/calendar',
-      ].join(' '),
-    };
-    return `${rootURL}?${queryString.stringify(options)}`;
-  }
-  return res.redirect(getGoogleAuthURL())
-})
+  const rootURL = 'https://accounts.google.com/o/oauth2/auth';
+  const options = {
+    redirect_uri: `${process.env.UI_ROOT_URI}`,
+    client_id: `${process.env.GOOGLE_CLIENT_ID}`,
+    access_type: 'offline',
+    response_type: 'code',
+    prompt: 'consent',
+    scope: [
+      'https://www.googleapis.com/auth/userinfo.profile',
+      'https://www.googleapis.com/auth/userinfo.email',
+      'https://www.googleapis.com/auth/calendar',
+    ].join(' '),
+  };
+  return res.send({
+    status: 'success',
+    message: 'User should visit this url to be authenticated',
+    data: {
+      signInURL: `${rootURL}?${queryString.stringify(options)}`,
+    },
+  });
+
+  // return res.redirect(getGoogleAuthURL())
+});
 //  Get User from Google
 const googleUserX = asyncHandler(async (req, res, next) => {
   const url = 'https://oauth2.googleapis.com/token';
-  const code = req.query.code;
+  const code = req.body.code;
   const values = {
     code,
     client_id: process.env.GOOGLE_CLIENT_ID,
