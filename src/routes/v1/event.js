@@ -3,8 +3,13 @@ const { eventControllers } = require('../../controllers');
 const services = require('../../services');
 
 const router = express.Router();
-router.use(services.protect);
 
+router
+  .route('/token/:id')
+  .get(eventControllers.getSingleEventByToken)
+
+
+router.use(services.protect)
 router
   .route('/')
   .get(eventControllers.getAllEvents)
@@ -16,9 +21,7 @@ router
   .delete(eventControllers.deleteEvent)
   .patch(eventControllers.updateEvent);
 
-router
-  .route('/token/:id')
-  .get(eventControllers.getSingleEventByToken)
+
 
 router
   .route('/user/event')
