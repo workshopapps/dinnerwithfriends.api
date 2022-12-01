@@ -10,7 +10,8 @@ router.get('/refresh', authControllers.handleRefreshToken);
 router.post('/recover/generate', authControllers.generateRecoverAccountToken);
 router.post('/recover/confirm', authControllers.recoverAccount);
 router.get('/google/url', authControllers.getGAuthURL);
-router.get('/google', authControllers.googleUserX);
+router.get('/google/token', authControllers.googleUserX);
+router.get('/user', authControllers.getDecodedUser);
 // router.get('/protected', ensureAuthenticated, (req, res, next) => {
 //   res.send('hello');
 // });
