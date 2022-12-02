@@ -117,3 +117,9 @@ module.exports.getAllInvites = asyncHandler(async (req, res, next) => {
     },
   });
 });
+
+module.exports.getEventDetails = asyncHandler(async (req, res, next) => {
+  const { jwt } = req.params;
+  const payload = await jwt.verify(jwt, process.env.INVITATION_TOKEN_SECRET);
+  return res.status(200).json({ payload });
+});

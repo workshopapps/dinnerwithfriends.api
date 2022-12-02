@@ -4,6 +4,7 @@ const {
   updateInvite,
   deleteInvite,
   getAllInvites,
+  getEventDetails,
 } = require('../../controllers/invite');
 const services = require('../../services');
 
@@ -14,5 +15,5 @@ router.get('/', getAllInvites);
 router.post('/', createInvite);
 router.patch('/:id', updateInvite);
 router.delete('/:id', deleteInvite);
-
+router.get("/event/:jwt", getEventDetails);
 module.exports = router;
