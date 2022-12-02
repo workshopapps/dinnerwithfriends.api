@@ -13,14 +13,13 @@ pipeline {
 				sh "sudo cp -r /home/johnoni/dinnerwithfriends_env/app.env /home/johnoni/dinnerwithfriends.api/.env"
 				// sh "sudo cp -r /home/johnoni/dinnerwithfriends_env/app.env /home/johnoni/dinnerwithfriends.api/dinnerwithfriends.api/.env"
 				sh "sudo ls -la /home/johnoni/dinnerwithfriends.api/"
-
 			}
 		}
 
 		stage("build backend"){
 
 			steps {
-				// sh "cd dinnerwithfriends.api"
+
 				sh "cd dinnerwithfriends.api && npm i --force && CI=false npm start"
 			}
         }
