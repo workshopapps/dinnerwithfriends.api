@@ -5,8 +5,8 @@
   "scripts": {
     "lint:fix": "eslint --fix .",
     "test": "jest --watchAll --detectOpenHandles --runInBand",
-    "start": "node src/index.js",
-    "dev": "nodemon src/index.js",
+    "start": "set PORT=3998 && node src/index.js",
+    "dev": "set PORT=3998 && nodemon src/index.js",
     "populate": "node src/utilities/populateDB.js",
     "drop": "node src/utilities/dropDB.js"
   },
