@@ -20,7 +20,7 @@ pipeline {
 		stage("build backend"){
 
 			steps {
-				sh "cd dinnerwithfriends.api"
+				// sh "cd dinnerwithfriends.api"
 				sh "cd dinnerwithfriends.api && npm i --force && CI=false npm start"
 			}
         }
