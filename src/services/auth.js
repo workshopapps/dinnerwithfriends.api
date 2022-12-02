@@ -1,6 +1,8 @@
 const jwt = require('jsonwebtoken');
 const asyncHandler = require('express-async-handler');
 const { User } = require('../models');
+const axios = require('axios');
+const querystring = require('querystring');
 
 const signToken = (id) =>
   jwt.sign({ id }, process.env.JWT_SECRET, {
@@ -98,7 +100,6 @@ const protect = asyncHandler(async (req, res, next) => {
   next();
 });
 
-
 const createSendData = function sendData(data, status, message, res) {
   return res.json({
     status,
@@ -107,6 +108,32 @@ const createSendData = function sendData(data, status, message, res) {
   });
 };
 
+const getTokens = ({ code, clientId, clientSecret, redirectUri }) => {
+  /*
+   * Uses the code to get tokens
+   * that can be used to fetch the user's profile
+   */
+  const url = 'https://oauth2.googleapis.com/token';
+  const values = {
+    code,
+    client_id: clientId,
+    client_secret: clientSecret,
+    redirect_uri: redirectUri,
+    grant_type: 'authorization_code',
+  };
+
+  return axios
+    .post(url, querystring.stringify(values), {
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded',
+      },
+    })
+    .then((res) => res.data)
+    .catch((error) => {
+      console.error(`Failed to fetch auth tokens`);
+      throw new Error(error.message);
+    });
+};
 
 module.exports = {
   createSendToken,
@@ -114,5 +141,6 @@ module.exports = {
   generateJWTToken,
   signRefreshToken,
   googleSendToken,
-  createSendData
+  createSendData,
+  getTokens,
 };

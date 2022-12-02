@@ -23,6 +23,10 @@ router
 
 
 
+router
+  .route('/user/event')
+  .get(services.jwt.protect, eventControllers.getUserEvent)
+
 
 // router
 // .route('/user/:id')
