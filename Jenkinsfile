@@ -12,7 +12,6 @@ pipeline {
 				sh "sudo cp -r ${WORKSPACE}/dinnerwithfriends.api /home/johnoni/dinnerwithfriends.api"
 				sh "sudo cp /home/johnoni/dinnerwithfriends_env/.env /home/johnoni/dinnerwithfriends.api/"
 			}
-
 		}
 
 		stage("build backend"){
@@ -26,10 +25,9 @@ pipeline {
 		stage("deploy") {
 		
 			steps {
-                sh "sudo cp -rf ${WORKSPACE}/dinnerwithfriends.api/* /home/johnoni/dinnerwithfriends.api/"
+                // sh "sudo cp -rf ${WORKSPACE}/dinnerwithfriends.api/* /home/johnoni/dinnerwithfriends.api/"
 				sh "sudo systemctl restart nickstersz-backend.service"
             }
-			
 	    }
 	}
 }
