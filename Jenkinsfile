@@ -9,10 +9,8 @@ pipeline {
 			steps {
 				sh "rm -rf ${WORKSPACE}/dinnerwithfriends.api"
 				sh "git clone https://github.com/workshopapps/dinnerwithfriends.api.git"
-				sh "sudo cp -r ${WORKSPACE}/dinnerwithfriends.api /home/johnoni/"
-				sh "sudo cd /home/johnoni"
-				sh "sudo cp -fr /home/johnoni/dinnerwithfriends_env/app.env /home/johnoni/dinnerwithfriends.api/"
-				sh "ls -la"
+				sh "sudo cp -r ${WORKSPACE}/dinnerwithfriends.api /home/johnoni/dinnerwithfriends.api"
+				sh "sudo cp -fr /home/johnoni/dinnerwithfriends_env/app.env /home/johnoni/dinnerwithfriends.api/.env"
 
 			}
 		}
