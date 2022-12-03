@@ -6,13 +6,19 @@ const { checkEventValidity } = require('../services/Event/checkEventValidity');
 
 // Get All Events Controller
 const getAllEvents = asyncHandler(async (req, res, next) => {
-  Event.find({ user_id: req.user._id }, (err, data) => {
+  Event.find({ user_id: req.user._id }, 
+    async (err, data) => {
     if (err) {
       return services.createSendToken({}, 'error', err, res);
     }
 
     const message = 'Successfully fetched events';
-    return services.newEventToken(data, 'success', message, res);
+
+    const ckeckId = data['user_id'].toString()
+    const host_info = await User.findById(ckeckId)
+    const the_data = {...data['_doc'], 'host_info': {...host_info['_doc']}};
+
+    return services.newEventToken(the_data, 'success', message, res);
   });
 });
 
@@ -27,10 +33,11 @@ const getSingleEvent = asyncHandler(async (req, res, next) => {
       }
 
       const message = 'Successfully fetched event';
+
       const ckeckId = data['user_id'].toString()
       const host_info = await User.findById(ckeckId)
       const the_data = {...data['_doc'], 'host_info': {...host_info['_doc']}};
-      console.log(the_data)
+
       return services.newEventToken(the_data, 'success', message, res);
     },
   );
@@ -53,13 +60,17 @@ const getSingleEventByToken = asyncHandler(async (req, res, next) => {
 
   Event.findOne(
     { _id: event_id },
-    (err, data) => {
+    async (err, data) => {
       if (err) {
         return services.createSendToken({}, 'error', err, res);
       }
 
+      const ckeckId = data['user_id'].toString()
+      const host_info = await User.findById(ckeckId)
+      const the_data = {...data['_doc'], 'host_info': {...host_info['_doc']}};
+
       const message = 'Successfully fetched event';
-      return services.newEventToken(data, 'success', message, res);
+      return services.newEventToken(the_data, 'success', message, res);
     },
   );
 });
