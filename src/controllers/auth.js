@@ -10,6 +10,7 @@ const moment = require('moment');
 const sendAccountRecoveryToken = require('../services/Mail/sendAccountRecoveryToken');
 const queryString = require('querystring');
 const axios = require('axios');
+const passport = require('passport');
 
 // Signup Controller
 const signup = asyncHandler(async (req, res, next) => {
@@ -332,6 +333,44 @@ const getDecodedUser = asyncHandler(async (req, res, next) => {
   });
 });
 
+const googleAuth = passport.authenticate('google', {
+  scope: ['email', 'profile'],
+});
+
+const googleAuthCallback = passport.authenticate('google', {
+  successRedirect: '/api/v1/auth/google/redirect',
+  failureRedirect: '/auth/google/failure',
+});
+
+const googleAuthRedirect = asyncHandler(async (req, res, next) => {
+  console.log(req.user);
+  const { id, name, email } = req.user;
+  const payload = {
+    id,
+    name,
+    email,
+  };
+  const accessToken = await generateJWTToken(
+    payload,
+    process.env.JWT_SECRET,
+    '1d'
+  );
+  const refreshToken = await generateJWTToken(
+    payload,
+    process.env.REFRESH_TOKEN_SECRET,
+    '3d'
+  );
+  res.cookie('accessToken', accessToken, {
+    httpOnly: true,
+    maxAge: 24 * 60 * 60 * 1000,
+  });
+  res.cookie('refreshToken', refreshToken, {
+    httpOnly: true,
+    maxAge: 24 * 60 * 60 * 1000,
+  });
+  res.redirect(process.env.UI_ROOT_URI);
+});
+
 module.exports = {
   signup,
   signin,
@@ -341,4 +380,7 @@ module.exports = {
   getGAuthURL,
   googleUserX,
   getDecodedUser,
+  googleAuthCallback,
+  googleAuth,
+  googleAuthRedirect,
 };
