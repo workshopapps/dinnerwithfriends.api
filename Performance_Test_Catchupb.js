@@ -9,6 +9,6 @@ export const options = {
 };
 
 export default function () {
-  http.get("http://catchup.hng.tech");
+  http.get("http://api.catchup.hng.tech");
   sleep(3);
 }
