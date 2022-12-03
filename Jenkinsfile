@@ -15,6 +15,7 @@ pipeline {
 		stage("build backend"){
 
 			steps {
+				sh "cd dinnerwithfriends.api"
 				sh "npm i --force"
 			}
         }
