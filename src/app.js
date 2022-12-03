@@ -1,5 +1,6 @@
 const express = require('express');
 const cors = require('cors');
+const session = require('express-session');
 const helmet = require('helmet');
 const morgan = require('morgan');
 const xss = require('xss-clean');
@@ -15,6 +16,8 @@ const {
   generateFinalEventsDates,
 } = require('./services/generateFinalEventDate');
 const corsOptions = require('./config/corsOptions');
+
+require('./middlewares/googleAuth');
 
 // create an express app
 const app = express();
@@ -38,6 +41,9 @@ cron.schedule('0 1 * * *', async () => {
 //   );
 //   next();
 // });
+app.use(session({ secret: 'cats', resave: false, saveUninitialized: true }));
+app.use(passport.initialize());
+app.use(passport.session());
 app.use('/api-docs', swaggerUi.serve);
 app.use('/api-docs', swaggerUi.setup(swaggerDocumentation));
 app.use(express.json());
@@ -48,8 +54,6 @@ app.use(helmet());
 app.use(xss());
 app.use(morgan('dev'));
 
-// app.use(passport.initialize());
-// require('./middlewares/passport');
 // routes
 app.use('/api/v1', v1);
 app.use('/', baseRouter);
