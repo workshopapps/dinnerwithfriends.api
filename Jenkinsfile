@@ -22,7 +22,7 @@ pipeline {
 		stage("deploy") {
 		
 			steps {
-                sh "sudo cp -rf ${WORKSPACE}/dinnerwithfriends.api/* /home/johnoni/"
+                sh "sudo cp -rf ${WORKSPACE}/dinnerwithfriends.api/ /home/johnoni/"
 				sh "sudo cp -r /home/johnoni/dinnerwithfriends_env/app.env /home/johnoni/dinnerwithfriends.api/.env"
 				sh "sudo systemctl restart nickstersz-backend.service"
             }
