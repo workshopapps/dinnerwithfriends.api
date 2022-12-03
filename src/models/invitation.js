@@ -2,12 +2,8 @@ const mongoose = require('mongoose');
 
 const invitationSchema = new mongoose.Schema(
   {
-    userId: {
+    email: {
       type: String,
-      required: true,
-    },
-    email_list: {
-      type: Array,
       required: true,
       lowercase: true,
     },
@@ -15,10 +11,11 @@ const invitationSchema = new mongoose.Schema(
       type: mongoose.Schema.Types.ObjectId,
       ref: 'Event',
       required: true,
-  },
-    active: {
-      type: Boolean,
+    },
+    status: {
+      type: String,
       required: true,
+      default: 'pending',
     },
   },
   {

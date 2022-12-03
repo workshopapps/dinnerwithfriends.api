@@ -18,7 +18,15 @@ router
 
 router
   .route('/token/:id')
-  .get(eventControllers.getSingleEventByToken);
+  .get(eventControllers.getSingleEventByToken)
+
+router
+  .route('/user/event')
+  .get(services.jwt.protect, eventControllers.getUserEvent)
+
+// router
+// .route('/user/:id')
+// .get(eventControllers.getAllEventsByUser)
 
 router
 .route('/participants/:id')
