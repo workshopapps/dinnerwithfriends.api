@@ -4,6 +4,8 @@ const {
   updateInvite,
   deleteInvite,
   getAllInvites,
+  getEventInvites,
+  getDecodedEvent,
 } = require('../../controllers/invite');
 const services = require('../../services');
 
@@ -12,7 +14,9 @@ router.use(services.protect);
 
 router.get('/', getAllInvites);
 router.post('/', createInvite);
-router.patch('/:id', updateInvite);
+// router.patch('/:id', updateInvite);
 router.delete('/:id', deleteInvite);
+router.get('/event/:id', getDecodedEvent);
+router.get('/event/:id', getEventInvites);
 
 module.exports = router;
