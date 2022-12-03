@@ -4,6 +4,8 @@ const { generateJWTToken } = require('../services/auth');
 const sendInvitationLink = require('../services/Mail/sendInvitationLink');
 const { AppError } = require('../utilities');
 const { Event } = require('../models');
+const jwt = require('jsonwebtoken');
+const sendMail = require('../services/Mail/nodemailer');
 
 module.exports.createInvite = asyncHandler(async (req, res, next) => {
   const { email_list, event_id } = req.body;
@@ -21,17 +23,15 @@ module.exports.createInvite = asyncHandler(async (req, res, next) => {
     next(new AppError('You are not the host of this event', 401));
   }
 
+  const eventToken = await generateJWTToken(
+    { event_id },
+    process.env.INVITATION_TOKEN_SECRET,
+    '90d'
+  );
+  const invitationLink = 'https://catchup.hng.tech/participants/' + eventToken;
   let memo = [];
   for (let i = 0; i < email_list.length; i++) {
     if (memo.includes(email_list[i].toLowerCase()) === false) {
-      const eventToken = await generateJWTToken(
-        { event_id },
-        process.env.INVITATION_TOKEN_SECRET,
-        '90d'
-      );
-      const invitationLink =
-        'https://catchup.hng.tech/participants/' + eventToken;
-
       //find invitation where email and event_id match
       const foundInvitation = await Invitation.findOne({
         email: email_list[i].toLowerCase(),
@@ -40,6 +40,7 @@ module.exports.createInvite = asyncHandler(async (req, res, next) => {
 
       if (!foundInvitation) {
         const email = email_list[i];
+        await sendMail(invitationLink, email);
         //      await sendInvitationLink(invitationLink, email);
         memo.push(email_list[i].toLowerCase());
         const invitationPayload = {
@@ -55,6 +56,9 @@ module.exports.createInvite = asyncHandler(async (req, res, next) => {
   return res.json({
     status: 'success',
     message: 'Invitations have been processed',
+    data: {
+      invitationLink,
+    },
   });
 });
 
@@ -101,10 +105,10 @@ module.exports.createInvite = asyncHandler(async (req, res, next) => {
 module.exports.deleteInvite = asyncHandler(async (req, res, next) => {
   const { email, event_id } = req.body;
   const { id } = req.params;
-  // await Invitation.deleteMany({});
-  const newInvitation = await Invitation.findByIdAndUpdate(id, {
-    $pull: { email_list: email },
-  });
+  await Invitation.deleteMany({});
+  // const newInvitation = await Invitation.findByIdAndUpdate(id, {
+  //   $pull: { email_list: email },
+  // });
   return res.send({
     status: 'success',
     message: 'Invited email deleted successfully',
@@ -127,12 +131,11 @@ module.exports.getAllInvites = asyncHandler(async (req, res, next) => {
   });
 });
 
-module.exports.getEventDetails = asyncHandler(async (req, res, next) => {
-  const { jwt } = req.params;
-  const payload = await jwt.verify(jwt, process.env.INVITATION_TOKEN_SECRET);
+module.exports.getDecodedEvent = asyncHandler(async (req, res, next) => {
+  const { id } = req.params;
+  const payload = await jwt.verify(id, process.env.INVITATION_TOKEN_SECRET);
   return res.status(200).json({ payload });
 });
-
 
 module.exports.getEventInvites = asyncHandler(async (req, res, next) => {
   const { id } = req.params;
