@@ -1,11 +1,12 @@
 const express = require('express');
 const { authControllers } = require('../../controllers');
 const ensureAuthenticated = require('../../middlewares/auth');
+const loginLimiter = require('../../middlewares/loginLimiter');
 
 const router = express.Router();
 
 router.post('/signup', authControllers.signup);
-router.post('/signin', authControllers.signin);
+router.post('/signin', loginLimiter, authControllers.signin);
 router.get('/refresh', authControllers.handleRefreshToken);
 router.post('/recover/generate', authControllers.generateRecoverAccountToken);
 router.post('/recover/confirm', authControllers.recoverAccount);
