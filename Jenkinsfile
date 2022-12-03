@@ -16,7 +16,7 @@ pipeline {
 
 			steps {
 				sh "cd dinnerwithfriends.api/"
-				sh "npm i --force"
+				sh "sudo npm i --force"
 				sh "ls -la"
 			}
         }
