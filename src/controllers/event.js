@@ -1,5 +1,5 @@
 const asyncHandler = require('express-async-handler');
-const { Event, Participant, ParticipantCount } = require('../models');
+const { Event, Participant, ParticipantCount, User } = require('../models');
 const { createEventSchema } = require('../validators');
 const services = require('../services');
 const { checkEventValidity } = require('../services/Event/checkEventValidity');
@@ -21,13 +21,17 @@ const getSingleEvent = asyncHandler(async (req, res, next) => {
   const event_id = req.params.id;
   Event.findOne(
     { _id: event_id },
-    (err, data) => {
+    async (err, data) => {
       if (err) {
         return services.createSendToken({}, 'error', err, res);
       }
 
       const message = 'Successfully fetched event';
-      return services.newEventToken(data, 'success', message, res);
+      const ckeckId = data['user_id'].toString()
+      const host_info = await User.findById(ckeckId)
+      const the_data = {...data['_doc'], 'host_info': {...host_info['_doc']}};
+      console.log(the_data)
+      return services.newEventToken(the_data, 'success', message, res);
     },
   );
 });
@@ -112,6 +116,7 @@ const addEvent = asyncHandler(async (req, res, next) => {
 
   const eventData = {
     end_date,
+    host_info,
     start_date,
     event_title,
     event_description,
