@@ -13,5 +13,5 @@ module.exports = {
   eventRouter,
   invitationRouter,
   userRouter,
-  calendarRouter
+  // calendarRouter
 };

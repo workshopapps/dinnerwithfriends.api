@@ -1,5 +1,6 @@
 const express = require('express');
 const cors = require('cors');
+const session = require('express-session');
 const helmet = require('helmet');
 const morgan = require('morgan');
 const xss = require('xss-clean');
@@ -15,6 +16,8 @@ const {
   generateFinalEventsDates,
 } = require('./services/generateFinalEventDate');
 const corsOptions = require('./config/corsOptions');
+
+require('./middlewares/googleAuth');
 
 // create an express app
 const app = express();
@@ -39,8 +42,6 @@ app.use(helmet());
 app.use(xss());
 app.use(morgan('dev'));
 
-// app.use(passport.initialize());
-// require('./middlewares/passport');
 // routes
 app.use('/api/v1', v1);
 app.use('/', baseRouter);
