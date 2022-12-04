@@ -1,29 +1,44 @@
 const asyncHandler = require('express-async-handler');
-const { Event, Participant, ParticipantCount } = require('../models');
+const { Event, Participant, ParticipantCount, User } = require('../models');
 const { createEventSchema } = require('../validators');
 const services = require('../services');
 
 // Get All Events Controller
 const getAllEvents = asyncHandler(async (req, res, next) => {
-  Event.find({ user_id: req.user._id }, (err, data) => {
+  Event.find({ user_id: req.user._id }, 
+    async (err, data) => {
     if (err) {
       return services.createSendToken({}, 'error', err, res);
     }
     const message = 'Successfully fetched events';
-    return services.newEventToken(data, 'success', message, res);
+
+    const ckeckId = data['user_id'].toString()
+    const host_info = await User.findById(ckeckId)
+    const the_data = {...data['_doc'], 'host_info': {...host_info['_doc']}};
+
+    return services.newEventToken(the_data, 'success', message, res);
   });
 });
 
 // Get Single Event Controller
 const getSingleEvent = asyncHandler(async (req, res, next) => {
   const event_id = req.params.id;
-  Event.findOne({ _id: event_id }, (err, data) => {
-    if (err) {
-      return services.createSendToken({}, 'error', err, res);
-    }
-    const message = 'Successfully fetched event';
-    return services.newEventToken(data, 'success', message, res);
-  });
+  Event.findOne(
+    { _id: event_id },
+    async (err, data) => {
+      if (err) {
+        return services.createSendToken({}, 'error', err, res);
+      }
+
+      const message = 'Successfully fetched event';
+
+      const ckeckId = data['user_id'].toString()
+      const host_info = await User.findById(ckeckId)
+      const the_data = {...data['_doc'], 'host_info': {...host_info['_doc']}};
+
+      return services.newEventToken(the_data, 'success', message, res);
+    },
+  );
 });
 
 // get all User Event
@@ -42,13 +57,21 @@ const getUserEvent = asyncHandler(async (req, res, next) => {
 const getSingleEventByToken = asyncHandler(async (req, res, next) => {
   const event_id = services.protectEvent(req.params.id);
 
-  Event.findOne({ _id: event_id }, (err, data) => {
-    if (err) {
-      return services.createSendToken({}, 'error', err, res);
-    }
-    const message = 'Successfully fetched event';
-    return services.newEventToken(data, 'success', message, res);
-  });
+  Event.findOne(
+    { _id: event_id },
+    async (err, data) => {
+      if (err) {
+        return services.createSendToken({}, 'error', err, res);
+      }
+
+      const ckeckId = data['user_id'].toString()
+      const host_info = await User.findById(ckeckId)
+      const the_data = {...data['_doc'], 'host_info': {...host_info['_doc']}};
+
+      const message = 'Successfully fetched event';
+      return services.newEventToken(the_data, 'success', message, res);
+    },
+  );
 });
 
 // Delete Single Event Controller
@@ -120,6 +143,7 @@ const addEvent = asyncHandler(async (req, res, next) => {
 
   const eventData = {
     end_date,
+    host_info,
     start_date,
     event_title,
     event_description,
