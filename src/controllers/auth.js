@@ -266,8 +266,6 @@ module.exports = {
   handleRefreshToken,
   generateRecoverAccountToken,
   recoverAccount,
-  getGAuthURL,
-  googleUserX,
   getDecodedUser,
   googleAuthCallback,
   googleAuth,
