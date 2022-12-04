@@ -1,9 +1,9 @@
 const express = require('express');
 const { eventControllers } = require('../../controllers');
-const services = require('../../services')
+const services = require('../../services');
 
 const router = express.Router();
-router.use(services.protect)
+router.use(services.protect);
 
 router
   .route('/')
@@ -24,10 +24,12 @@ router
   .route('/user/event')
   .get(services.jwt.protect, eventControllers.getUserEvent)
 
-
 // router
 // .route('/user/:id')
 // .get(eventControllers.getAllEventsByUser)
 
+router
+.route('/participants/:id')
+.get(eventControllers.getEventParticipants)
 
 module.exports = router;
