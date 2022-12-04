@@ -7,7 +7,7 @@ const { signRefreshToken, generateJWTToken } = require('../services/auth');
 const jwt = require('jsonwebtoken');
 const random = require('lodash/random');
 const moment = require('moment');
-const sendAccountRecoveryToken = require('../services/Mail/sendAccountRecoveryToken');
+const sendAccountRecoveryToken = require('../services/Mail/nodemailer/sendAccountRecoveryToken');
 const queryString = require('querystring');
 const axios = require('axios');
 const passport = require('passport');
@@ -98,12 +98,12 @@ const signin = asyncHandler(async (req, res, next) => {
   await user.save();
   // // Creates Secure Cookie with refresh token
   res.cookie('refreshToken', refreshToken, {
-    httpOnly: true,
+    httpOnly: false,
     maxAge: 24 * 60 * 60 * 1000,
   });
 
   res.cookie('accessToken', accessToken, {
-    httpOnly: true,
+    httpOnly: false,
     maxAge: 24 * 60 * 60 * 1000,
   });
 
@@ -298,11 +298,11 @@ const googleUserX = asyncHandler(async (req, res, next) => {
             '3d'
           );
           res.cookie('accessToken', accessToken, {
-            httpOnly: true,
+            httpOnly: false,
             maxAge: 24 * 60 * 60 * 1000,
           });
           res.cookie('refreshToken', refreshToken, {
-            httpOnly: true,
+            httpOnly: false,
             maxAge: 24 * 60 * 60 * 1000,
           });
 
@@ -361,11 +361,11 @@ const googleAuthRedirect = asyncHandler(async (req, res, next) => {
     '3d'
   );
   res.cookie('accessToken', accessToken, {
-    httpOnly: true,
+    httpOnly: false,
     maxAge: 24 * 60 * 60 * 1000,
   });
   res.cookie('refreshToken', refreshToken, {
-    httpOnly: true,
+    httpOnly: false,
     maxAge: 24 * 60 * 60 * 1000,
   });
   res.redirect(process.env.UI_ROOT_URI);
