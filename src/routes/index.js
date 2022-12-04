@@ -15,6 +15,6 @@ app.use('/participant', participantRouter);
 app.use('/event', eventRouter);
 app.use('/invitation', invitationRouter);
 app.use('/user', userRouter);
-app.use('/calendar', calendarRouter);
+// app.use('/calendar', calendarRouter);
 
 module.exports = app;

@@ -9,6 +9,7 @@ const { createSendData } = require('../services');
 const {
   generateFinalEventsDates,
 } = require('../services/generateFinalEventDate');
+const Invitation = require('../models/invitation');
 
 // adding a participant
 const addParticipant = asyncHandler(async (req, res, next) => {
@@ -57,6 +58,14 @@ const addParticipant = asyncHandler(async (req, res, next) => {
     preferred_date_time,
   };
   const participant = await new Participant(newParticipantData).save();
+  const foundInvitation = await Invitation.findOne({
+    email: email,
+    event_id,
+  });
+  if (foundInvitation) {
+    foundInvitation.status = 'accepted';
+    await foundInvitation.save();
+  }
   return createSendData(participant, 'success', message, res);
 });
 
