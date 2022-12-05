@@ -134,7 +134,12 @@ module.exports.getDecodedEvent = asyncHandler(async (req, res, next) => {
   const { id } = req.params;
   const payload = await jwt.verify(id, process.env.INVITATION_TOKEN_SECRET);
   const { event_id, email } = payload;
-  return res.status(200).json({ email, event_id });
+
+  const foundEvent = await Event.findOne({ _id: event_id });
+  if(!foundEvent) {
+   return  next(new AppError('Event not found', 404));
+  }
+  return res.status(200).json({ email, event:foundEvent });
 });
 
 module.exports.getEventInvites = asyncHandler(async (req, res, next) => {
