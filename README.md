@@ -105,9 +105,9 @@ This endpoint is responsible for keeping a partcipant data up-to-date
 
 The following steps should be taken for effective use of the Catchup API Swagger documentation
 
-Follow the guidelines below to make use of the swagger documentation on `http://api.catchup.hng.tech/api-docs`
+Follow the guidelines below to make use of the swagger documentation on `https://catchup.hng.tech/api-docs`
 
-1. First, you have to go to `http://api.catchup.hng.tech/api-docs` to gain access to the Catchup swagger API documentation
+1. First, you have to go to `https://catchup.hng.tech/api-docs` to gain access to the Catchup swagger API documentation
 
 
 2. Once on the above route, there are 3 collections: auth, events and paricipants - housing the related endpoints
