@@ -10,8 +10,6 @@ router.post('/signin', loginLimiter, authControllers.signin);
 router.get('/refresh', authControllers.handleRefreshToken);
 router.post('/recover/generate', authControllers.generateRecoverAccountToken);
 router.post('/recover/confirm', authControllers.recoverAccount);
-router.get('/google/url', authControllers.getGAuthURL);
-router.get('/google/token', authControllers.googleUserX);
 
 
 //passport google auth
