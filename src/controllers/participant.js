@@ -9,16 +9,12 @@ const { createSendData } = require('../services');
 const {
   generateFinalEventsDates,
 } = require('../services/generateFinalEventDate');
+const Invitation = require('../models/invitation');
+const sendCalendarMail = require('../services/Mail/nodemailer');
+const { generateJWTToken } = require('../services/auth');
 
 // adding a participant
 const addParticipant = asyncHandler(async (req, res, next) => {
-  // const errors = validationResult(req);
-
-  // if (!errors.isEmpty()) {
-  //   console.log(errors.array());
-  //   return res.status(422).json({ errors: errors.array() });
-
-  // }
   const { fullname, event_id, email, preferred_date_time } = req.body;
   let message;
 
@@ -57,6 +53,25 @@ const addParticipant = asyncHandler(async (req, res, next) => {
     preferred_date_time,
   };
   const participant = await new Participant(newParticipantData).save();
+  const foundInvitation = await Invitation.findOne({
+    email: email,
+    event_id,
+  });
+  if (foundInvitation) {
+    foundInvitation.status = 'accepted';
+    await foundInvitation.save();
+  }
+
+  // const eventToken = await generateJWTToken(
+  //   { event_id, email },
+  //   process.env.INVITATION_TOKEN_SECRET,
+  //   '90d'
+  // );
+
+  // // send calendar email to participants
+  // const the_message = 'https://api.catchup.hng.tech/api/v1/calendar/save/'+eventToken
+  // sendCalendarMail.sendCalendar(the_message, email)
+
   return createSendData(participant, 'success', message, res);
 });
 

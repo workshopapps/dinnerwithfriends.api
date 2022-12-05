@@ -18,3 +18,7 @@ module.exports.verificationToken = {
 module.exports.sendInvitationLink = {
   body: require('./_/sendInvitationLink'),
 };
+
+module.exports.sendCalendarMail= {
+  body: require('./_/sendCalendarInvite'),
+};
