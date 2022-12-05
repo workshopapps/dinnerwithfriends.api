@@ -100,8 +100,32 @@ const deleteCalendar = expressAsyncHandler(async (req, res, next) => {
   }
 });
 
+// Save Event in Calendar
+const saveEvent = expressAsyncHandler(async (req, res, next) => {
+  const {eventId} = req.params.id
+  try {
+    // let event = {
+    //   'summary': `This is the summary.`,
+    //   'description': `This is the description.`,
+    //   'start': {
+    //       'dateTime': dateTime['start'],
+    //       'timeZone': 'Asia/Kolkata'
+    //   },
+    //   'end': {
+    //       'dateTime': dateTime['end'],
+    //       'timeZone': 'Asia/Kolkata'
+    //   }
+// };
+    
+  } catch (error) {
+    console.log(`Error at deleteEvent --> ${error}`);
+    return services.createSendToken({}, 'error', error, res);
+  }
+});
+
 module.exports = {
   getCalendar,
   deleteCalendar,
   insertCalendar,
+  saveEvent
 };
