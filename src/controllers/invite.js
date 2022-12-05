@@ -23,12 +23,6 @@ module.exports.createInvite = asyncHandler(async (req, res, next) => {
     next(new AppError('You are not the host of this event', 401));
   }
 
-  const eventToken = await generateJWTToken(
-    { event_id },
-    process.env.INVITATION_TOKEN_SECRET,
-    '90d'
-  );
-  const invitationLink = 'https://catchup.hng.tech/participants/' + eventToken;
   let memo = [];
   for (let i = 0; i < email_list.length; i++) {
     if (memo.includes(email_list[i].toLowerCase()) === false) {
@@ -40,6 +34,14 @@ module.exports.createInvite = asyncHandler(async (req, res, next) => {
 
       if (!foundInvitation) {
         const email = email_list[i];
+        const eventToken = await generateJWTToken(
+          { event_id, email },
+          process.env.INVITATION_TOKEN_SECRET,
+          '90d'
+        );
+        const invitationLink =
+          'https://catchup.hng.tech/event_invite/' + eventToken;
+
         await sendMail(invitationLink, email);
         //      await sendInvitationLink(invitationLink, email);
         memo.push(email_list[i].toLowerCase());
@@ -56,9 +58,6 @@ module.exports.createInvite = asyncHandler(async (req, res, next) => {
   return res.json({
     status: 'success',
     message: 'Invitations have been processed',
-    data: {
-      invitationLink,
-    },
   });
 });
 
