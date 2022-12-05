@@ -46,11 +46,12 @@ This endpoint is responsible for having the account recovery token generated sen
 
 
 6. ### GOOGLE AUTH URL:
-
+[`https://catchup.hng.tech/api/v1/auth/google/url`](https://catchup.hng.tech/api/v1/auth/google/url)
 
 This endpoint is responsible for login in to Google to interface with Google API for sign-up/Sign-in up with Google
 
 7. ### GOOGLE AUTH X:
+[`https://catchup.hng.tech/api/v1/auth/google`](https://catchup.hng.tech/api/v1/auth/google)
 
 This link is responsible for getting user from Google
 
@@ -97,6 +98,16 @@ This endpoint is responsible for removing a participants from an event
 [`https://catchup.hng.tech/api/v1/participant/update/:id`](https://catchup.hng.tech/api/v1/participant/update/:id)
 
 This endpoint is responsible for keeping a partcipant data up-to-date
+
+17. ### Event RSVP:
+[`https://catchup.hng.tech/api/v1/event/user/event`](https://catchup.hng.tech/api/v1/event/user/event)
+
+This endpoint is responsible for getting all Decided events
+
+18. ### Calendar:
+[`https://catchup.hng.tech/api/v1/calendar/`](https://catchup.hng.tech/api/v1/calendar/)
+
+This endpoint is responsible for syncing with google calendar
 
 
 
