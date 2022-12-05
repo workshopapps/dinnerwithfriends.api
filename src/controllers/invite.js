@@ -40,7 +40,7 @@ module.exports.createInvite = asyncHandler(async (req, res, next) => {
           '90d'
         );
         const invitationLink =
-          'https://catchup.hng.tech/participants/' + eventToken;
+          'https://catchup.hng.tech/event_invite/' + eventToken;
 
         await sendMail(invitationLink, email);
         //      await sendInvitationLink(invitationLink, email);
