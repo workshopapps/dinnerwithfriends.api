@@ -17,6 +17,6 @@ router.post('/', createInvite);
 // router.patch('/:id', updateInvite);
 router.delete('/:id', deleteInvite);
 router.get('/event/:id', getDecodedEvent);
-router.get('/event/:id', getEventInvites);
+router.get('/event/invites/:id', getEventInvites);
 
 module.exports = router;
