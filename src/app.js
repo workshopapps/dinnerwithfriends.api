@@ -15,10 +15,7 @@ const {
   generateFinalEventsDates,
 } = require('./services/generateFinalEventDate');
 const corsOptions = require('./config/corsOptions');
-<<<<<<< HEAD
-=======
 require('./middlewares/googleAuth');
->>>>>>> Add new origin
 
 // create an express app
 const app = express();
