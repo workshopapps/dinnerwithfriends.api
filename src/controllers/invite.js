@@ -23,12 +23,6 @@ module.exports.createInvite = asyncHandler(async (req, res, next) => {
     next(new AppError('You are not the host of this event', 401));
   }
 
-  const eventToken = await generateJWTToken(
-    { event_id },
-    process.env.INVITATION_TOKEN_SECRET,
-    '90d'
-  );
-  const invitationLink = 'https://catchup.hng.tech/participants/' + eventToken;
   let memo = [];
   for (let i = 0; i < email_list.length; i++) {
     if (memo.includes(email_list[i].toLowerCase()) === false) {
@@ -40,6 +34,14 @@ module.exports.createInvite = asyncHandler(async (req, res, next) => {
 
       if (!foundInvitation) {
         const email = email_list[i];
+        const eventToken = await generateJWTToken(
+          { event_id, email },
+          process.env.INVITATION_TOKEN_SECRET,
+          '90d'
+        );
+        const invitationLink =
+          'https://catchup.hng.tech/event_invite/' + eventToken;
+
         await sendMail(invitationLink, email);
         //      await sendInvitationLink(invitationLink, email);
         memo.push(email_list[i].toLowerCase());
@@ -56,9 +58,6 @@ module.exports.createInvite = asyncHandler(async (req, res, next) => {
   return res.json({
     status: 'success',
     message: 'Invitations have been processed',
-    data: {
-      invitationLink,
-    },
   });
 });
 
@@ -134,7 +133,13 @@ module.exports.getAllInvites = asyncHandler(async (req, res, next) => {
 module.exports.getDecodedEvent = asyncHandler(async (req, res, next) => {
   const { id } = req.params;
   const payload = await jwt.verify(id, process.env.INVITATION_TOKEN_SECRET);
-  return res.status(200).json({ payload });
+  const { event_id, email } = payload;
+
+  const foundEvent = await Event.findOne({ _id: event_id });
+  if(!foundEvent) {
+   return  next(new AppError('Event not found', 404));
+  }
+  return res.status(200).json({ email, event:foundEvent });
 });
 
 module.exports.getEventInvites = asyncHandler(async (req, res, next) => {
