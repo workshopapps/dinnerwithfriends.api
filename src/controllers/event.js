@@ -2,14 +2,17 @@ const asyncHandler = require('express-async-handler');
 const { Event, Participant, ParticipantCount } = require('../models');
 const { createEventSchema } = require('../validators');
 const services = require('../services');
-const { checkEventValidity } = require('../services/Event/checkEventValidity');
+const { AppError } = require('../utilities');
 
 // Get All Events Controller
 const getAllEvents = asyncHandler(async (req, res, next) => {
-  Event.find({ user_id: req.user._id }, (err, data) => {
+  Event.find({ user_id: req.user._id }, async (err, data) => {
     if (err) {
       return services.createSendToken({}, 'error', err, res);
     }
+    const ckeckId = data['user_id'].toString();
+    const host_info = await User.findById(ckeckId);
+    const the_data = { ...data['_doc'], host_info: { ...host_info['_doc'] } };
 
     const message = 'Successfully fetched events';
     return services.newEventToken(data, 'success', message, res);
@@ -19,17 +22,19 @@ const getAllEvents = asyncHandler(async (req, res, next) => {
 // Get Single Event Controller
 const getSingleEvent = asyncHandler(async (req, res, next) => {
   const event_id = req.params.id;
-  Event.findOne(
-    { _id: event_id },
-    (err, data) => {
-      if (err) {
-        return services.createSendToken({}, 'error', err, res);
-      }
+  Event.findOne({ _id: event_id }, async (err, data) => {
+    if (err) {
+      return services.createSendToken({}, 'error', err, res);
+    }
 
-      const message = 'Successfully fetched event';
-      return services.newEventToken(data, 'success', message, res);
-    },
-  );
+    const message = 'Successfully fetched event';
+
+    const ckeckId = data['user_id'].toString();
+    const host_info = await User.findById(ckeckId);
+    const the_data = { ...data['_doc'], host_info: { ...host_info['_doc'] } };
+
+    return services.newEventToken(the_data, 'success', message, res);
+  });
 });
 
 // get all User Event
@@ -47,17 +52,18 @@ const getUserEvent = asyncHandler(async (req, res, next) => {
 const getSingleEventByToken = asyncHandler(async (req, res, next) => {
   const event_id = services.protectEvent(req.params.id);
 
-  Event.findOne(
-    { _id: event_id },
-    (err, data) => {
-      if (err) {
-        return services.createSendToken({}, 'error', err, res);
-      }
+  Event.findOne({ _id: event_id }, async (err, data) => {
+    if (err) {
+      return services.createSendToken({}, 'error', err, res);
+    }
 
-      const message = 'Successfully fetched event';
-      return services.newEventToken(data, 'success', message, res);
-    },
-  );
+    const ckeckId = data['user_id'].toString();
+    const host_info = await User.findById(ckeckId);
+    const the_data = { ...data['_doc'], host_info: { ...host_info['_doc'] } };
+
+    const message = 'Successfully fetched event';
+    return services.newEventToken(the_data, 'success', message, res);
+  });
 });
 
 // Delete Single Event Controller
@@ -140,6 +146,36 @@ const addEvent = asyncHandler(async (req, res, next) => {
   return services.newEventToken(event, 'success', message, res);
 });
 
+const getEventParticipants = asyncHandler(async (req, res, next) => {
+  const event_id = req.params.id;
+  const event = await Event.findById(event_id);
+  if (!event) {
+    return next(new AppError('No event with ID', 404));
+  }
+
+  const eventParticipants = await Participant.find({ event_id: event_id });
+  return services.createSendData(eventParticipants, 'success', message, res);
+});
+
+const cancelEvent = asyncHandler(async (req, res, next) => {
+  const event_id = req.params.id;
+  const event = await Event.findByIdAndUpdate(
+    { _id: event_id },
+    {
+      published: 'cancelled',
+    },
+    {
+      new: true,
+      runValidators: true,
+    }
+  );
+  if (!event) {
+    return next(new AppError('No event with ID', 404));
+  }
+  const message = 'Successfully cancelled event';
+  return services.newEventToken(event, 'success', message, res);
+});
+
 module.exports = {
   getAllEvents,
   addEvent,
@@ -148,4 +184,5 @@ module.exports = {
   updateEvent,
   getSingleEventByToken,
   getUserEvent,
+  cancelEvent
 };
