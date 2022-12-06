@@ -1,7 +1,9 @@
 const expressAsyncHandler = require('express-async-handler');
 const services = require('../services');
+const jwt = require('jsonwebtoken');
 
 const { google } = require('googleapis');
+const { Event } = require('../models');
 require('dotenv').config();
 
 // Provide the required configuration
@@ -19,25 +21,31 @@ const auth = new google.auth.JWT(
 );
 
 // Insert Event Into Controller
-const insertCalendar = expressAsyncHandler(async (req, res, next) => {
+const insertCalendar = async (event, calendarId) => {
   try {
     let response = await calendar.events.insert({
       auth: auth,
-      calendarId: req.body.calendarId,
-      resource: req.body.event,
+      calendarId: calendarId,
+      resource: event,
     });
 
     if (response['status'] == 200 && response['statusText'] === 'OK') {
       const message = 'Successfully added event into calendar';
-      return services.newEventToken({}, 'success', message, res);
+      console.log('SUCCESS')
+      return true;
+      // return services.newEventToken({}, 'success', message, {message: 'success'});
     } else {
-      return services.createSendToken({}, 'error', response['statusText'], res);
+      console.log('error')
+      console.log(response)
+      return false;
+      // return services.createSendToken({}, 'error', response['statusText'], {message: 'error'});
     }
   } catch (error) {
     console.log(`Error at insertEvent --> ${error}`);
-    return services.createSendToken({}, 'error', error, res);
+    return false
+    // return services.createSendToken({}, 'error', error, {message: 'erroe'});
   }
-});
+};
 
 // Get Event in Calendar
 const getCalendar = expressAsyncHandler(async (req, res, next) => {
@@ -89,23 +97,42 @@ const deleteCalendar = expressAsyncHandler(async (req, res, next) => {
 
 // Save Event in Calendar
 const saveEvent = expressAsyncHandler(async (req, res, next) => {
-  const {eventId} = req.params.id
+  const params = req.params.id
+  console.log(params)
   try {
-    // let event = {
-    //   'summary': `This is the summary.`,
-    //   'description': `This is the description.`,
-    //   'start': {
-    //       'dateTime': dateTime['start'],
-    //       'timeZone': 'Asia/Kolkata'
-    //   },
-    //   'end': {
-    //       'dateTime': dateTime['end'],
-    //       'timeZone': 'Asia/Kolkata'
-    //   }
-// };
+    const decoded = jwt.verify(params, process.env.INVITATION_TOKEN_SECRET)
+
+    Event.findOne(
+      { _id: decoded.event_id },
+      async (err, data) => {
+        if (err) {
+          return services.createSendToken({}, 'error', err, res);
+        }
+        
+        let event = {
+          'summary': data['event_title'],
+          'description': data['event_description'],
+          'start': {
+              'dateTime': `${data['start_date']}T00:00:00.000Z`,
+              'timeZone': 'Asia/Kolkata'
+          },
+          'end': {
+              'dateTime': `${data['end_date']}T00:00:00.000Z`,
+              'timeZone': 'Asia/Kolkata'
+          }
+        }
+
+        await insertCalendar(event, decoded.email)
+
+        return res.writeHead(301, {
+          Location: 'https://calendar.google.com'
+        }).end();
+      },
+    );
+
     
   } catch (error) {
-    console.log(`Error at deleteEvent --> ${error}`);
+    console.log(`Error at saveEvent --> ${error}`);
     return services.createSendToken({}, 'error', error, res);
   }
 });
