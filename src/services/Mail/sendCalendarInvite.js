@@ -1,19 +1,19 @@
 const sendgrid = require('@sendgrid/mail');
 const templates = require('./templates');
 
-const sendInvitationLink = async (token, email) => {
+const sendCalendarLink = async (token, email) => {
   sendgrid.setApiKey(process.env.SENDGRID_API_KEY);
   console.log(process.env.SENDGRID_API_KEY);
 
   const options = {
     from: {
-      email: `lordorion066@gmail.com`,
-      name: 'Catch Up',
+      email: `hello@catchup.ng`,
+      name: 'Catch Up Calendar',
     },
     to: email,
-    subject: 'Catchup Invitation',
-    html: templates.sendInvitationLink.body.replace(
-      '{{ invitationLink }}',
+    subject: 'Catchup Calendar Invitation',
+    html: templates.sendCalendarMail.body.replace(
+      '{{ calendarLink }}',
       token
     ),
   };
@@ -21,4 +21,4 @@ const sendInvitationLink = async (token, email) => {
   return await sendgrid.send(options);
 };
 
-module.exports = sendInvitationLink;
+module.exports = sendCalendarLink;
