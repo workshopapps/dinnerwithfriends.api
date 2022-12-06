@@ -2,14 +2,14 @@ const { Event, ParticipantCount, Participant } = require('../models');
 
 const convertIsoToMiliseconds = (string) => {
   const myDate = new Date(string).getTime();
-  return myDate;
+  return myDate.toString();
 };
 
 const generateFinalEventDate = async (model, id) => {
   const modelData = await model.find({ event_id: id });
   const dateFrequency = {};
   for (let data of modelData) {
-    const convertedData = convertIsoToMiliseconds(data.preferred_date_time).toString();
+    const convertedData = convertIsoToMiliseconds(data.preferred_date_time);
     if (convertedData in dateFrequency) {
       dateFrequency[convertedData] += 1;
     } else {
