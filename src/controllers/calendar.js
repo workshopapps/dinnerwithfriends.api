@@ -1,24 +1,25 @@
 const expressAsyncHandler = require('express-async-handler');
 const services = require('../services');
+const jwt = require('jsonwebtoken');
 
 const { google } = require('googleapis');
+const { Event } = require('../models');
 require('dotenv').config();
 
 // Provide the required configuration
 const CREDENTIALS = {
-  type: 'service_account',
-  project_id: 'confident-facet-364012',
-  private_key_id: '1f817510d3efade14b09de482b156c00bccf6e21',
-  private_key:
-    '-----BEGIN PRIVATE KEY-----\nMIIEvAIBADANBgkqhkiG9w0BAQEFAASCBKYwggSiAgEAAoIBAQCr2/kpAYU2YUuR\nexWuEI+z83T+DbNfeRJxo4MS/7ko17Xav16REGYd3SoHqnWy6lUQ02Enml4wp4eC\nmnaHicsLoqwYE6NCVbBMwFvXsv6JK3vwiuL94N1FGGalRG47WW4kp7XqM4KxjhN6\ntfGnMs+bA5j2LOJDBCcErmA7iiPNerqQVeaPPRR6JLqlBPxzhh0r4qr6sdmuk86E\nDY9UrrOGQ+Ux3qtr/zhrtUdGpkZS5l4TmjWPjD4vsJQz+uHgMMl31bsGukZxDnfG\nQEYuT9QYb49/1pWtB5DWHWn3jh1mXMLCBqkNHccEeqQzVRWQKroygxbXlztuNtvn\nbxw2y+yFAgMBAAECggEADMSiBUbko76kw6E2YiE+2+q5hWp1KiGvmhvA0DeJhRxJ\nmX/gQbzLKWrWBY3HgsxgF4jszeltGAZKTgy1w6ocGLg0OvGyjmoZWApuiF73BC/j\n3GIlLSF4rvp6HcswuV4Sjcyb+lNrYU+h6Nr9oiNnQygIRDnfcYUsdO+TnLjNoiVd\n7Q2iNoJ2Dut7qVoA0WTmbJ8rbMDaR5lcnrFykm/moMlm9B7Y54xEeNizGCenWjhP\nqRomnJmCr7ViZTAusLs0kOb+3Y9irdmuive9GxoyhbUgBSB52YwilC70yJqrBeHY\n27kJa+HT+mf4HhbRo736DrbnhF+gcQiQSbX7c+0IwQKBgQDVXBTxr7M2+poOTNi1\nCY/JqYHUzij3jXIZiK7j5W0RP2LKTMBoWYeK+EfSVmkNZWBQyyRPFjNaRwI9ELOC\nVQUitq3F0ghtHu3tzEGtdMlar3T9JTJm4WoEXFWktk0Q038sKRRiKonLAlg3k67X\nlvbVDUUY8ji9XcVibPbB79qtFQKBgQDONKUaTQWny+iLzsC/vjTMQKAISM6L+9IK\nXWxg4r6N/5Uk6OoNG1gT0DfHOtwjOE571PUnKFGemac8qUTAL4iKTe3fMv/BmI/g\npIqN2Xn7BMjZAUk5kpHROvmCtwEHf1BGBMnWUiJsnfofVOMxlpZiI3Te3FF2gsyT\nEbiy7Xt9sQKBgEjzWxXoBVbfCJ2rGM2Nn2RMWN/yPX+nFUQ1v9acM1aaXaTd6UvE\nkNurWKNKeFDkQLJfQuLnrFdJwDIw66+8ci0UWQYycj8dPCz6kdpE/DPNmiqT9U/H\n8v/ask3HJ0KBjhIDWbzW3pZTDuax0C5Wp77g8qc86rmUvlCRAS3+XL6hAoGAM8yX\nuO6mQAuCBDTQyJnwS2rkiJA5ioKctcvYINJ0ydjtT1NPEDHRQ1Dn4h1QFWzcklDh\nsI95SV0R3LQsuBZ4tz1yRsJZ6vj3E5hh0dZSxRLjnVesXFEMXkHxUbvE/2wk7yHe\nzf7d9OkOXvaFB/zrFAYSIrW3pQygdUVbX182yVECgYAlhtBwb2T/cXezCQqONB/a\nyX6a5X3PwG1JEoBXXlrXb2FsX64vDdcQIuHQGhCSQ8wYr4HloIxwbqtdOt2nn3x7\nVBADOS+33hjwq5hIH7238UqGTl12nSYHxS2Q2m3GLlEX9ys5Zf8dvOLS4t933OJz\nC0rjmj/8zR8368XA2X8QpQ==\n-----END PRIVATE KEY-----\n',
-  client_email: 'i123456@confident-facet-364012.iam.gserviceaccount.com',
-  client_id: '102254133935705883736',
-  auth_uri: 'https://accounts.google.com/o/oauth2/auth',
-  token_uri: 'https://oauth2.googleapis.com/token',
-  auth_provider_x509_cert_url: 'https://www.googleapis.com/oauth2/v1/certs',
-  client_x509_cert_url:
-    'https://www.googleapis.com/robot/v1/metadata/x509/i123456%40confident-facet-364012.iam.gserviceaccount.com',
-};
+  type: "service_account",
+  project_id: "gisthive-192713",
+  private_key_id: "a02262fba03f1ea6c5d76305c611b5bc2bc2c518",
+  private_key: "-----BEGIN PRIVATE KEY-----\nMIIEvAIBADANBgkqhkiG9w0BAQEFAASCBKYwggSiAgEAAoIBAQDNT8/54WLf5FyU\n9XGKhIzRAoA6tbK2oI2bpLJIm1sNehgIEWBSh1XDYIJHfLsnMLo4hr9+HHRZ19Tt\nR5XjrGdgtqkixwbEL30WCUceidVTw34bgDMXADwoAwwoA6mmGOYRU+ByIKDjpLzo\nG9/eAJK26M/2Nv6O0EW88CNK4IfvrIHe7Tv6aLRjRZABGQFQEZCJcmjC+vYQ0z0C\nL2OvJmifFO/L8dHsTS+dFlWQaKkW/wcSqUV6iogEaKkKxAKIIqe+5EGufsnUqJO2\nZKgLZVR2cIJfj3J8Nm4/vbUJ+9aV3CU8/pgBlmzPoMUWAQNsQoDDzDlNsCNVZnkA\nNLsg11ODAgMBAAECggEADJf8teMxYXJsi2aS1GBVEu0IWJGUqMcoaIett+5vo1/9\n4WDPe8B5bkaZNzFbeYfvpE//pwivymMG2Jcvhouou7H4pf13WMlg7t0a07C4uS6g\nqacvexW0mu+06y9uVJXqZt2yQs3lkJEmVUaAcOmwFjApsXymGLSF0pUYVRt4uybJ\nnZ9RFRQB7zBTnKSauYOrJQSGwWBUAlk27nH3f7g4NmHCqx5Shap3o512+trlDxmO\nkJTUsKXtYfI3zrjkp/Ze/hR8V7rfLm7zqc4UZ7HoVSNx+9zTAfvw4BSYiLYlbHx/\n8VIb4NpP/a4KnziCS1keCuLtKgSu0r6Ft1UaSsix4QKBgQDrvD3ypAuxKt9ZPWPJ\nQbbUbVNsXTO+X01h4fPRlB9PPCPewznPeDWZkE3vx0TaQrCbL5f5/JT3y2N/J07y\nh5GPVqDLQh3zOoxDwuvBU3dpEvMdvOn3olqh7wyLhEHUHczBZ8qIJ6Yut+l/rL75\nPEpBqJAmlNcupFaX05zyCg3AxwKBgQDe9gxYFhpWT/HhXpFXww7IzW55mg4yruXO\naUgu6N1UEAermNSwbq4L2wp2EVzfQm+vQNho8jPXjd6WmMcfvaK87omc35CKnERs\n8RGYqMDUx1tQz43cvefXxsqYf/OyUTgebmsBpxu/PUk1yt+ecn2icw21r9B/C2d5\n5FNqVoiTZQKBgGDR5suSju7MQgGgEizl3Zav9FSMjyUAdYLfT8njQVzEwaLLoiHR\nKIqS1z/FI0VVoL2MNapKEFEZ6xqdZXJ9Nc6ecNoqpKxyfouSMkwr4N56Fvo+zgWU\nXA8oZImk33ikaKWC4I89YabMiI2UwLcTCRigh9wgw6R3gM1I76wFbxKfAoGAffi+\nmLZEQygAHbl0nQVUQRfwpzvncbNnm+vYIMjo5Cn6a3V6FgUyyPgFPRgqROogeABH\nRWQy7kL11FiViNV4MQ8FKWEXJXmNH5BExN/zs0S/zzS1jlatuzhSFz+TzNgewPLZ\n+qEUCET0LDRni/pcCYC/6jtfragf2rqqdpZVrBECgYBXjqfqCoeOaeWixH4cRBiV\nlRUk0PLxvlvIny4MoVCbg3ynd7fe0r1DeFG5tkke4vv9esfc/Iy0tmy/YKRw0WD4\nOyQkwFPGXU63ilR22rXmCeB4aJIjDXVo5rcMOSnO6iOIyErP5FsRia7Gx7RdM4Rn\npucxJOAO8oxJNs0JVhPuOA==\n-----END PRIVATE KEY-----\n",
+  client_email: "gisthive@gisthive-192713.iam.gserviceaccount.com",
+  client_id: "106517936676260485570",
+  auth_uri: "https://accounts.google.com/o/oauth2/auth",
+  token_uri: "https://oauth2.googleapis.com/token",
+  auth_provider_x509_cert_url: "https://www.googleapis.com/oauth2/v1/certs",
+  client_x509_cert_url: "https://www.googleapis.com/robot/v1/metadata/x509/gisthive%40gisthive-192713.iam.gserviceaccount.com"
+}
+
 
 // Google calendar API settings
 const SCOPES = 'https://www.googleapis.com/auth/calendar';
@@ -32,25 +33,31 @@ const auth = new google.auth.JWT(
 );
 
 // Insert Event Into Controller
-const insertCalendar = expressAsyncHandler(async (req, res, next) => {
+const insertCalendar = async (event, calendarId) => {
   try {
     let response = await calendar.events.insert({
       auth: auth,
-      calendarId: req.body.calendarId,
-      resource: req.body.event,
+      calendarId: calendarId,
+      resource: event,
     });
 
     if (response['status'] == 200 && response['statusText'] === 'OK') {
       const message = 'Successfully added event into calendar';
-      return services.newEventToken({}, 'success', message, res);
+      console.log('SUCCESS')
+      return true;
+      // return services.newEventToken({}, 'success', message, {message: 'success'});
     } else {
-      return services.createSendToken({}, 'error', response['statusText'], res);
+      console.log('error')
+      console.log(response)
+      return false;
+      // return services.createSendToken({}, 'error', response['statusText'], {message: 'error'});
     }
   } catch (error) {
     console.log(`Error at insertEvent --> ${error}`);
-    return services.createSendToken({}, 'error', error, res);
+    return false
+    // return services.createSendToken({}, 'error', error, {message: 'erroe'});
   }
-});
+};
 
 // Get Event in Calendar
 const getCalendar = expressAsyncHandler(async (req, res, next) => {
@@ -102,23 +109,42 @@ const deleteCalendar = expressAsyncHandler(async (req, res, next) => {
 
 // Save Event in Calendar
 const saveEvent = expressAsyncHandler(async (req, res, next) => {
-  const {eventId} = req.params.id
+  const params = req.params.id
+  console.log(params)
   try {
-    // let event = {
-    //   'summary': `This is the summary.`,
-    //   'description': `This is the description.`,
-    //   'start': {
-    //       'dateTime': dateTime['start'],
-    //       'timeZone': 'Asia/Kolkata'
-    //   },
-    //   'end': {
-    //       'dateTime': dateTime['end'],
-    //       'timeZone': 'Asia/Kolkata'
-    //   }
-// };
+    const decoded = jwt.verify(params, process.env.INVITATION_TOKEN_SECRET)
+
+    Event.findOne(
+      { _id: decoded.event_id },
+      async (err, data) => {
+        if (err) {
+          return services.createSendToken({}, 'error', err, res);
+        }
+        
+        let event = {
+          'summary': data['event_title'],
+          'description': data['event_description'],
+          'start': {
+              'dateTime': `${data['start_date']}T00:00:00.000Z`,
+              'timeZone': 'Asia/Kolkata'
+          },
+          'end': {
+              'dateTime': `${data['end_date']}T00:00:00.000Z`,
+              'timeZone': 'Asia/Kolkata'
+          }
+        }
+
+        await insertCalendar(event, decoded.email)
+
+        return res.writeHead(301, {
+          Location: 'https://calendar.google.com'
+        }).end();
+      },
+    );
+
     
   } catch (error) {
-    console.log(`Error at deleteEvent --> ${error}`);
+    console.log(`Error at saveEvent --> ${error}`);
     return services.createSendToken({}, 'error', error, res);
   }
 });

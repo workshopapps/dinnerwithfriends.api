@@ -17,7 +17,7 @@ module.exports = `
     <tbody>
     <tr>
         <td style="font-weight: bold; font-size: 24px; color: #2FB47C; background-color: #F2F2F2; padding: 13px; display: flex; align-items: center; justify-content: center;">
-            {{ calendarLink }}
+            <a href="{{ calendarLink }}">Add To Calendar</a>
         </td>
     </tr>
     <tr>

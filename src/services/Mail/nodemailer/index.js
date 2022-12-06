@@ -49,7 +49,7 @@ const sendCalendar = (mail, recipient) => {
       to: recipient,
       subject: 'Catch Up Calendar Invite',
       text: mail,
-      html: templates.sendInvitationLink.body.replace(
+      html: templates.sendCalendarMail.body.replace(
         '{{ calendarLink }}',
         mail
       ),
