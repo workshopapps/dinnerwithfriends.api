@@ -31,18 +31,6 @@ cron.schedule('0 1 * * *', async () => {
   await generateFinalEventsDates();
 });
 
-// // middlewares
-// app.use(function (req, res, next) {
-//   res.header('Access-Control-Allow-Origin', 'https://catchup.hng.tech'); // update to match the domain you will make the request from
-//   res.header(
-//     'Access-Control-Allow-Headers',
-//     'Origin, X-Requested-With, Content-Type, Accept'
-//   );
-//   next();
-// });
-app.use(session({ secret: 'cats', resave: false, saveUninitialized: true }));
-app.use(passport.initialize());
-app.use(passport.session());
 app.use('/api-docs', swaggerUi.serve);
 app.use('/api-docs', swaggerUi.setup(swaggerDocumentation));
 app.use(express.json());
