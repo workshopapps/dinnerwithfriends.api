@@ -143,7 +143,6 @@ const addEvent = asyncHandler(async (req, res, next) => {
 
   const eventData = {
     end_date,
-    host_info,
     start_date,
     event_title,
     event_description,
