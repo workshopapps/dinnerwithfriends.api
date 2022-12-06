@@ -10,8 +10,8 @@ const {
   generateFinalEventsDates,
 } = require('../services/generateFinalEventDate');
 const Invitation = require('../models/invitation');
-const sendCalendarMail = require('../services/Mail/nodemailer');
-const { generateJWTToken } = require('../services/auth');
+// const sendCalendarMail = require('../services/Mail/nodemailer');
+// const { generateJWTToken } = require('../services/auth');
 
 // adding a participant
 const addParticipant = asyncHandler(async (req, res, next) => {

@@ -31,8 +31,4 @@ router
 // .route('/user/:id')
 // .get(eventControllers.getAllEventsByUser)
 
-<<<<<<< HEAD
-
-=======
->>>>>>> Add cancel event route
 module.exports = router;
