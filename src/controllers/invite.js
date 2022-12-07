@@ -5,7 +5,7 @@ const sendInvitationLink = require('../services/Mail/sendInvitationLink');
 const { AppError } = require('../utilities');
 const { Event } = require('../models');
 const jwt = require('jsonwebtoken');
-const sendMail = require('../services/Mail/nodemailer/sendInvitationLink');
+const {sendMail} = require('../services/Mail/nodemailer/sendInvitationLink');
 
 module.exports.createInvite = asyncHandler(async (req, res, next) => {
   const { email_list, event_id } = req.body;
