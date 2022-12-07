@@ -154,6 +154,7 @@ const getEventParticipants = asyncHandler(async (req, res, next) => {
     return next(new AppError('No event with ID', 404));
   }
 
+  const message = "Successfully fetched events participants"
   const eventParticipants = await Participant.find({ event_id: event_id });
   return services.createSendData(eventParticipants, 'success', message, res);
 });
