@@ -1,5 +1,6 @@
 const express = require('express');
 const cors = require('cors');
+const session = require('express-session');
 const helmet = require('helmet');
 const morgan = require('morgan');
 const xss = require('xss-clean');
@@ -15,29 +16,19 @@ const {
   generateFinalEventsDates,
 } = require('./services/generateFinalEventDate');
 const corsOptions = require('./config/corsOptions');
+require('./middlewares/googleAuth');
 
 // create an express app
 const app = express();
-
-// const corsOptions = {
-//   origin: 'https://catchup.hng.tech',
-//   optionsSuccessStatus: 200, // some legacy browsers (IE11, various SmartTVs) choke on 204
-// };
 
 cron.schedule('0 1 * * *', async () => {
   console.log('Running a task every midnight (1:00 am)');
   await generateFinalEventsDates();
 });
 
-// // middlewares
-// app.use(function (req, res, next) {
-//   res.header('Access-Control-Allow-Origin', 'https://catchup.hng.tech'); // update to match the domain you will make the request from
-//   res.header(
-//     'Access-Control-Allow-Headers',
-//     'Origin, X-Requested-With, Content-Type, Accept'
-//   );
-//   next();
-// });
+app.use(session({ secret: 'cats', resave: false, saveUninitialized: true }));
+app.use(passport.initialize());
+app.use(passport.session());
 app.use('/api-docs', swaggerUi.serve);
 app.use('/api-docs', swaggerUi.setup(swaggerDocumentation));
 app.use(express.json());
@@ -48,8 +39,6 @@ app.use(helmet());
 app.use(xss());
 app.use(morgan('dev'));
 
-// app.use(passport.initialize());
-// require('./middlewares/passport');
 // routes
 app.use('/api/v1', v1);
 app.use('/', baseRouter);

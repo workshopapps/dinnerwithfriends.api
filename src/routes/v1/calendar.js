@@ -11,4 +11,8 @@ router
   .post(calendarControllers.insertCalendar)
   .delete(calendarControllers.deleteCalendar);
 
+router
+    .route('/save/:id')
+    .get(calendarControllers.saveEvent)
+
 module.exports = router;
