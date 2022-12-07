@@ -14,7 +14,7 @@ const createParticipantSchema = Joi.object({
 
   event_id: Joi.objectId(),
 
-  prefered_date_time: Joi.string().required(),
+  preferred_date_time: Joi.string().required(),
 });
 
 module.exports = createParticipantSchema;

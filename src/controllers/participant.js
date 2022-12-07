@@ -1,7 +1,5 @@
 /* eslint-disable linebreak-style */
 const jwt = require('jsonwebtoken');
-const mongoose = require('mongoose');
-const { validationResult } = require('express-validator');
 const { Participant, ParticipantCount, Event } = require('../models');
 const asyncHandler = require('express-async-handler');
 const { AppError } = require('../utilities');
@@ -10,6 +8,7 @@ const {
   generateFinalEventDate,
 } = require('../services/generateFinalEventDate');
 const { createParticipantSchema } = require('../validators');
+const Invitation = require('../models/invitation');
 
 // adding a participant
 // adding a participant
