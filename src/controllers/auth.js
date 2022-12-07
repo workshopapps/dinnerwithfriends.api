@@ -78,7 +78,7 @@ const signin = asyncHandler(async (req, res, next) => {
   }
 
   const payload = {
-    id: user.id,
+    id: user._id,
     email: user.email,
     name: user.name,
   };
@@ -107,10 +107,15 @@ const signin = asyncHandler(async (req, res, next) => {
   });
 
   message = 'Logged in successfully';
+  user.password = null
+  user.refreshToken = null
   return res.json({
     status: 'success',
     message: message,
     accessToken: accessToken,
+    data:{
+      user
+    }
   });
   //  return services.createSendToken(user, 'success', message, res);
 });
