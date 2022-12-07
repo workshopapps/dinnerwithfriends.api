@@ -1,8 +1,8 @@
 const { Event, ParticipantCount, Participant } = require('../models');
 
 const convertIsoToMiliseconds = (string) => {
-  const myDate = new Date(string).getTime();
-  return myDate.toString();
+  let myDate = new Date(string).getTime();
+  return myDate && myDate.toString();
 };
 
 const generateFinalEventDate = async (model, id) => {

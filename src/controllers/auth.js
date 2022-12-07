@@ -170,7 +170,7 @@ const generateRecoverAccountToken = asyncHandler(async (req, res, next) => {
   const accountRecoveryTokenData = {
     userId: user._id,
     email: user.email,
-    token: code.toString(),
+    token: code && code.toString(),
     expiresAt: moment().add(30, 'minutes'),
   };
 
