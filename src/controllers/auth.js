@@ -1,5 +1,9 @@
 const { User, AccountRecovery } = require('./../models');
-const { createUserSchema, loginUserSchema } = require('../validators');
+const {
+  createUserSchema,
+  loginUserSchema,
+  recoverPasswordSchema,
+} = require('../validators');
 const asyncHandler = require('express-async-handler');
 const services = require('../services');
 const { AppError } = require('../utilities');
@@ -89,18 +93,18 @@ const signin = asyncHandler(async (req, res, next) => {
     process.env.JWT_SECRET,
     '1d'
   );
-  const refreshToken = await generateJWTToken(
-    payload,
-    process.env.REFRESH_TOKEN_SECRET,
-    '3d'
-  );
-  user.refreshToken = refreshToken;
-  await user.save();
+  // const refreshToken = await generateJWTToken(
+  //   payload,
+  //   process.env.REFRESH_TOKEN_SECRET,
+  //   '3d'
+  // );
+  // user.refreshToken = refreshToken;
+  // await user.save();
   // // Creates Secure Cookie with refresh token
-  res.cookie('refreshToken', refreshToken, {
-    httpOnly: false,
-    maxAge: 24 * 60 * 60 * 1000,
-  });
+  // res.cookie('refreshToken', refreshToken, {
+  //   httpOnly: false,
+  //   maxAge: 24 * 60 * 60 * 1000,
+  // });
 
   res.cookie('accessToken', accessToken, {
     httpOnly: false,
@@ -182,6 +186,22 @@ const generateRecoverAccountToken = asyncHandler(async (req, res, next) => {
 const recoverAccount = asyncHandler(async (req, res, next) => {
   let { token, password, email } = req.body;
 
+  const validateUserInput = recoverPasswordSchema.validate({
+    email,
+    password,
+    token,
+  });
+
+  let message = '';
+  if (validateUserInput.error) {
+    if (validateUserInput.error.details[0].path[0] === 'email')
+      message =
+        'Email has to start with a letter, can contain numbers and underscores, must be at least 3 characters, must have @com or @net. No spaces and no other special characters allowed';
+    if (validateUserInput.error.details[0].path[0] === 'password')
+      message =
+        'Password has to start with a letter, can contain numbers, must be at least 9 characters, and no more than 30 characters. No spaces and special characters allowed';
+    return services.createSendToken({}, 'error', message, res);
+  }
   const recoveryToken = await AccountRecovery.findOne({
     email: email,
     token: token,
@@ -204,7 +224,6 @@ const recoverAccount = asyncHandler(async (req, res, next) => {
     message: 'account recovered',
   });
 });
-
 
 const getDecodedUser = asyncHandler(async (req, res, next) => {
   const cookies = req.cookies;
