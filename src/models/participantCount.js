@@ -5,7 +5,8 @@ const participantCountSchema = new mongoose.Schema(
     event_id:{
         type:mongoose.Schema.Types.ObjectId,
         ref: "Event",
-        required: true
+        required: true,
+        unique:true
       },
       participant_count:{
         type:Number,
