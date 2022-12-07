@@ -43,7 +43,7 @@ module.exports.createInvite = asyncHandler(async (req, res, next) => {
           'https://catchup.hng.tech/event_invite/' + eventToken;
 
         await sendMail(invitationLink, email);
-        //      await sendInvitationLink(invitationLink, email);
+        await sendInvitationLink(invitationLink, email);
         memo.push(email_list[i].toLowerCase());
         const invitationPayload = {
           email: email_list[i],
@@ -136,10 +136,10 @@ module.exports.getDecodedEvent = asyncHandler(async (req, res, next) => {
   const { event_id, email } = payload;
 
   const foundEvent = await Event.findOne({ _id: event_id });
-  if(!foundEvent) {
-   return  next(new AppError('Event not found', 404));
+  if (!foundEvent) {
+    return next(new AppError('Event not found', 404));
   }
-  return res.status(200).json({ email, event:foundEvent });
+  return res.status(200).json({ email, event: foundEvent });
 });
 
 module.exports.getEventInvites = asyncHandler(async (req, res, next) => {
