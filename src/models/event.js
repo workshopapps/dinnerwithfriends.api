@@ -49,8 +49,8 @@ const eventSchema = new mongoose.Schema(
       required: true,
       trim: true,
     },
-    published:{
-    type: String,
+    published: {
+      type: String,
       trim: true,
       enum: ['decided', 'not-decided', 'ended', 'cancelled'],
       default: 'not-decided',
@@ -66,8 +66,15 @@ const eventSchema = new mongoose.Schema(
       trim: true,
     },
   },
-  { timestamps: true }
+  { versionKey:false,timestamps: true, toJSON: { virtuals: true }, toObject: { virtuals: true } }
 );
+
+// Virtual populate
+eventSchema.virtual('host_info', {
+  ref: 'User',
+  foreignField: '_id',
+  localField: 'user_id',
+});
 
 const Event = mongoose.model('Event', eventSchema);
 module.exports = Event;

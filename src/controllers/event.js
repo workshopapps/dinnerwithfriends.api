@@ -5,79 +5,61 @@ const services = require('../services');
 const { AppError } = require('../utilities');
 
 // Get All Events Controller
+// Get All Events Controller
 const getAllEvents = asyncHandler(async (req, res, next) => {
-  Event.find({ user_id: req.user._id }, async (err, data) => {
-    if (err) {
-      return services.createSendToken({}, 'error', err, res);
-    }
-    const message = 'Successfully fetched events';
-
-    const ckeckId = data['user_id'].toString();
-    const host_info = await User.findById(ckeckId);
-    const the_data = { ...data['_doc'], host_info: { ...host_info['_doc'] } };
-
-    return services.newEventToken(the_data, 'success', message, res);
-  });
+  const events = await Event.find({ user_id: req.user._id })
+    .populate('host_info', 'name')
+    .select('-password')
+    .exec();
+  const message = 'Successfully fetched events';
+  return services.newEventToken(events, 'success', message, res);
 });
 
 // Get Single Event Controller
 const getSingleEvent = asyncHandler(async (req, res, next) => {
   const event_id = req.params.id;
-  Event.findOne({ _id: event_id }, async (err, data) => {
-    if (err) {
-      return services.createSendToken({}, 'error', err, res);
-    }
-
-    const message = 'Successfully fetched event';
-
-    const ckeckId = data['user_id'].toString();
-    const host_info = await User.findById(ckeckId);
-    const the_data = { ...data['_doc'], host_info: { ...host_info['_doc'] } };
-
-    return services.newEventToken(the_data, 'success', message, res);
-  });
+  const event = await Event.findOne({ _id: event_id })
+    .populate('host_info', 'name')
+    .select('-password')
+    .exec();
+  if (!event) {
+    return next(new AppError('No event with ID found', 404));
+  }
+  const message = 'Successfully fetched event';
+  return services.createSendToken(event, 'success', message, res);
 });
 
 // get all User Event
 
 const getUserEvent = asyncHandler(async (req, res, next) => {
   const event = await Event.find({ user_id: req.user._id });
-  console.log(event);
-
-  return res.status(200).json({
-    success: true,
-    event,
-  });
+  return services.createSendToken(event, 'success', message, res);
 });
 
 // Get Single Event By Token
 const getSingleEventByToken = asyncHandler(async (req, res, next) => {
   const event_id = services.protectEvent(req.params.id);
 
-  Event.findOne({ _id: event_id }, async (err, data) => {
-    if (err) {
-      return services.createSendToken({}, 'error', err, res);
-    }
-
-    const ckeckId = data['user_id'].toString();
-    const host_info = await User.findById(ckeckId);
-    const the_data = { ...data['_doc'], host_info: { ...host_info['_doc'] } };
-
-    const message = 'Successfully fetched event';
-    return services.newEventToken(the_data, 'success', message, res);
-  });
+  const event = await Event.findOne({ _id: event_id })
+    .populate('host_info', 'name')
+    .select('-password')
+    .exec();
+  if (!event) {
+    return next(new AppError('No event with ID found', 404));
+  }
+  const message = 'Successfully fetched event';
+  return services.createSendToken(event, 'success', message, res);
 });
 
 // Delete Single Event Controller
 const deleteEvent = asyncHandler(async (req, res, next) => {
   const event_id = req.params.id;
-  Event.findByIdAndDelete(event_id, (err, data) => {
-    if (err) {
-      return services.createSendToken({}, 'error', err, res);
-    }
-    const message = 'Successfully Deleted event';
-    return services.newEventToken(data, 'success', message, res);
-  });
+  const event = await Event.findByIdAndDelete(event_id);
+  if (!event) {
+    return next(new AppError('No event with ID found', 404));
+  }
+  const message = 'Successfully Deleted event';
+  return services.createSendToken(null, 'success', message, res);
 });
 
 // Update Event Controller
@@ -88,7 +70,7 @@ const updateEvent = asyncHandler(async (req, res, next) => {
       return services.createSendToken({}, 'error', err, res);
     }
     const message = 'Successfully Updated event';
-    return services.newEventToken(data, 'success', message, res);
+    return services.createSendToken(data, 'success', message, res);
   });
 });
 
@@ -204,5 +186,5 @@ module.exports = {
   getSingleEventByToken,
   getEventParticipants,
   getUserEvent,
-  cancelEvent
+  cancelEvent,
 };
