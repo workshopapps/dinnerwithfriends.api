@@ -9,6 +9,8 @@ const {
 } = require('../services/generateFinalEventDate');
 const { createParticipantSchema } = require('../validators');
 const Invitation = require('../models/invitation');
+// const sendCalendarMail = require('../services/Mail/nodemailer');
+// const { generateJWTToken } = require('../services/auth');
 
 // adding a participant
 // adding a participant
@@ -77,6 +79,17 @@ const addParticipant = asyncHandler(async (req, res, next) => {
     foundInvitation.status = 'accepted';
     await foundInvitation.save();
   }
+
+  // const eventToken = await generateJWTToken(
+  //   { event_id, email },
+  //   process.env.INVITATION_TOKEN_SECRET,
+  //   '90d'
+  // );
+
+  // // send calendar email to participants
+  // const the_message = 'https://api.catchup.hng.tech/api/v1/calendar/save/'+eventToken
+  // sendCalendarMail.sendCalendar(the_message, email)
+
   if (participantCount.participant_count === eventExist.participant_number) {
     const finalEventDate = await generateFinalEventDate(Participant, event_id);
     eventExist.final_event_date = finalEventDate;

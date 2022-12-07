@@ -49,8 +49,8 @@ const eventSchema = new mongoose.Schema(
       required: true,
       trim: true,
     },
-    published: {
-      type: String,
+    published:{
+    type: String,
       trim: true,
       enum: ['decided', 'not-decided', 'ended', 'cancelled'],
       default: 'not-decided',
