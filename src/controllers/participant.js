@@ -1,37 +1,49 @@
 /* eslint-disable linebreak-style */
 const jwt = require('jsonwebtoken');
-const mongoose = require('mongoose');
-const { validationResult } = require('express-validator');
 const { Participant, ParticipantCount, Event } = require('../models');
 const asyncHandler = require('express-async-handler');
 const { AppError } = require('../utilities');
 const { createSendData } = require('../services');
 const {
-  generateFinalEventsDates,
+  generateFinalEventDate,
 } = require('../services/generateFinalEventDate');
+const { createParticipantSchema } = require('../validators');
+const Invitation = require('../models/invitation');
+// const sendCalendarMail = require('../services/Mail/nodemailer');
+// const { generateJWTToken } = require('../services/auth');
 
 // adding a participant
+// adding a participant
 const addParticipant = asyncHandler(async (req, res, next) => {
-  // const errors = validationResult(req);
-
-  // if (!errors.isEmpty()) {
-  //   console.log(errors.array());
-  //   return res.status(422).json({ errors: errors.array() });
-
-  // }
   const { fullname, event_id, email, preferred_date_time } = req.body;
+
+  const validateUserInput = createParticipantSchema.validate({
+    fullname,
+    event_id,
+    email,
+    preferred_date_time,
+  });
+
   let message;
+
+  if (validateUserInput.error) {
+    message = '';
+    if (validateUserInput.error.details[0].path[0] === 'fullname')
+      message =
+        'Name has to start with a letter, can contain spaces, must be at least 3 characters, and no more than 30 characters. No special characters allowed';
+    if (validateUserInput.error.details[0].path[0] === 'event_id')
+      message = 'event id must be a valid mongodb id string.';
+    if (validateUserInput.error.details[0].path[0] === 'email')
+      message =
+        'Email has to start with a letter, can contain numbers and underscores, must be at least 3 characters, must have @com or @net. No spaces and no other special characters allowed';
+    if (validateUserInput.error.details[0].path[0] === 'preferred_date_time')
+      message = 'A date field is required';
+    return next(new AppError(message, 404));
+  }
 
   const eventExist = await Event.findById(event_id);
   if (!eventExist) {
     return next(new AppError('No event found with that ID', 404));
-  }
-  let participantCount = await ParticipantCount.find({ event_id });
-  if (participantCount[0].participant_count === eventExist.participant_number) {
-    await generateFinalEventsDates();
-    return next(
-      new AppError('Event date already decided please refresh the page', 404)
-    );
   }
   const participantExists = await Participant.findOne({
     email: req.body.email,
@@ -40,15 +52,17 @@ const addParticipant = asyncHandler(async (req, res, next) => {
     message = 'Participant exists';
     return next(new AppError(message, 409));
   }
-
-  await ParticipantCount.findOneAndUpdate(
-    { event_id: event_id },
-    { $inc: { participant_count: 1 } },
-    {
-      new: true,
-      runValidators: true,
-    }
-  );
+  let participantCount = await ParticipantCount.findOne({ event_id: event_id });
+  if (participantCount.participant_count < eventExist.participant_number) {
+    await ParticipantCount.findOneAndUpdate(
+      { event_id: event_id },
+      { $inc: { participant_count: 1 } },
+      {
+        new: true,
+        runValidators: true,
+      }
+    );
+  }
 
   const newParticipantData = {
     fullname,
@@ -57,6 +71,31 @@ const addParticipant = asyncHandler(async (req, res, next) => {
     preferred_date_time,
   };
   const participant = await new Participant(newParticipantData).save();
+  const foundInvitation = await Invitation.findOne({
+    email: email,
+    event_id,
+  });
+  if (foundInvitation) {
+    foundInvitation.status = 'accepted';
+    await foundInvitation.save();
+  }
+
+  // const eventToken = await generateJWTToken(
+  //   { event_id, email },
+  //   process.env.INVITATION_TOKEN_SECRET,
+  //   '90d'
+  // );
+
+  // // send calendar email to participants
+  // const the_message = 'https://api.catchup.hng.tech/api/v1/calendar/save/'+eventToken
+  // sendCalendarMail.sendCalendar(the_message, email)
+
+  if (participantCount.participant_count === eventExist.participant_number) {
+    const finalEventDate = await generateFinalEventDate(Participant, event_id);
+    eventExist.final_event_date = finalEventDate;
+    eventExist.published = 'decided';
+    await eventExist.save();
+  }
   return createSendData(participant, 'success', message, res);
 });
 

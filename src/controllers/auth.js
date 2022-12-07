@@ -7,9 +7,10 @@ const { signRefreshToken, generateJWTToken } = require('../services/auth');
 const jwt = require('jsonwebtoken');
 const random = require('lodash/random');
 const moment = require('moment');
-const sendAccountRecoveryToken = require('../services/Mail/sendAccountRecoveryToken');
+const sendAccountRecoveryToken = require('../services/Mail/nodemailer/sendAccountRecoveryToken');
 const queryString = require('querystring');
 const axios = require('axios');
+const passport = require('passport');
 
 // Signup Controller
 const signup = asyncHandler(async (req, res, next) => {
@@ -78,11 +79,12 @@ const signin = asyncHandler(async (req, res, next) => {
   }
 
   const payload = {
-    id: user.id,
+    id: user._id,
     email: user.email,
     name: user.name,
   };
 
+  
   const accessToken = await generateJWTToken(
     payload,
     process.env.JWT_SECRET,
@@ -96,21 +98,33 @@ const signin = asyncHandler(async (req, res, next) => {
   user.refreshToken = refreshToken;
   await user.save();
   // // Creates Secure Cookie with refresh token
-  res.cookie('refreshToken', refreshToken, {
+  const accessCookieOptions = {
+    expires: new Date(
+      Date.now() + process.env.JWT_COOKIE_EXPIRES_IN * 24 * 60 * 60 * 1000
+    ),
     httpOnly: true,
-    maxAge: 24 * 60 * 60 * 1000,
-  });
+  };
+  const refreshCookieOptions = {
+    expires: new Date(
+      Date.now() + process.env.REFRESH_COOKIE_EXPIRES_IN * 24 * 60 * 60 * 1000
+    ),
+    httpOnly: true,
+  };
 
-  res.cookie('accessToken', accessToken, {
-    httpOnly: true,
-    maxAge: 24 * 60 * 60 * 1000,
-  });
+  if (process.env.NODE_ENV === "production") cookieOptions.secure = true;
+  res.cookie('refreshToken', refreshToken,refreshCookieOptions);
+  res.cookie('accessToken', accessToken,accessCookieOptions);
 
   message = 'Logged in successfully';
+  user.password = null
+  user.refreshToken = null
   return res.json({
     status: 'success',
     message: message,
     accessToken: accessToken,
+    data:{
+      user
+    }
   });
   //  return services.createSendToken(user, 'success', message, res);
 });
@@ -156,7 +170,7 @@ const generateRecoverAccountToken = asyncHandler(async (req, res, next) => {
   const accountRecoveryTokenData = {
     userId: user._id,
     email: user.email,
-    token: code.toString(),
+    token: code && code.toString(),
     expiresAt: moment().add(30, 'minutes'),
   };
 
@@ -204,117 +218,6 @@ const recoverAccount = asyncHandler(async (req, res, next) => {
   });
 });
 
-//  Get Google login URL
-const getGAuthURL = asyncHandler(async (req, res, next) => {
-  const rootURL = 'https://accounts.google.com/o/oauth2/auth';
-  const options = {
-    redirect_uri: `${process.env.SERVER_ROOT_URI}`,
-    client_id: `${process.env.GOOGLE_CLIENT_ID}`,
-    access_type: 'offline',
-    response_type: 'code',
-    prompt: 'consent',
-    scope: [
-      'https://www.googleapis.com/auth/userinfo.profile',
-      'https://www.googleapis.com/auth/userinfo.email',
-      'https://www.googleapis.com/auth/calendar',
-    ].join(' '),
-  };
-  return res.send({
-    status: 'success',
-    message: 'User should visit this url to be authenticated',
-    data: {
-      signInURL: `${rootURL}?${queryString.stringify(options)}`,
-    },
-  });
-
-  // return res.redirect(getGoogleAuthURL())
-});
-//  Get User from Google
-const googleUserX = asyncHandler(async (req, res, next) => {
-  const url = 'https://oauth2.googleapis.com/token';
-  const code = req.query.code;
-  const values = {
-    code,
-    client_id: process.env.GOOGLE_CLIENT_ID,
-    client_secret: process.env.GOOGLE_CLIENT_SECRET,
-    redirectUri: process.env.SERVER_ROOT_URI,
-    grant_type: 'authorization_code',
-  };
-  axios
-    .post(url, queryString.stringify(values), {
-      headers: {
-        'Content-Type': 'application/x-www-form-urlencoded',
-      },
-    })
-    .then(async (resD) => {
-      const { id_token, access_token, refresh_token } = resD.data;
-      // Fetch the user's profile with the access token and bearer
-      await axios
-        .get(
-          `https://www.googleapis.com/oauth2/v1/userinfo?alt=json&access_token=${access_token}`,
-          {
-            headers: {
-              Authorization: `Bearer ${id_token}`,
-            },
-          }
-        )
-        .then(async (resK) => {
-          console.log(resK.data);
-          const name = resK.data.name;
-          const email = resK.data.email;
-          const verifiedEmail = resK.data.verified_email;
-          let payload;
-          const userExists = await User.findOne({ email });
-          if (!userExists) {
-            const userData = { name, email };
-            const user = await new User(userData).save();
-            //const user = await User.findOne({ email });
-            console.log('hello');
-            payload = {
-              id: user._id,
-              name,
-              email,
-            };
-          } else {
-            payload = {
-              id: userExists._id,
-              name,
-              email,
-            };
-            console.log('hello there');
-          }
-
-          console.log(payload);
-
-          const accessToken = await generateJWTToken(
-            payload,
-            process.env.JWT_SECRET,
-            '1d'
-          );
-          const refreshToken = await generateJWTToken(
-            payload,
-            process.env.REFRESH_TOKEN_SECRET,
-            '3d'
-          );
-          res.cookie('accessToken', accessToken, {
-            httpOnly: true,
-            maxAge: 24 * 60 * 60 * 1000,
-          });
-          res.cookie('refreshToken', refreshToken, {
-            httpOnly: true,
-            maxAge: 24 * 60 * 60 * 1000,
-          });
-
-          res.redirect(process.env.UI_ROOT_URI);
-        })
-        .catch((error) => {
-          next(error.message);
-        });
-    })
-    .catch((error) => {
-      next(error.message);
-    });
-});
 
 const getDecodedUser = asyncHandler(async (req, res, next) => {
   const cookies = req.cookies;
@@ -332,13 +235,52 @@ const getDecodedUser = asyncHandler(async (req, res, next) => {
   });
 });
 
+const googleAuth = passport.authenticate('google', {
+  scope: ['email', 'profile'],
+});
+
+const googleAuthCallback = passport.authenticate('google', {
+  successRedirect: '/api/v1/auth/google/redirect',
+  failureRedirect: '/auth/google/failure',
+});
+
+const googleAuthRedirect = asyncHandler(async (req, res, next) => {
+  console.log(req.user);
+  const { id, name, email } = req.user;
+  const payload = {
+    id,
+    name,
+    email,
+  };
+  const accessToken = await generateJWTToken(
+    payload,
+    process.env.JWT_SECRET,
+    '1d'
+  );
+  const refreshToken = await generateJWTToken(
+    payload,
+    process.env.REFRESH_TOKEN_SECRET,
+    '3d'
+  );
+  res.cookie('accessToken', accessToken, {
+    httpOnly: false,
+    maxAge: 24 * 60 * 60 * 1000,
+  });
+  res.cookie('refreshToken', refreshToken, {
+    httpOnly: false,
+    maxAge: 24 * 60 * 60 * 1000,
+  });
+  res.redirect(process.env.UI_ROOT_URI);
+});
+
 module.exports = {
   signup,
   signin,
   handleRefreshToken,
   generateRecoverAccountToken,
   recoverAccount,
-  getGAuthURL,
-  googleUserX,
   getDecodedUser,
+  googleAuthCallback,
+  googleAuth,
+  googleAuthRedirect,
 };
