@@ -30,9 +30,6 @@ const generateFinalEventsDates = async () => {
     const participantCount = await ParticipantCount.findOne({
       event_id: event._id,
     });
-    console.log(  participantCount.participant_count === event.participant_number &&
-      event.published === 'not-decided' &&
-      event.final_event_date === null)
     if (
       participantCount.participant_count === event.participant_number &&
       event.published === 'not-decided' &&
