@@ -3,6 +3,17 @@ const { Event, Participant, ParticipantCount, User } = require('../models');
 const { createEventSchema } = require('../validators');
 const services = require('../services');
 
+
+const processBatch = async (arr) => {
+  const l_arr = []
+  for(const item of arr){
+    const tmp_ckeckId = await item['user_id'].toString()
+    const tmp_host_info = await User.findById(tmp_ckeckId)
+    l_arr.push({...item['_doc'], 'host_info': {...tmp_host_info['_doc']}});
+  }
+  console.log(l_arr)
+  return l_arr
+}
 // Get All Events Controller
 const getAllEvents = asyncHandler(async (req, res, next) => {
   Event.find({ user_id: req.user._id }, 
@@ -12,11 +23,7 @@ const getAllEvents = asyncHandler(async (req, res, next) => {
     }
     const message = 'Successfully fetched events';
 
-    const ckeckId = data['user_id'].toString()
-    const host_info = await User.findById(ckeckId)
-    const the_data = {...data['_doc'], 'host_info': {...host_info['_doc']}};
-
-    return services.newEventToken(the_data, 'success', message, res);
+    return services.newEventToken(await processBatch(data), 'success', message, res);
   });
 });
 
@@ -47,9 +54,12 @@ const getUserEvent = asyncHandler(async (req, res, next) => {
   const event = await Event.find({ user_id: req.user._id });
   console.log(event);
 
+  const host_info = await User.findById(req.user._id)
+  const the_data = {...event['_doc'], 'host_info': {...host_info['_doc']}};
+
   return res.status(200).json({
     success: true,
-    event,
+    the_data,
   });
 });
 
@@ -89,12 +99,18 @@ const deleteEvent = asyncHandler(async (req, res, next) => {
 // Update Event Controller
 const updateEvent = asyncHandler(async (req, res, next) => {
   const event_id = req.params.id;
-  Event.find({ event_id, user_id: req.user._id }, req.body, (err, data) => {
+  Event.find({ event_id, user_id: req.user._id }, req.body, 
+    async(err, data) => {
     if (err) {
       return services.createSendToken({}, 'error', err, res);
     }
+    
+    const ckeckId = data['user_id'].toString()
+    const host_info = await User.findById(ckeckId)
+    const the_data = {...data['_doc'], 'host_info': {...host_info['_doc']}};
+
     const message = 'Successfully Updated event';
-    return services.newEventToken(data, 'success', message, res);
+    return services.newEventToken(the_data, 'success', message, res);
   });
 });
 
@@ -165,10 +181,15 @@ const addEvent = asyncHandler(async (req, res, next) => {
     participant_count: 1,
   };
 
+  
+  const ckeckId = event['user_id'].toString()
+  const host_info = await User.findById(ckeckId)
+  const the_data = {...event, 'host_info': {...host_info['_doc']}};
+
   await new Participant(participantData).save();
   await new ParticipantCount(participantCountData).save();
   const message = 'New Event created successfully';
-  return services.newEventToken(event, 'success', message, res);
+  return services.newEventToken(the_data, 'success', message, res);
 });
 
 const getEventParticipants = asyncHandler(async (req, res, next) => {
