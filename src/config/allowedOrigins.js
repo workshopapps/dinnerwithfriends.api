@@ -13,4 +13,5 @@ const allowedOrigins = [
   'https://dinnerwithfriends-web-rho.vercel.app/',
 ];
 
-module.exports = allowedOrigins;
+
+module.exports = {allowedOrigins};

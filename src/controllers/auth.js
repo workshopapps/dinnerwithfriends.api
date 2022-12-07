@@ -118,13 +118,12 @@ const signin = asyncHandler(async (req, res, next) => {
   message = 'Logged in successfully';
   user.password = null
   user.refreshToken = null
+  const data = user
   return res.json({
     status: 'success',
     message: message,
     accessToken: accessToken,
-    data:{
-      user
-    }
+   data
   });
   //  return services.createSendToken(user, 'success', message, res);
 });
