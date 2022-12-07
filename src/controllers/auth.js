@@ -110,8 +110,10 @@ const signin = asyncHandler(async (req, res, next) => {
     ),
     httpOnly: true,
   };
-
-  if (process.env.NODE_ENV === "production") cookieOptions.secure = true;
+  if (process.env.NODE_ENV === 'production') {
+    refreshCookieOptions.secure = true;
+    accessCookieOptions.secure = true;
+  }
   res.cookie('refreshToken', refreshToken,refreshCookieOptions);
   res.cookie('accessToken', accessToken,accessCookieOptions);
 
