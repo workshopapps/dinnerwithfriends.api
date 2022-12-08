@@ -3,9 +3,22 @@ const { User } = require('../models');
 const { createSendData } = require('../services');
 const { updatedUserSchema } = require('../validators');
 
+// Return User Profile
+const getProfile = expressAsyncHandler(async (req, res, next) => {
+  const user = await User.findOne({ _id: req.user.id })
+    .select('-password')
+
+  if (!user) {
+    const message = 'User does not exist!'
+    return createSendData({}, 'error', message, res);
+  }
+  const message = 'Successfully fetched user';
+  return createSendData(user, 'success', message, res);
+});
+
 // User Profile Controller
 const profile = expressAsyncHandler(async (req, res, next) => {
-  const { name } = req.body;
+  const { name, gender, mobile, birthday } = req.body;
 
   const validateUserInput = updatedUserSchema.validate({ name });
 
@@ -17,6 +30,9 @@ const profile = expressAsyncHandler(async (req, res, next) => {
 
   const userData = {
     name,
+    gender,
+    mobile,
+    birthday
   };
 
   if (name) {
@@ -31,4 +47,5 @@ const profile = expressAsyncHandler(async (req, res, next) => {
 
 module.exports = {
   profile,
+  getProfile
 };
