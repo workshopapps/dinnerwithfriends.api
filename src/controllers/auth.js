@@ -94,14 +94,14 @@ const signin = asyncHandler(async (req, res, next) => {
     process.env.JWT_SECRET,
     '1d'
   );
-  // const refreshToken = await generateJWTToken(
-  //   payload,
-  //   process.env.REFRESH_TOKEN_SECRET,
-  //   '3d'
-  // );
-  // user.refreshToken = refreshToken;
-  // await user.save();
-  // // Creates Secure Cookie with refresh token
+  const refreshToken = await generateJWTToken(
+    payload,
+    process.env.REFRESH_TOKEN_SECRET,
+    '3d'
+  );
+  user.refreshToken = refreshToken;
+  await user.save();
+  // Creates Secure Cookie with refresh token
   
   const accessCookieOptions = {
     expires: new Date(
