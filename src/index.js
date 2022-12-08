@@ -1,3 +1,6 @@
+// added an application performance monitor
+require('appoptics-apm');
+
 const dotenv = require('dotenv');
 const asyncHandler = require('express-async-handler');
 const app = require('./app');
