@@ -83,11 +83,12 @@ const signin = asyncHandler(async (req, res, next) => {
   }
 
   const payload = {
-    id: user.id,
+    id: user._id,
     email: user.email,
     name: user.name,
   };
 
+  
   const accessToken = await generateJWTToken(
     payload,
     process.env.JWT_SECRET,
@@ -101,21 +102,35 @@ const signin = asyncHandler(async (req, res, next) => {
   // user.refreshToken = refreshToken;
   // await user.save();
   // // Creates Secure Cookie with refresh token
-  // res.cookie('refreshToken', refreshToken, {
-  //   httpOnly: false,
-  //   maxAge: 24 * 60 * 60 * 1000,
-  // });
-
-  res.cookie('accessToken', accessToken, {
-    httpOnly: false,
-    maxAge: 24 * 60 * 60 * 1000,
-  });
-
+  
+  const accessCookieOptions = {
+    expires: new Date(
+      Date.now() + process.env.JWT_COOKIE_EXPIRES_IN * 24 * 60 * 60 * 1000
+    ),
+    httpOnly: true,
+  };
+  const refreshCookieOptions = {
+    expires: new Date(
+      Date.now() + process.env.REFRESH_COOKIE_EXPIRES_IN * 24 * 60 * 60 * 1000
+    ),
+    httpOnly: true,
+  };
+  if (process.env.NODE_ENV === 'production') {
+    refreshCookieOptions.secure = true;
+    accessCookieOptions.secure = true;
+  }
+  res.cookie('refreshToken', refreshToken,refreshCookieOptions);
+  res.cookie('accessToken', accessToken,accessCookieOptions);
+  
   message = 'Logged in successfully';
+  user.password = null
+  user.refreshToken = null
+  const data = user
   return res.json({
     status: 'success',
     message: message,
     accessToken: accessToken,
+   data
   });
   //  return services.createSendToken(user, 'success', message, res);
 });
@@ -161,7 +176,7 @@ const generateRecoverAccountToken = asyncHandler(async (req, res, next) => {
   const accountRecoveryTokenData = {
     userId: user._id,
     email: user.email,
-    token: code.toString(),
+    token: code && code.toString(),
     expiresAt: moment().add(30, 'minutes'),
   };
 

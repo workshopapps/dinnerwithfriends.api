@@ -1,4 +1,4 @@
-const allowedOrigins = require("./allowedOrigins");
+const {allowedOrigins} = require("./allowedOrigins");
 
 const corsOptions = {
   origin: (origin, callback) => {
@@ -12,4 +12,4 @@ const corsOptions = {
   credentials: true,
 };
 
-module.exports = corsOptions;
+module.exports = {corsOptions};

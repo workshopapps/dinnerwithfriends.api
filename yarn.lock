@@ -4045,6 +4045,11 @@
     "import-local" "^3.0.2"
     "jest-cli" "^27.5.1"
 
+"joi-objectid@^4.0.2":
+  "integrity" "sha512-OjYM+wK/JGo2bSb9ADEyzxxROJPZYtrqIwBbywpJ2a98oKlbLtWTKvpzmrnXzou69Ey9EsjHsFvZYzpjeCdKuA=="
+  "resolved" "https://registry.npmjs.org/joi-objectid/-/joi-objectid-4.0.2.tgz"
+  "version" "4.0.2"
+
 "joi@^17.6.0":
   "integrity" "sha512-1/ugc8djfn93rTE3WRKdCzGGt/EtiYKxITMO4Wiv6q5JL1gl9ePt4kBsl1S499nbosspfctIQTpYIhSmHA3WAg=="
   "resolved" "https://registry.npmjs.org/joi/-/joi-17.7.0.tgz"

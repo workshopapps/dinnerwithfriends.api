@@ -19,7 +19,6 @@ const userSchema = new mongoose.Schema(
       type: String,
       minLength: 8,
       default: null,
-      select: true,
     },
     refreshToken: {
       type: String,
@@ -29,6 +28,18 @@ const userSchema = new mongoose.Schema(
     verifiedEmail: {
       type: Boolean,
       default: false,
+    },
+    gender: {
+      type: String,
+      required: false
+    },
+    mobile: {
+      type: String,
+      required: false
+    },
+    birthday: {
+      type: String,
+      required: false
     },
   },
   {
@@ -53,6 +64,9 @@ userSchema.methods.comparePassword = async function (
   const passwordStatus = await bcrypt.compare(candidatePassword, userPassword);
   return passwordStatus;
 };
+
+
+
 
 const User = mongoose.model('User', userSchema);
 
