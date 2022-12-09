@@ -104,15 +104,11 @@ const signin = asyncHandler(async (req, res, next) => {
   // Creates Secure Cookie with refresh token
   
   const accessCookieOptions = {
-    expires: new Date(
-      Date.now() + process.env.JWT_COOKIE_EXPIRES_IN * 24 * 60 * 60 * 1000
-    ),
+    maxAge: 24 * 60 * 60 * 1000,
     httpOnly: true,
   };
   const refreshCookieOptions = {
-    expires: new Date(
-      Date.now() + process.env.REFRESH_COOKIE_EXPIRES_IN * 24 * 60 * 60 * 1000
-    ),
+    maxAge: 24 * 60 * 60 * 1000,
     httpOnly: true,
   };
   if (process.env.NODE_ENV === 'production') {
