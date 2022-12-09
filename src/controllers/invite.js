@@ -5,7 +5,7 @@ const sendInvitationLink = require('../services/Mail/sendInvitationLink');
 const { AppError } = require('../utilities');
 const { Event } = require('../models');
 const jwt = require('jsonwebtoken');
-const {sendMail} = require('../services/Mail/nodemailer/sendInvitationLink');
+const { sendMail } = require('../services/Mail/nodemailer/sendInvitationLink');
 
 module.exports.createInvite = asyncHandler(async (req, res, next) => {
   const { email_list, event_id } = req.body;
@@ -43,7 +43,6 @@ module.exports.createInvite = asyncHandler(async (req, res, next) => {
           'https://catchup.hng.tech/event_invite/' + eventToken;
 
         await sendMail(invitationLink, email);
-        await sendInvitationLink(invitationLink, email);
         memo.push(email_list[i].toLowerCase());
         const invitationPayload = {
           email: email_list[i],
