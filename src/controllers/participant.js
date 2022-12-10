@@ -54,14 +54,8 @@ const addParticipant = asyncHandler(async (req, res, next) => {
   }
   let participantCount = await ParticipantCount.findOne({ event_id: event_id });
   if (participantCount.participant_count < eventExist.participant_number) {
-    await ParticipantCount.findOneAndUpdate(
-      { event_id: event_id },
-      { $inc: { participant_count: 1 } },
-      {
-        new: true,
-        runValidators: true,
-      }
-    );
+    participantCount.participant_count += 1
+    await participantCount.save()
   }
 
   const newParticipantData = {
