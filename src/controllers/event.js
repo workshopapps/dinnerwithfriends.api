@@ -12,7 +12,6 @@ const processBatch = async (arr) => {
     const tmp_host_info = await User.findById(tmp_ckeckId)
     l_arr.push({...item['_doc'], 'host_info': {...tmp_host_info['_doc']}});
   }
-  console.log(l_arr)
   return l_arr
 }
 // Get All Events Controller
@@ -161,7 +160,7 @@ const addEvent = asyncHandler(async (req, res, next) => {
   
   const ckeckId = event['user_id'].toString()
   const host_info = await User.findById(ckeckId)
-  const the_data = {...event, 'host_info': {...host_info['_doc']}};
+  const the_data = {event, 'host_info': {...host_info['_doc']}};
 
   await new Participant(participantData).save();
   await new ParticipantCount(participantCountData).save();
