@@ -88,45 +88,32 @@ const signin = asyncHandler(async (req, res, next) => {
     name: user.name,
   };
 
-  
   const accessToken = await generateJWTToken(
     payload,
     process.env.JWT_SECRET,
     '1d'
   );
-  const refreshToken = await generateJWTToken(
-    payload,
-    process.env.REFRESH_TOKEN_SECRET,
-    '3d'
-  );
-  user.refreshToken = refreshToken;
-  await user.save();
   // Creates Secure Cookie with refresh token
-  
+
   const accessCookieOptions = {
     maxAge: 24 * 60 * 60 * 1000,
     httpOnly: true,
   };
-  const refreshCookieOptions = {
-    maxAge: 24 * 60 * 60 * 1000,
-    httpOnly: true,
-  };
+
   if (process.env.NODE_ENV === 'production') {
-    refreshCookieOptions.secure = true;
     accessCookieOptions.secure = true;
   }
-  res.cookie('refreshToken', refreshToken,refreshCookieOptions);
-  res.cookie('accessToken', accessToken,accessCookieOptions);
-  
+  res.cookie('accessToken', accessToken, accessCookieOptions);
+
   message = 'Logged in successfully';
-  user.password = null
-  user.refreshToken = null
-  const data = user
+  user.password = null;
+  user.refreshToken = null;
+  const data = user;
   return res.json({
     status: 'success',
     message: message,
     accessToken: accessToken,
-   data
+    data,
   });
   //  return services.createSendToken(user, 'success', message, res);
 });
