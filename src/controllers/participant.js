@@ -48,8 +48,8 @@ const addParticipant = asyncHandler(async (req, res, next) => {
   const participantExists = await Participant.findOne({
     email: req.body.email,
   });
-  if (participantExists) {
-    message = 'Participant exists';
+  if (participantExists.event_id === event_id) {
+    message = 'Participant already accepted invite';
     return next(new AppError(message, 409));
   }
   let participantCount = await ParticipantCount.findOne({ event_id: event_id });
