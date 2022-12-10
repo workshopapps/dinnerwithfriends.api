@@ -97,11 +97,11 @@ const signin = asyncHandler(async (req, res, next) => {
 
   const accessCookieOptions = {
     maxAge: 24 * 60 * 60 * 1000,
-    httpOnly: true,
+    httpOnly: false,
   };
 
   if (process.env.NODE_ENV === 'production') {
-    accessCookieOptions.secure = true;
+    accessCookieOptions.secure = false;
   }
   res.cookie('accessToken', accessToken, accessCookieOptions);
 
@@ -259,12 +259,12 @@ const googleAuthRedirect = asyncHandler(async (req, res, next) => {
   const accessToken = await generateJWTToken(
     payload,
     process.env.JWT_SECRET,
-    '1d'
+    '30d'
   );
   const refreshToken = await generateJWTToken(
     payload,
     process.env.REFRESH_TOKEN_SECRET,
-    '3d'
+    '60d'
   );
   res.cookie('accessToken', accessToken, {
     httpOnly: false,
