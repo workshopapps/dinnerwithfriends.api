@@ -22,7 +22,7 @@ const getAllEvents = asyncHandler(async (req, res, next) => {
     .select('-password')
     .exec();
   const message = 'Successfully fetched events';
-  return services.newEventToken(events, 'success', message, res);
+  return services.createSendData(events, 'success', message, res);
 });
 
 // Get Single Event Controller
