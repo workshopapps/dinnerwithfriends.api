@@ -47,6 +47,7 @@ module.exports.createInvite = asyncHandler(async (req, res, next) => {
         const invitationPayload = {
           email: email_list[i],
           event_id,
+          user_id:req.user.id
         };
 
         const newInvitation = await new Invitation(invitationPayload).save();
@@ -134,7 +135,9 @@ module.exports.getDecodedEvent = asyncHandler(async (req, res, next) => {
   const payload = await jwt.verify(id, process.env.INVITATION_TOKEN_SECRET);
   const { event_id, email } = payload;
 
-  const foundEvent = await Event.findOne({ _id: event_id });
+  const foundEvent = await Event.findOne({ _id: event_id }).populate('host_info', 'name')
+  .select('-password')
+  .exec();
   if (!foundEvent) {
     return next(new AppError('Event not found', 404));
   }
