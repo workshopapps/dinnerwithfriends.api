@@ -268,12 +268,12 @@ const googleAuthRedirect = asyncHandler(async (req, res, next) => {
   );
   res.cookie('accessToken', accessToken, {
     httpOnly: false,
-    secure:false,
+    sameSite: 'none',
     maxAge: 24 * 60 * 60 * 1000,
   });
   res.cookie('refreshToken', refreshToken, {
     httpOnly: false,
-    secure:false,
+    sameSite: 'none',
     maxAge: 24 * 60 * 60 * 1000,
   });
   res.redirect(process.env.UI_ROOT_URI);
