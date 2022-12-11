@@ -31,15 +31,19 @@ const userSchema = new mongoose.Schema(
     },
     gender: {
       type: String,
-      required: false
+      required: false,
+      enum:["male","female","non-binary","none"],
+      default:"none"
     },
     mobile: {
       type: String,
-      required: false
+      required: false,
+      default:"+234"
     },
     birthday: {
       type: String,
-      required: false
+      required: false,
+      default:"12/09/1990"
     },
   },
   {
