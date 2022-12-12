@@ -1,4 +1,5 @@
 const { Event, ParticipantCount, Participant } = require('../models');
+const { sendEventMail } = require('./Mail/nodemailer');
 
 const convertIsoToMiliseconds = (string) => {
   let myDate = new Date(string).getTime();
@@ -39,7 +40,6 @@ const generateFinalEventsDates = async () => {
       const todayDate = new Date();
       todayDate.setHours(0, 0, 0, 0);
       const eventFinalDate = new Date(finalDate);
-      console.log(todayDate > eventFinalDate)
       await Event.findByIdAndUpdate(
         { _id: event._id },
         {
@@ -55,6 +55,20 @@ const generateFinalEventsDates = async () => {
   }
   return;
 };
+
+const notifyEventParticipants = async () =>{
+  const events = await Event.find();
+  for (let event of events) {
+    if(event.published === "decided"){
+      const participants = await Participant.find({event_id:event.id})
+      if (participants){
+        for (let participant of participants){
+          await sendEventMail(event, participant.email)
+        }
+      }
+    }
+  }
+}
 
 // const updateEventEndStatus = async ()=>{
 //   const events = await Event.find();
@@ -81,4 +95,5 @@ const generateFinalEventsDates = async () => {
 module.exports = {
   generateFinalEventDate,
   generateFinalEventsDates,
+  notifyEventParticipants
 };
