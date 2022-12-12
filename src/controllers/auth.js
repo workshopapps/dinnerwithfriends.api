@@ -268,13 +268,13 @@ const googleAuthRedirect = asyncHandler(async (req, res, next) => {
   );
   res.cookie('accessToken', accessToken, {
     httpOnly: false,
-    sameSite: 'none',
+    // sameSite: 'none',
     // domain:"https://catchup.hng.tech",
     maxAge: 24 * 60 * 60 * 1000,
   });
   res.cookie('refreshToken', refreshToken, {
     httpOnly: false,
-    sameSite: 'none',
+    // sameSite: 'none',
     // domain:"https://catchup.hng.tech",
     maxAge: 24 * 60 * 60 * 1000,
   });
