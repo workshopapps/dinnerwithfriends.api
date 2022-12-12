@@ -86,7 +86,7 @@ const addParticipant = asyncHandler(async (req, res, next) => {
   // const the_message = 'https://api.catchup.hng.tech/api/v1/calendar/save/'+eventToken
   // sendCalendarMail.sendCalendar(the_message, email)
 
-  if (participantCount.participant_count === eventExist.participant_number) {
+  if (participantCount.participant_count === eventExist.participant_number && eventExist.final_event_date === null) {
     const finalEventDate = await generateFinalEventDate(Participant, event_id);
     eventExist.final_event_date = finalEventDate;
     eventExist.published = 'decided';

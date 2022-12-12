@@ -22,3 +22,7 @@ module.exports.sendInvitationLink = {
 module.exports.sendCalendarMail= {
   body: require('./_/sendCalendarInvite'),
 };
+
+module.exports.sendEventScheduleDetails = {
+  body: require("./_/sendEventDetails"),
+}
