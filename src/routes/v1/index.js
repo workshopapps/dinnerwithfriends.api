@@ -5,6 +5,7 @@ const eventRouter = require('./event');
 const invitationRouter = require('./invitation');
 const userRouter = require('./user')
 const calendarRouter = require('./calendar')
+const contactRouter = require('./contact')
 
 module.exports = {
   baseRouter,
@@ -13,5 +14,6 @@ module.exports = {
   eventRouter,
   invitationRouter,
   userRouter,
-  calendarRouter
+  calendarRouter,
+  contactRouter
 };
