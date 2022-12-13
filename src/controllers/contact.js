@@ -1,24 +1,41 @@
 /* eslint-disable linebreak-style */
 const nodemailer = require('nodemailer');
 
-const sendEmail = (req, res, next) => {
+const { Contact } = require('../models');
+
+const sendEmail = async (req, res, next) => {
 // Create a transporter object for sending emails
+  const { email, name, text } = req.body;
+
+  if (!email || !name || !text) {
+    return res.status(400).json({
+      error: 'Email, name and text are required fields.',
+    });
+  }
+  const newContact = Contact.create({ email });
+  // const allcontact = await Contact.find({});
+  // console.log(allcontact);
+
   const transporter = nodemailer.createTransport({
     service: 'gmail',
     auth: {
-      user: 'onedayfee@gmail.com',
-      pass: 'Drfate12',
+      user: 'onyedikaufelle@gmail.com',
+      pass: 'tzqykrimpbhlfhhb',
+    },
+    tls: {
+      rejectUnauthorized: false,
     },
   });
 
   // Set up the email details
   const mailOptions = {
-    from: req.body.email,
+    from: `${email}`,
     to: 'onyedikaufelle@gmail.com',
-    subject: req.body.name,
-    text: req.body.text,
+    subject: `Email from ${email}, Name: ${name}`,
+    text,
   };
 
+  console.log(req.body);
   // Send the email
   transporter.sendMail(mailOptions, (error, info) => {
     if (error) {
@@ -26,6 +43,10 @@ const sendEmail = (req, res, next) => {
     } else {
       console.log(`Email sent: ${info.response}`);
     }
+  });
+  return res.status(200).json({
+    status: 'success',
+    message: 'email sent successfully',
   });
 };
 

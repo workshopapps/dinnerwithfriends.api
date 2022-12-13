@@ -1,9 +1,9 @@
-const apm = require('elastic-apm-node').start({
-  serviceName: 'CatchUp_API',
-  environment: 'production'
-  })
+// const apm = require('elastic-apm-node').start({
+//   serviceName: 'CatchUp_API',
+//   environment: 'production'
+//   })
 // added an application performance monitor
-require('appoptics-apm');
+// require('appoptics-apm');
 
 const dotenv = require('dotenv');
 const asyncHandler = require('express-async-handler');
