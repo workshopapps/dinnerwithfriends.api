@@ -10,13 +10,13 @@ const {
 const services = require('../../services');
 
 const router = express.Router();
-router.use(services.protect);
+// router.use(services.protect);
 
-router.get('/', getAllInvites);
-router.post('/', createInvite);
+router.get('/', services.protect, getAllInvites);
+router.post('/', services.protect, createInvite);
 // router.patch('/:id', updateInvite);
-router.delete('/:id', deleteInvite);
+router.delete('/:id', services.protect, deleteInvite);
 router.get('/event/:id', getDecodedEvent);
-router.get('/event/invites/:id', getEventInvites);
+router.get('/event/invites/:id', services.protect, getEventInvites);
 
 module.exports = router;
