@@ -4,6 +4,7 @@ const participantControllers = require("./participant");
 const eventControllers = require("./event")
 const userControllers = require("./user")
 const calendarControllers = require("./calendar")
+const contactControllers = require("./contact")
 
 module.exports = {
   globalErrorHandler,
@@ -11,5 +12,6 @@ module.exports = {
   participantControllers,
   eventControllers,
   userControllers,
-  calendarControllers
+  calendarControllers,
+  contactControllers
 };

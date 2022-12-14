@@ -5,7 +5,8 @@ const {
   eventRouter,
   invitationRouter,
   userRouter,
-  calendarRouter
+  calendarRouter,
+  contactRouter
 } = require('./v1');
 
 const app = express();
@@ -16,5 +17,6 @@ app.use('/event', eventRouter);
 app.use('/invitation', invitationRouter);
 app.use('/user', userRouter);
 app.use('/calendar', calendarRouter);
+app.use('/contact', contactRouter);
 
 module.exports = app;
