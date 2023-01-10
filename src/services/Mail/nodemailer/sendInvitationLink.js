@@ -23,6 +23,8 @@ const sendMail = (mail, recipient) => {
         mail
       ),
     };
+    console.log('hello');
+    console.log(process.env.MAIL_USER);
     transporter.sendMail(mailOptions, (error, info) => {
       if (error) {
         reject(error);
@@ -49,10 +51,7 @@ const sendCalendar = (mail, recipient) => {
       to: recipient,
       subject: 'Catch Up Calendar Invite',
       text: mail,
-      html: templates.sendCalendarMail.body.replace(
-        '{{ calendarLink }}',
-        mail
-      ),
+      html: templates.sendCalendarMail.body.replace('{{ calendarLink }}', mail),
     };
     transporter.sendMail(mailOptions, (error, info) => {
       if (error) {
@@ -65,5 +64,5 @@ const sendCalendar = (mail, recipient) => {
 
 module.exports = {
   sendMail,
-  sendCalendar
+  sendCalendar,
 };
