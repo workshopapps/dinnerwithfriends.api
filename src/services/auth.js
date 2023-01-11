@@ -1,24 +1,32 @@
 const jwt = require('jsonwebtoken');
 const asyncHandler = require('express-async-handler');
 const { User } = require('../models');
+const axios = require('axios');
+const querystring = require('querystring');
 
 const signToken = (id) =>
   jwt.sign({ id }, process.env.JWT_SECRET, {
     expiresIn: process.env.JWT_EXPIRES_IN,
   });
 
+const signRefreshToken = (payload) => {
+  return jwt.sign({ ...payload }, process.env.JWT_SECRET, {
+    expiresIn: process.env.JWT_EXPIRES_IN,
+  });
+};
+
 const createSendToken = (data, status, message, res) => {
-  let token = '';
+  let accessToken = '';
 
   // remove password from output
   if (data && data.password) {
-    token = signToken(data._id);
+    accessToken = signToken(data._id);
     data.password = null;
+    data.refreshToken = null;
   }
-
   return res.json({
     status,
-    token,
+    accessToken,
     message,
     data,
   });
@@ -92,9 +100,47 @@ const protect = asyncHandler(async (req, res, next) => {
   next();
 });
 
+const createSendData = function sendData(data, status, message, res) {
+  return res.json({
+    status,
+    message,
+    data,
+  });
+};
+
+const getTokens = ({ code, clientId, clientSecret, redirectUri }) => {
+  /*
+   * Uses the code to get tokens
+   * that can be used to fetch the user's profile
+   */
+  const url = 'https://oauth2.googleapis.com/token';
+  const values = {
+    code,
+    client_id: clientId,
+    client_secret: clientSecret,
+    redirect_uri: redirectUri,
+    grant_type: 'authorization_code',
+  };
+
+  return axios
+    .post(url, querystring.stringify(values), {
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded',
+      },
+    })
+    .then((res) => res.data)
+    .catch((error) => {
+      console.error(`Failed to fetch auth tokens`);
+      throw new Error(error.message);
+    });
+};
+
 module.exports = {
   createSendToken,
   protect,
   generateJWTToken,
-  googleSendToken
+  signRefreshToken,
+  googleSendToken,
+  createSendData,
+  getTokens,
 };
