@@ -44,6 +44,7 @@ const sendCalendar = (mail, recipient) => {
         pass: process.env.MAIL_PASS,
       },
     });
+    
     const mailOptions = {
       from: 'Catch',
       to: recipient,
