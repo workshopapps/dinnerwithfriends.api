@@ -151,7 +151,7 @@ const generateRecoverAccountToken = asyncHandler(async (req, res, next) => {
   const user = await User.findOne({
     email: email,
   });
-  
+
   if (!user) {
     next(new AppError('account not found', 403));
   }
@@ -167,7 +167,7 @@ const generateRecoverAccountToken = asyncHandler(async (req, res, next) => {
   const accountRecoveryToken = await new AccountRecovery(
     accountRecoveryTokenData
   ).save();
-  
+
   await sendAccountRecoveryToken(accountRecoveryToken.token, email);
 
   // await MailService.sendAccountRecoveryToken({
@@ -272,13 +272,13 @@ const googleAuthRedirect = asyncHandler(async (req, res, next) => {
   res.cookie('accessToken', accessToken, {
     httpOnly: false,
     // sameSite: 'none',
-    domain: 'catchup.rsvp',
+    // domain: 'catchup.rsvp',
     maxAge: 24 * 60 * 60 * 1000,
   });
   res.cookie('refreshToken', refreshToken, {
     httpOnly: false,
     // sameSite: 'none',
-    domain: 'catchup.rsvp',
+    // domain: 'catchup.rsvp',
     maxAge: 24 * 60 * 60 * 1000,
   });
   res.redirect(process.env.UI_ROOT_URI);
