@@ -6,8 +6,10 @@ const { google } = require('googleapis');
 const { Event } = require('../models');
 const RefreshToken = require('../models/refreshToken');
 const { default: axios } = require('axios');
+const moment = require('moment/moment');
+var querystring = require('querystring');
 // TODO:
-const redirectURI = "/api/v1/calendar/auth";
+const redirectURI = "http://localhost:3998/api/v1/calendar/auth";
 require('dotenv').config();
 
 const GOOGLE_CLIENT_ID = '102076896830-4il8ncmrd6qfoippk2ut4uujb8cci54v.apps.googleusercontent.com';
@@ -17,22 +19,26 @@ const SERVER_ROOT_URI = ''
 const oauth2Client = new google.auth.OAuth2(
   GOOGLE_CLIENT_ID,
   GOOGLE_CLIENT_SECRET,
-  'https://catchup.hng.tech'
+  'https://catchup.rsvp'
 )
 const calendar = google.calendar({ version: 'v3' });
 
-const createTokens = (email, refresh_token) => {
-  try {
-    new RefreshToken({email, refresh_token}).save()
-  } catch(e){
-    console.log(e)
-  }
-}
+// URL TO CHECK IF USER HAS TOKEN
+const checkIfHasRefreshToken = expressAsyncHandler(async(req, res) => {
+  await RefreshToken.find({email: email}, (err, data)=>{
+    if(data.length == 0){
+      return services.createSendToken({}, 'success', 'user has connected calendar', res);
+    } else {
+      return services.createSendToken({}, 'error', 'user has not connected calendar', res);
+    }
+  })
+})
 
-function getGoogleAuthURL () {
+// SEND USER TO AUTHENTICATE
+const sendUserToAuthenticate = expressAsyncHandler(async(req, res) => {
   const rootUrl = "https://accounts.google.com/o/oauth2/v2/auth"
   const options = {
-    redirect_uri: `${SERVER_ROOT_URI}/${redirectURI}`,
+    redirect_uri: `${redirectURI}`,
     client_id: GOOGLE_CLIENT_ID,
     access_type: "offline",
     response_type: "code",
@@ -42,13 +48,22 @@ function getGoogleAuthURL () {
     "https://www.googleapis.com/auth/calendar",
     ].join(" "),
   };
-  return `${rootUrl}?${URLSearchParams.toString(options)}`;
-}
+  let authUrl = `${rootUrl}?redirect_uri=${options.redirect_uri}&client_id=${options.client_id}&access_type=${options.access_type}&response_type=${options.response_type}&prompt=${options.prompt}&scope=${options.scope}`;
+  console.log(authUrl)
+      return res.writeHead(301, {
+        Location: authUrl
+      }).end();
+  })
 
 // Insert Event Into Controller
-const insertCalendar = async (event, email) => {
+const insertCalendar = async (event, email, refreshToken = null) => {
   try {
-    const refresh_token = RefreshToken.findOne({email: email})
+    let refresh_token;
+    if(refreshToken == null){
+      refresh_token = RefreshToken.findOne({email: email})
+    } else {
+      refresh_token = refreshToken
+    }
     oauth2Client.setCredentials({refresh_token: refresh_token})
 
     await calendar.events.insert({
@@ -63,6 +78,51 @@ const insertCalendar = async (event, email) => {
     return false
   }
 };
+
+const saveCalendarWithUrl = expressAsyncHandler( async (req, res, next) => {
+  const {email, event_id} = req.body
+
+  RefreshToken.findOne(
+    {email: email}, 
+    (err, refresh_token_data)=>{
+      if(err){
+        console.log(err)
+      } else {
+        const refresh_token = refresh_token_data.refreshToken;
+
+        Event.findOne(
+          { _id: event_id },
+          async (err, data) => {
+            if (err) {
+              return services.createSendToken({}, 'error', err, res);
+            }
+            
+            let event = {
+              'summary': data['event_title'],
+              'description': data['event_description'],
+              'start': {
+                  'dateTime': moment(Date(data['start_date'])).format(),
+                  'timeZone': 'Africa/Lagos'
+              },
+              'end': {
+                  'dateTime': moment(Date(data['end_date'])).format(),
+                  'timeZone': 'Africa/Lagos'
+              },
+            }
+
+            console.log(event)
+      
+            if(insertCalendar(event, email, refresh_token)){
+              return services.createSendToken({}, 'success', 'Successful', res);
+            } else {
+              return services.createSendToken({}, 'error', 'An Error Occured Trying To Add Calendar', res);
+            }
+          },
+        );
+      }
+    }
+  )
+})
 
 // Save Event in Calendar
 const saveEvent = expressAsyncHandler(async (req, res, next) => {
@@ -123,8 +183,12 @@ const getRefreshToken = async (req, res) => {
     code,
     clientId: GOOGLE_CLIENT_ID,
     clientSecret: GOOGLE_CLIENT_SECRET,
-    redirectUri: `${SERVER_ROOT_URI}/${redirectURI}`,
+    redirectUri: redirectURI,
   });
+
+  console.log(refresh_token)
+  console.log(access_token)
+  console.log(id_token)
 
   const googleUser = await axios
   .get(
@@ -132,17 +196,28 @@ const getRefreshToken = async (req, res) => {
     {
       headers: {
         Authorization: `Bearer ${id_token}`,
+        'accept-encoding': '*'
       },
     }
   )
   .then((res) => res.data)
   .catch((error) => {
+    console.log(error)
     console.error(`Failed to fetch user`);
     throw new Error(error.message);
   });
 
-  await createTokens(googleUser.email, refresh_token)
-  res.send('Succesfully synced your calendar! Now Click on the event link again to add to calendar');
+  const obj = {
+    email: googleUser.email,
+    refreshToken: refresh_token
+  }
+
+  try{
+    await new RefreshToken(obj).save()
+    return res.send('Succesfully synced your calendar!')
+  } catch(e){
+    return res.send('Already synced!')
+  }
 };
 
 async function getTokens({
@@ -169,10 +244,14 @@ async function getTokens({
       .post(url, querystring.stringify(values), {
         headers: {
           "Content-Type": "application/x-www-form-urlencoded",
+          'accept-encoding': '*'
         },
       });
+      console.log('success')
+      console.log(res)
     return res.data;
   } catch (error) {
+    console.log(error)
     console.error(`Failed to fetch auth tokens`);
     throw new Error(error.message);
   }
@@ -180,5 +259,7 @@ async function getTokens({
 
 module.exports = {
   saveEvent,
-  getRefreshToken
+  getRefreshToken,
+  saveCalendarWithUrl,
+  sendUserToAuthenticate
 };
