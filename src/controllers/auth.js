@@ -270,13 +270,13 @@ const googleAuthRedirect = asyncHandler(async (req, res, next) => {
     '60d'
   );
   res.cookie('accessToken', accessToken, {
-    httpOnly: true,
+    httpOnly: false,
     // sameSite: 'none',
     domain: 'catchup.rsvp',
     maxAge: 24 * 60 * 60 * 1000,
   });
   res.cookie('refreshToken', refreshToken, {
-    httpOnly: true,
+    httpOnly: false,
     // sameSite: 'none',
     domain: 'catchup.rsvp',
     maxAge: 24 * 60 * 60 * 1000,
