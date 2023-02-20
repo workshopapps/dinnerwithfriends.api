@@ -11,25 +11,11 @@ const swaggerUi = require('swagger-ui-express');
 const swaggerDocumentation = require('./utilities/documentation');
 const passport = require('passport');
 const cookieParser = require('cookie-parser');
-const cron = require('node-cron');
-const {
-  generateFinalEventsDates, notifyEventParticipants
-} = require('./services/generateFinalEventDate');
 const {corsOptions} = require('./config/corsOptions');
 require('./middlewares/googleAuth');
 
 // create an express app
 const app = express();
-
-cron.schedule('0 0 * * *', async () => {
-  console.log('Running a task every midnight (12:00 am)');
-  await generateFinalEventsDates();
-});
-
-cron.schedule('0 1 * * *', async () => {
-  console.log('Running a task every midnight (1:00 am)');
-  await notifyEventParticipants();
-});
 
 app.use(session({ secret: 'cats', resave: false, saveUninitialized: true }));
 app.use(passport.initialize());

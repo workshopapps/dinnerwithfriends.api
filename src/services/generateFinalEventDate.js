@@ -1,5 +1,6 @@
 const { Event, ParticipantCount, Participant } = require('../models');
 const { sendEventMail } = require('./Mail/nodemailer');
+const mongoose = require('mongoose');
 
 const convertIsoToMiliseconds = (string) => {
   let myDate = new Date(string).getTime();
@@ -20,9 +21,9 @@ const generateFinalEventDate = async (model, id) => {
   const milliseconds = Object.keys(dateFrequency).reduce((a, b) =>
     dateFrequency[a] > dateFrequency[b] ? a : b
   );
-  
-  const isoDate =new Date(Number(milliseconds)).toISOString();
-  return isoDate
+
+  const isoDate = new Date(Number(milliseconds)).toISOString();
+  return isoDate;
 };
 
 const generateFinalEventsDates = async () => {
@@ -56,19 +57,15 @@ const generateFinalEventsDates = async () => {
   return;
 };
 
-const notifyEventParticipants = async () =>{
-  const events = await Event.find();
-  for (let event of events) {
-    if(event.published === "decided"){
-      const participants = await Participant.find({event_id:event.id})
-      if (participants){
-        for (let participant of participants){
-          await sendEventMail(event, participant.email)
-        }
-      }
+const notifyEventParticipants = async (event) => {
+  let db = mongoose.connection
+  const participants = await db.collection("participants").find({ event_id: event._id }).toArray();
+  if (participants.length > 0) {
+    for (let participant of participants) {
+      await sendEventMail(event, participant.email);
     }
   }
-}
+};
 
 // const updateEventEndStatus = async ()=>{
 //   const events = await Event.find();
@@ -95,5 +92,5 @@ const notifyEventParticipants = async () =>{
 module.exports = {
   generateFinalEventDate,
   generateFinalEventsDates,
-  notifyEventParticipants
+  notifyEventParticipants,
 };

@@ -1,7 +1,6 @@
 const Invitation = require('../models/invitation');
 const asyncHandler = require('express-async-handler');
 const { generateJWTToken } = require('../services/auth');
-const sendInvitationLink = require('../services/Mail/sendInvitationLink');
 const { AppError } = require('../utilities');
 const { Event } = require('../models');
 const jwt = require('jsonwebtoken');
