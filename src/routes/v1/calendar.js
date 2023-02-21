@@ -3,13 +3,13 @@ const { calendarControllers } = require('../../controllers');
 const services = require('../../services')
 
 const router = express.Router();
-// router.use(services.protect)
+
+router.get('/auth', calendarControllers.getRefreshToken)
 
 router
-  .route('/')
-  .get(calendarControllers.getCalendar)
-  .post(calendarControllers.insertCalendar)
-  .delete(calendarControllers.deleteCalendar);
+    .route('/')
+    .get(calendarControllers.sendUserToAuthenticate)
+    .post(calendarControllers.saveCalendarWithUrl)
 
 router
     .route('/save/:id')
