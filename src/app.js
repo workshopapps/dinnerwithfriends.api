@@ -5,6 +5,7 @@ const helmet = require('helmet');
 const morgan = require('morgan');
 const xss = require('xss-clean');
 const v1 = require('./routes');
+const cookieSession = require('cookie-session');
 const { baseRouter } = require('./routes/v1/index');
 const { globalErrorHandler } = require('./controllers');
 const swaggerUi = require('swagger-ui-express');
@@ -16,6 +17,12 @@ require('./middlewares/googleAuth');
 
 // create an express app
 const app = express();
+
+app.use(cookieSession({
+    name: 'session',
+    maxAge: 24 * 60 * 60 * 1000,
+    keys: [ process.env.COOKIE_KEY_1, process.env.COOKIE_KEY_2 ],
+  }));
 
 app.use(session({ secret: 'cats', resave: false, saveUninitialized: true }));
 app.use(passport.initialize());

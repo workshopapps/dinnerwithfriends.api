@@ -4,7 +4,7 @@ const {
   googleSendToken,
   signRefreshToken,
   createSendData,
-  getTokens,
+  getTokens
 } = require('./auth');
 const { newParticipantToken, protectParticipant } = require('./participant');
 const { newEventToken, protectEvent } = require('./event');

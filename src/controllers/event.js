@@ -42,7 +42,8 @@ const getSingleEvent = asyncHandler(async (req, res, next) => {
 // get all User Event
 
 const getUserEvent = asyncHandler(async (req, res, next) => {
-  const event = await Event.find({ user_id: req.user._id });
+  const event = await Event.find({ user_id: req.user.id });
+  const message = 'Successfully fetched user events';
   return services.createSendToken(event, 'success', message, res);
 });
 

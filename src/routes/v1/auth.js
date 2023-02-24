@@ -13,7 +13,7 @@ router.post('/recover/confirm', authControllers.recoverAccount);
 
 
 //passport google auth
-router.get('/google/auth', authControllers.googleAuth);
+router.get('/google', authControllers.googleAuth);
 router.get('/google/callback', authControllers.googleAuthCallback);
 router.get('/google/redirect', authControllers.googleAuthRedirect);
 
