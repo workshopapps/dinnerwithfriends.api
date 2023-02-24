@@ -1,37 +1,41 @@
 const { User, AccountRecovery } = require('./../models');
-const { createUserSchema, loginUserSchema } = require('../validators');
+const {
+  createUserSchema,
+  loginUserSchema,
+  recoverPasswordSchema,
+} = require('../validators');
 const asyncHandler = require('express-async-handler');
 const services = require('../services');
 const { AppError } = require('../utilities');
-const { generateJWTToken } = require('../services/auth');
+const { signRefreshToken, generateJWTToken } = require('../services/auth');
 const jwt = require('jsonwebtoken');
 const random = require('lodash/random');
 const moment = require('moment');
-const sendAccountRecoveryToken = require('../services/Mail/sendAccountRecoveryToken');
-const queryString = require('node:querystring');
-const axios = require('axios')
+const sendAccountRecoveryToken = require('../services/Mail/nodemailer/sendAccountRecoveryToken');
+const passport = require('passport');
+
 
 // Signup Controller
 const signup = asyncHandler(async (req, res, next) => {
   const { name, email, password } = req.body;
 
-  const validateUserInput = createUserSchema.validate({
+  const {error,validateUserInput} = createUserSchema.validate({
     name,
     email,
     password,
   });
 
-  if (validateUserInput.error) {
-    let message = '';
-    if (validateUserInput.error.details[0].path[0] === 'name')
+  if (error) {
+    let message = "";
+    if (error.details[0].path[0] === 'name')
       message =
         'Name has to start with a letter, can contain spaces, must be at least 3 characters, and no more than 30 characters. No special characters allowed';
-    if (validateUserInput.error.details[0].path[0] === 'email')
+    if (error.details[0].path[0] === 'email')
       message =
         'Email has to start with a letter, can contain numbers and underscores, must be at least 3 characters, must have @com or @net. No spaces and no other special characters allowed';
-    if (validateUserInput.error.details[0].path[0] === 'password')
+    if (error.details[0].path[0] === 'password')
       message =
-        'Password has to start with a letter, can contain numbers, must be at least 8 characters, and no more than 30 characters. No spaces and special characters allowed';
+        'Password must be between 8 and 30 characters and contain at least one letter, one number, and one special character: !@#$%^&*()_+-=[]{};:\\|,.<>/?';
     return services.createSendToken({}, 'error', message, res);
   }
 
@@ -47,78 +51,75 @@ const signup = asyncHandler(async (req, res, next) => {
     password,
   };
 
-  await new User(userData).save();
+  const user = await new User(userData).save();
   const message = 'Account created successfully';
-  return services.createSendToken({}, 'success', message, res);
+  return services.createSendToken(user, 'success', message, res);
 });
 
 const signin = asyncHandler(async (req, res, next) => {
   const { email, password } = req.body;
-  const validateUserInput = createUserSchema.validate({
+  const {error,validateUserInput } = loginUserSchema.validate({
     email,
     password,
   });
 
-  if (validateUserInput.error) {
+  if (error) {
     let message = '';
-    if (validateUserInput.error.details[0].path[0] === 'email')
+    if (error.details[0].path[0] === 'email')
       message =
         'Email has to start with a letter, can contain numbers and underscores, must be at least 3 characters, must have @com or @net. No spaces and no other special characters allowed';
-    if (validateUserInput.error.details[0].path[0] === 'password')
+    if (error.details[0].path[0] === 'password')
       message =
-        'Password has to start with a letter, can contain numbers, must be at least 8 characters, and no more than 30 characters. No spaces and special characters allowed';
+        'Password must be between 8 and 30 characters and contain at least one letter, one number, and one special character: !@#$%^&*()_+-=[]{};:\\|,.<>/?';
+    return services.createSendToken({}, 'error', message, res);
   }
 
   const user = await User.findOne({ email: email });
 
-  if (!user) {
-    next(new AppError('This email is not registered', 422));
-  }
-
-  const isPasswordCorrect = await user.comparePassword(password, user.password);
-  if (!isPasswordCorrect) {
-    next(new AppError('Incorrect password', 422));
+  //1) if email and password exist
+  if (!user || !(await user.comparePassword(password, user.password))) {
+    return next(new AppError('incorrect email or password', 401));
   }
 
   const payload = {
-    id: user.id,
+    id: user._id,
     email: user.email,
+    name: user.name,
   };
 
-  const token = await generateJWTToken(payload, process.env.JWT_SECRET, '1d');
-
-  const refreshToken = await generateJWTToken(
+  const accessToken = await generateJWTToken(
     payload,
-    process.env.REFRESH_TOKEN_SECRET,
-    '2d'
+    process.env.JWT_SECRET,
+    '1d'
   );
+  // Creates Secure Cookie with refresh token
 
-  console.log(refreshToken);
-  user.refreshToken = refreshToken;
-  const result = await user.save();
-  // // Creates Secure Cookie with refresh token
-  res.cookie('jwt', refreshToken, {
-    httpOnly: true,
+  const accessCookieOptions = {
     maxAge: 24 * 60 * 60 * 1000,
-  });
+    httpOnly: false,
+  };
 
-  return res.status(200).send({
-    success: true,
-    message: 'Logged in successfully',
-    user: {
-      name: user.name,
-      id: user._id,
-      email: user.email,
-    },
-    accessToken: token,
+  if (process.env.NODE_ENV === 'production') {
+    accessCookieOptions.secure = false;
+  }
+  res.cookie('accessToken', accessToken, accessCookieOptions);
+
+  message = 'Logged in successfully';
+  user.password = null;
+  user.refreshToken = null;
+  const data = user;
+  return res.json({
+    status: 'success',
+    message: message,
+    accessToken: accessToken,
+    data,
   });
+  //  return services.createSendToken(user, 'success', message, res);
 });
 
 const handleRefreshToken = asyncHandler(async (req, res, next) => {
   const cookies = req.cookies;
-  // console.log('hello');
-  console.log(cookies);
-  if (!cookies?.jwt) next(new AppError('No refresh token found', 401));
+  if (!cookies.jwt) next(new AppError('No refresh token found', 401));
 
   const refreshToken = cookies.jwt;
 
@@ -128,8 +129,6 @@ const handleRefreshToken = asyncHandler(async (req, res, next) => {
   // evaluate jwt
   //    console.log(process.env.REFRESH_TOKEN_SECRET);
   jwt.verify(refreshToken, process.env.REFRESH_TOKEN_SECRET, (err, decoded) => {
-    // console.log(decoded);
-    // console.log(foundUser);
     if (err || foundUser.email !== decoded.email)
       next(new AppError('user does not match', 403));
     const payload = {
@@ -149,6 +148,7 @@ const generateRecoverAccountToken = asyncHandler(async (req, res, next) => {
   const user = await User.findOne({
     email: email,
   });
+
   if (!user) {
     next(new AppError('account not found', 403));
   }
@@ -157,14 +157,16 @@ const generateRecoverAccountToken = asyncHandler(async (req, res, next) => {
   const accountRecoveryTokenData = {
     userId: user._id,
     email: user.email,
-    token: code.toString(),
+    token: code && code.toString(),
     expiresAt: moment().add(30, 'minutes'),
   };
 
   const accountRecoveryToken = await new AccountRecovery(
     accountRecoveryTokenData
   ).save();
+
   await sendAccountRecoveryToken(accountRecoveryToken.token, email);
+
   // await MailService.sendAccountRecoveryToken({
   //   token: accountRecoveryToken.token,
   //   email,
@@ -182,6 +184,22 @@ const generateRecoverAccountToken = asyncHandler(async (req, res, next) => {
 const recoverAccount = asyncHandler(async (req, res, next) => {
   let { token, password, email } = req.body;
 
+  const validateUserInput = recoverPasswordSchema.validate({
+    email,
+    password,
+    token,
+  });
+
+  let message = '';
+  if (validateUserInput.error) {
+    if (validateUserInput.error.details[0].path[0] === 'email')
+      message =
+        'Email has to start with a letter, can contain numbers and underscores, must be at least 3 characters, must have @com or @net. No spaces and no other special characters allowed';
+    if (validateUserInput.error.details[0].path[0] === 'password')
+      message =
+        'Password has to start with a letter, can contain numbers, must be at least 9 characters, and no more than 30 characters. No spaces and special characters allowed';
+    return services.createSendToken({}, 'error', message, res);
+  }
   const recoveryToken = await AccountRecovery.findOne({
     email: email,
     token: token,
@@ -205,93 +223,63 @@ const recoverAccount = asyncHandler(async (req, res, next) => {
   });
 });
 
-//  Get Google login URL
-const getGAuthURL = asyncHandler( async( req, res, next) => {
-  function getGoogleAuthURL() {
-    const rootURL = 'https://accounts.google.com/o/oauth2/auth'
-    const options = {
-      redirect_uri:`${process.env.SERVER_ROOT_URI}`,
-      client_id: `${process.env.GOOGLE_CLIENT_ID}`,
-      access_type: 'offline',
-      response_type: 'code',
-      prompt: 'consent',
-      scope: [
-        'https://www.googleapis.com/auth/userinfo.profile',
-        'https://www.googleapis.com/auth/userinfo.email',
-        'https://www.googleapis.com/auth/calendar'
-      ]
-      .join(' ')
-    }
-    return(`${rootURL}?${queryString.stringify(options)}`)
-  }
-  return res.send(getGoogleAuthURL())
-})
-//  Get User from Google
-const googleUserX = asyncHandler( async( req, res, next) => {
-  const url = "https://oauth2.googleapis.com/token";
-  const code = req.query.code
-  const values = {
-    code,
-    client_id: process.env.GOOGLE_CLIENT_ID,
-    client_secret: process.env.GOOGLE_CLIENT_SECRET,
-    redirectUri: process.env.SERVER_ROOT_URI,
-    grant_type: "authorization_code",
-  }
-  axios.post( url, queryString.stringify(values),{
-    headers: {
-      "Content-Type": "application/x-www-form-urlencoded",
-    }
-  })
-  .then( async(resD) => {
-    const { id_token, access_token, refresh_token} = resD.data
-    // Fetch the user's profile with the access token and bearer
-    await axios
-    .get(
-      `https://www.googleapis.com/oauth2/v1/userinfo?alt=json&access_token=${access_token}`,
-      {
-        headers: {
-          Authorization: `Bearer ${id_token}`,
-        },
-      }
-    )
-    .then(async (resK) => {
-      const name = resK.data.name,
-      email = resK.data.email,
-      verifiedEmail = resK.data.verified_email,
-      refreshToken = refresh_token,
-      userData = {
-        name,
-        email,
-        verifiedEmail,
-        refreshToken
-      };
-      try {
-        let rt = await new User(userData).save()
-        let message = "success"
-        res.cookie('jwt', refreshToken, {
-          httpOnly: true,
-          maxAge: 24 * 60 * 60 * 1000,
-        });
-        return services.googleSendToken(rt._id, 'success', message, res);
-      } catch (error) {
-        const userExists = await User.findOne({ email })
-        let message = "registered"
-        res.cookie('jwt', refreshToken, {
-          httpOnly: true,
-          maxAge: 24 * 60 * 60 * 1000,
-        });
-        return services.googleSendToken(userExists._id, 'registered', message, res);
-      }
-    })
-    .catch((error) => {
-      next(error.message);
-    });
-  })
-  .catch((error) => {
-    next(error.message);
+const getDecodedUser = asyncHandler(async (req, res, next) => {
+  const cookies = req.cookies;
+  if (!cookies.accessToken) next(new AppError('No token found', 401));
+
+  const token = cookies.accessToken;
+
+  const decoded = jwt.verify(token, process.env.JWT_SECRET);
+  return res.json({
+    status: 'success',
+    message: 'User fetched successfully',
+    data: {
+      user: decoded,
+    },
   });
-  
-})
+});
+
+const googleAuth = passport.authenticate('google', {
+  scope: ['email', 'profile'],
+});
+
+const googleAuthCallback = passport.authenticate('google', {
+  successRedirect: '/api/v1/auth/google/redirect',
+  failureRedirect: '/auth/google/failure',
+});
+
+const googleAuthRedirect = asyncHandler(async (req, res, next) => {
+  const { id, name, email } = req.user;
+  const payload = {
+    id,
+    name,
+    email,
+  };
+  const accessToken = await generateJWTToken(
+    payload,
+    process.env.JWT_SECRET,
+    '30d'
+  );
+  const refreshToken = await generateJWTToken(
+    payload,
+    process.env.REFRESH_TOKEN_SECRET,
+    '60d'
+  );
+  res
+  .cookie('accessToken', accessToken, {
+    httpOnly: false,
+    // sameSite: 'none',
+    domain:"*",
+    maxAge: 24 * 60 * 60 * 1000,
+  })
+  .cookie('refreshToken', refreshToken, {
+    httpOnly: false,
+    // sameSite: 'none',
+    domain:"*",
+    maxAge: 24 * 60 * 60 * 1000,
+  })
+  res.redirect(process.env.UI_ROOT_URI);
+});
 
 module.exports = {
   signup,
@@ -299,6 +287,8 @@ module.exports = {
   handleRefreshToken,
   generateRecoverAccountToken,
   recoverAccount,
-  getGAuthURL,
-  googleUserX
+  getDecodedUser,
+  googleAuthCallback,
+  googleAuth,
+  googleAuthRedirect,
 };

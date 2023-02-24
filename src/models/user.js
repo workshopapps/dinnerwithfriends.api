@@ -19,7 +19,6 @@ const userSchema = new mongoose.Schema(
       type: String,
       minLength: 8,
       default: null,
-      select: true,
     },
     refreshToken: {
       type: String,
@@ -30,8 +29,25 @@ const userSchema = new mongoose.Schema(
       type: Boolean,
       default: false,
     },
+    gender: {
+      type: String,
+      required: false,
+      enum:["male","female","non-binary","none"],
+      default:"none"
+    },
+    mobile: {
+      type: String,
+      required: false,
+      default:"+234"
+    },
+    birthday: {
+      type: String,
+      required: false,
+      default:"12/09/1990"
+    },
   },
   {
+    versionKey:false,
     timestamps: true,
     toJSON: { virtuals: true },
     toObject: { virtuals: true },
@@ -40,7 +56,6 @@ const userSchema = new mongoose.Schema(
 
 userSchema.pre('save', async function (next) {
   if (!this.password) next();
-  if (this.refreshToken) next();
   this.password = await bcrypt.hash(this.password, 12);
   next();
 });
@@ -53,6 +68,9 @@ userSchema.methods.comparePassword = async function (
   const passwordStatus = await bcrypt.compare(candidatePassword, userPassword);
   return passwordStatus;
 };
+
+
+
 
 const User = mongoose.model('User', userSchema);
 

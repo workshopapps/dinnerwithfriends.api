@@ -10,6 +10,7 @@ const accountRecoverySchema = new mongoose.Schema(
       type: String,
       required: true,
       lowercase: true,
+      unique: false,
     },
     token: {
       type: String,
