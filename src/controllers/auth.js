@@ -19,23 +19,23 @@ const passport = require('passport');
 const signup = asyncHandler(async (req, res, next) => {
   const { name, email, password } = req.body;
 
-  const validateUserInput = createUserSchema.validate({
+  const {error,validateUserInput} = createUserSchema.validate({
     name,
     email,
     password,
   });
 
-  if (validateUserInput.error) {
-    let message = '';
-    if (validateUserInput.error.details[0].path[0] === 'name')
+  if (error) {
+    let message = "";
+    if (error.details[0].path[0] === 'name')
       message =
         'Name has to start with a letter, can contain spaces, must be at least 3 characters, and no more than 30 characters. No special characters allowed';
-    if (validateUserInput.error.details[0].path[0] === 'email')
+    if (error.details[0].path[0] === 'email')
       message =
         'Email has to start with a letter, can contain numbers and underscores, must be at least 3 characters, must have @com or @net. No spaces and no other special characters allowed';
-    if (validateUserInput.error.details[0].path[0] === 'password')
+    if (error.details[0].path[0] === 'password')
       message =
-        'Password has to start with a letter, can contain numbers, must be at least 9 characters, and no more than 30 characters. No spaces and special characters allowed';
+        'Password must be between 8 and 30 characters and contain at least one letter, one number, and one special character: !@#$%^&*()_+-=[]{};:\\|,.<>/?';
     return services.createSendToken({}, 'error', message, res);
   }
 
@@ -58,19 +58,19 @@ const signup = asyncHandler(async (req, res, next) => {
 
 const signin = asyncHandler(async (req, res, next) => {
   const { email, password } = req.body;
-  const validateUserInput = loginUserSchema.validate({
+  const {error,validateUserInput } = loginUserSchema.validate({
     email,
     password,
   });
 
-  let message = '';
-  if (validateUserInput.error) {
-    if (validateUserInput.error.details[0].path[0] === 'email')
+  if (error) {
+    let message = '';
+    if (error.details[0].path[0] === 'email')
       message =
         'Email has to start with a letter, can contain numbers and underscores, must be at least 3 characters, must have @com or @net. No spaces and no other special characters allowed';
-    if (validateUserInput.error.details[0].path[0] === 'password')
+    if (error.details[0].path[0] === 'password')
       message =
-        'Password has to start with a letter, can contain numbers, must be at least 9 characters, and no more than 30 characters. No spaces and special characters allowed';
+        'Password must be between 8 and 30 characters and contain at least one letter, one number, and one special character: !@#$%^&*()_+-=[]{};:\\|,.<>/?';
     return services.createSendToken({}, 'error', message, res);
   }
 
@@ -129,8 +129,6 @@ const handleRefreshToken = asyncHandler(async (req, res, next) => {
   // evaluate jwt
   //    console.log(process.env.REFRESH_TOKEN_SECRET);
   jwt.verify(refreshToken, process.env.REFRESH_TOKEN_SECRET, (err, decoded) => {
-    // console.log(decoded);
-    // console.log(foundUser);
     if (err || foundUser.email !== decoded.email)
       next(new AppError('user does not match', 403));
     const payload = {

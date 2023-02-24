@@ -9,7 +9,6 @@ const dotenv = require('dotenv');
 const asyncHandler = require('express-async-handler');
 const app = require('./app');
 const connect = require('./db');
-const { Event, ParticipantCount } = require('./models');
 
 
 // configure dotenv and port
