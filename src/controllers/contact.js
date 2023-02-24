@@ -19,8 +19,8 @@ const sendEmail = async (req, res, next) => {
   const transporter = nodemailer.createTransport({
     service: 'gmail',
     auth: {
-      user: 'onedayfee@gmail.com',
-      pass: 'rqakmqrvlgqqojdm',
+      user: 'usecatchup@gmail.com',
+      pass: 'xhkzcyustiezisxx',
     },
     tls: {
       rejectUnauthorized: false,
@@ -30,7 +30,7 @@ const sendEmail = async (req, res, next) => {
   // Set up the email details
   const mailOptions = {
     from: `${email}`,
-    to: 'onyedikaufelle@gmail.com',
+    to: 'usecatchup@gmail.com',
     subject: `Email from ${email}, Name: ${name}`,
     text,
   };
