@@ -3,6 +3,7 @@ const asyncHandler = require('express-async-handler');
 const { User } = require('../models');
 const axios = require('axios');
 const querystring = require('querystring');
+const { AppError } = require('../utilities');
 
 const signToken = (id) =>
   jwt.sign({ id }, process.env.JWT_SECRET, {
@@ -78,6 +79,7 @@ const protect = asyncHandler(async (req, res, next) => {
     token = req.headers.authorization.split(' ')[1];
   }
 
+
   if (!token) {
     return res.json({
       message: 'You are not logged in! Please login to get access',
@@ -86,9 +88,11 @@ const protect = asyncHandler(async (req, res, next) => {
 
   // validate signToken or verify token
   const decoded = jwt.verify(token, process.env.JWT_SECRET);
+  console.log(decoded,"dddddddddddd")
 
   /* check if user still exist (important! especially if the user has been deleted after jwt has been issued) */
   const currentUser = await User.findById(decoded.id);
+  console.log("current",currentUser)
   if (!currentUser) {
     return res.json({
       message: 'The user that this token belongs to no longer exists',
@@ -99,6 +103,17 @@ const protect = asyncHandler(async (req, res, next) => {
   req.user = currentUser;
   next();
 });
+
+
+// Middleware for verifying Google authentication
+const requireGoogleAuth = (req, res, next) => {
+  if (req.isAuthenticated() && req.user) {
+    next();
+  } else {
+    // Call the next middleware with an error
+    next(new AppError('Not authenticated with Google',404));
+  }
+};
 
 const createSendData = function sendData(data, status, message, res) {
   return res.json({
@@ -143,4 +158,5 @@ module.exports = {
   googleSendToken,
   createSendData,
   getTokens,
+  requireGoogleAuth
 };

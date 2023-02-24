@@ -2,7 +2,7 @@ const apm = require('elastic-apm-node').start({
   serviceName: 'CatchUp_API',
   environment: 'production'
   })
-// added an application performance monitor
+added an application performance monitor
 require('appoptics-apm');
 
 const dotenv = require('dotenv');

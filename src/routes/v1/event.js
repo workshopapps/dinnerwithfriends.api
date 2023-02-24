@@ -13,9 +13,13 @@ router
   .post(services.protect, eventControllers.addEvent);
 
 router
+  .route('/user')
+  .get(services.protect, eventControllers.getUserEvent);
+
+router
   .route('/:id')
   .get(eventControllers.getSingleEvent)
-  .delete(services.protect, eventControllers.deleteEvent)
+  .delete(services.protect,  eventControllers.deleteEvent)
   .patch(services.protect, eventControllers.updateEvent);
 
 router
@@ -26,9 +30,7 @@ router
   .route('/participants/:id')
   .get(services.protect, eventControllers.getEventParticipants);
 
-router
-  .route('/user/event')
-  .get(services.jwt.protect, eventControllers.getUserEvent);
+
 
 // router
 // .route('/user/:id')

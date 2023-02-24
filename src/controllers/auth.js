@@ -12,9 +12,8 @@ const jwt = require('jsonwebtoken');
 const random = require('lodash/random');
 const moment = require('moment');
 const sendAccountRecoveryToken = require('../services/Mail/nodemailer/sendAccountRecoveryToken');
-const queryString = require('querystring');
-const axios = require('axios');
 const passport = require('passport');
+
 
 // Signup Controller
 const signup = asyncHandler(async (req, res, next) => {
@@ -249,7 +248,6 @@ const googleAuthCallback = passport.authenticate('google', {
 });
 
 const googleAuthRedirect = asyncHandler(async (req, res, next) => {
-  console.log(req.user);
   const { id, name, email } = req.user;
   const payload = {
     id,
@@ -266,18 +264,19 @@ const googleAuthRedirect = asyncHandler(async (req, res, next) => {
     process.env.REFRESH_TOKEN_SECRET,
     '60d'
   );
-  res.cookie('accessToken', accessToken, {
+  res
+  .cookie('accessToken', accessToken, {
     httpOnly: false,
     // sameSite: 'none',
-    domain:"catchup.rsvp",
     maxAge: 24 * 60 * 60 * 1000,
-  });
-  res.cookie('refreshToken', refreshToken, {
+  })
+  .cookie('refreshToken', refreshToken, {
     httpOnly: false,
     // sameSite: 'none',
-    domain:"catchup.rsvp",
     maxAge: 24 * 60 * 60 * 1000,
   });
+
+  
   res.redirect(process.env.UI_ROOT_URI);
 });
 
