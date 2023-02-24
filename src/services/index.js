@@ -4,8 +4,7 @@ const {
   googleSendToken,
   signRefreshToken,
   createSendData,
-  getTokens,
-  requireGoogleAuth
+  getTokens
 } = require('./auth');
 const { newParticipantToken, protectParticipant } = require('./participant');
 const { newEventToken, protectEvent } = require('./event');
@@ -16,7 +15,6 @@ module.exports = {
   getTokens,
   createSendToken,
   protect,
-  requireGoogleAuth,
   jwt,
   signRefreshToken,
   newParticipantToken,
