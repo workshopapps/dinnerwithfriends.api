@@ -88,11 +88,8 @@ const protect = asyncHandler(async (req, res, next) => {
 
   // validate signToken or verify token
   const decoded = jwt.verify(token, process.env.JWT_SECRET);
-  console.log(decoded,"dddddddddddd")
-
   /* check if user still exist (important! especially if the user has been deleted after jwt has been issued) */
   const currentUser = await User.findById(decoded.id);
-  console.log("current",currentUser)
   if (!currentUser) {
     return res.json({
       message: 'The user that this token belongs to no longer exists',
