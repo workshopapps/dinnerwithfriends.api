@@ -6,9 +6,9 @@ const loginUserSchema = Joi.object({
     .required(),
 
   password: Joi.string()
-    .pattern(/^\w[a-zA-Z0-9]{8,30}$/)
     .min(8)
     .max(30)
+    .pattern(new RegExp('^(?=.*[a-zA-Z])(?=.*[0-9])(?=.*[!@#$%^&*()_+\\-=\\[\\]{};:\\\\|,.<>\\/?])(?=.{8,30})'))
     .required(),
 });
 

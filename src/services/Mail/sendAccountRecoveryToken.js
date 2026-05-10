@@ -7,7 +7,7 @@ const sendAccountRecoveryToken = async (token, email) => {
 
   const options = {
     from: {
-      email: `lordorionrules@gmail.com`,
+      email: `lordorion066@gmail.com`,
       name: 'Catch Up',
     },
     to: email,

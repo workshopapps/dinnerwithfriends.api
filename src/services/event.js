@@ -11,7 +11,7 @@ const newEventToken = (data, status, message, res) => {
 
   // remove password from output
   if (data) {
-    token = signToken(data._id);
+    token = signToken(data.event._id);
   }
 
   return res.json({

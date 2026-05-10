@@ -1,29 +1,39 @@
 const express = require('express');
 const { eventControllers } = require('../../controllers');
-const services = require('../../services')
+const services = require('../../services');
 
 const router = express.Router();
-router.use(services.protect)
 
+router.route('/token/:id').get(eventControllers.getSingleEventByToken);
+
+// router.use(services.protect);
 router
   .route('/')
-  .get(eventControllers.getAllEvents)
-  .post(eventControllers.addEvent);
+  .get(services.protect, eventControllers.getAllEvents)
+  .post(services.protect, eventControllers.addEvent);
+
+router
+  .route('/user')
+  .get(services.protect, eventControllers.getUserEvent);
 
 router
   .route('/:id')
   .get(eventControllers.getSingleEvent)
-  .delete(eventControllers.deleteEvent)
-  .patch(eventControllers.updateEvent);
+  .delete(services.protect,  eventControllers.deleteEvent)
+  .patch(services.protect, eventControllers.updateEvent);
 
 router
-  .route('/token/:id')
-  .get(eventControllers.getSingleEventByToken)
+  .route('/cancel/:id')
+  .patch(services.protect, eventControllers.cancelEvent);
+
+router
+  .route('/participants/:id')
+  .get(services.protect, eventControllers.getEventParticipants);
+
 
 
 // router
 // .route('/user/:id')
 // .get(eventControllers.getAllEventsByUser)
-
 
 module.exports = router;

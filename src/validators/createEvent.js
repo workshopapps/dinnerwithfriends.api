@@ -2,7 +2,6 @@ const Joi = require('joi');
 
 const createEventSchema = Joi.object({
     event_title: Joi.string()
-        .pattern(/^[A-Za-z][A-Za-z ]{2,30}$/)
         .trim()
         .min(3)
         .max(150)
